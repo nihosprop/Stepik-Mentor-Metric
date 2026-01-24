@@ -45,8 +45,8 @@ select = [
     "PL"]
 
 # PLR2004 —  Magic value
-# ANN101  — Missing type annotation for self
-# ANN102  — Missing type annotation for cls
+# ANN101  —  Missing type annotation for self
+# ANN102  —  Missing type annotation for cls
 ignore = [
     'ANN101',
     'ANN102']

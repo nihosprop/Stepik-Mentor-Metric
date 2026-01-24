@@ -1,0 +1,23 @@
+## `Project structure`
+```text
+Stepik-Mentor-Metric/
+├── src/
+│   ├── bot/
+│   │   ├── dialogs/
+│   │   ├── factory/
+│   │   ├── middlewares/
+│   │   ├── states/
+│   ├── common/
+│   ├── core/
+│   │   ├── config.py
+│   │   └── constants.py
+│   ├── db/
+│   │   ├── models/
+│   │   ├── repository/
+│   ├── services/
+│   ├── tasks/
+│   └── main.py
+├── tests/
+├── Dockerfile
+├── docker-compose.yml
+└── pyproject.toml

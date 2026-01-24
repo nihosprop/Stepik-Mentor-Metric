@@ -1,4 +1,4 @@
-## `Project structure`
+## Project structure
 ```text
 Stepik-Mentor-Metric/
 ├── src/
@@ -7,6 +7,7 @@ Stepik-Mentor-Metric/
 │   │   ├── factory/
 │   │   ├── middlewares/
 │   │   ├── states/
+│   │   └── __init__.py
 │   ├── common/
 │   ├── core/
 │   │   ├── config.py
@@ -18,6 +19,10 @@ Stepik-Mentor-Metric/
 │   ├── tasks/
 │   └── main.py
 ├── tests/
+├── .dockerignore
+├── .env.example
+├── .gitignore
 ├── Dockerfile
+├── README.md
 ├── docker-compose.yml
 └── pyproject.toml

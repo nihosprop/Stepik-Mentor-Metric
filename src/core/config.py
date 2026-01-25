@@ -9,7 +9,7 @@ class BotConfig(BaseModel):
 
 
 class LogsConfig(BaseModel):
-    log_level: str = Field(pattern="^(DEBUG|INFO)$")
+    log_level: str = Field(pattern='^(DEBUG|INFO)$')
 
 
 class StepikConfig(BaseModel):

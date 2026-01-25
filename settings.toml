@@ -1,0 +1,15 @@
+# === default ===
+[default.bot]
+parse_mode = 'HTML'
+
+[default.logs]
+log_level = 'DEBUG'
+
+[default.redis]
+host = 'redis'
+port = 6379
+
+
+# === production ===
+[production.logs]
+log_level = 'INFO'

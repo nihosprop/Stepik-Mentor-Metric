@@ -20,6 +20,14 @@ class PostgresConfig(BaseModel):
     pass
 
 
+class StepikConfig(BaseModel):
+    pass
+
+
+class TelegramConfig(BaseModel):
+    pass
+
+
 class Config(BaseModel):
     bot: BotConfig
     logs: LogsConfig

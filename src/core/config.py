@@ -38,8 +38,6 @@ settings = Dynaconf(
     environments=True,
 )
 
-print(settings.bot)
-
 
 def get_config() -> Config:
     pass

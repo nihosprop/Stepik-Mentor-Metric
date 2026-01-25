@@ -1,4 +1,4 @@
-# === default ===
+# === DEFAULT ===
 [default.bot]
 parse_mode = 'HTML'
 
@@ -6,10 +6,13 @@ parse_mode = 'HTML'
 log_level = 'DEBUG'
 
 [default.redis]
-host = 'redis'
 port = 6379
 
+[default.postgres]
+name = 'mentor_db'
+port = 5432
 
-# === production ===
+
+# === PRODUCTION ===
 [production.logs]
 log_level = 'INFO'

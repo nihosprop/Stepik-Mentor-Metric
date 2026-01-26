@@ -7,11 +7,11 @@ Stepik-Mentor-Metric/
 │   │   ├── factory/
 │   │   ├── middlewares/
 │   │   ├── states/
-│   │   └── __init__.py
 │   ├── common/
 │   ├── core/
-│   │   ├── config.py
-│   │   └── constants.py
+│   │   ├── constants.py
+│   │   ├── logger.py
+│   │   └── main_config.py
 │   ├── db/
 │   │   ├── models/
 │   │   ├── repository/
@@ -19,10 +19,9 @@ Stepik-Mentor-Metric/
 │   ├── tasks/
 │   └── main.py
 ├── tests/
-├── .dockerignore
-├── .env.example
-├── .gitignore
 ├── Dockerfile
 ├── README.md
 ├── docker-compose.yml
-└── pyproject.toml
+├── pyproject.toml
+├── settings.toml
+└── uv.lock

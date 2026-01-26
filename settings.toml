@@ -2,17 +2,23 @@
 [default.bot]
 parse_mode = 'HTML'
 
+# logs
 [default.logs]
 log_level = 'DEBUG'
+[default.logs.]
 
+# redis
 [default.redis]
 port = 6379
 
+# postgres
 [default.postgres]
 name = 'mentor_db'
 port = 5432
 
 
 # === PRODUCTION ===
+
+# logs
 [production.logs]
 log_level = 'INFO'

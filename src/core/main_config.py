@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram.enums import ParseMode
 from dynaconf import Dynaconf
 from pydantic import BaseModel, Field, SecretStr
@@ -9,7 +11,7 @@ class BotConfig(BaseModel):
 
 
 class LogsConfig(BaseModel):
-    log_level: str = Field(pattern='^(DEBUG|INFO)$')
+    dict_config: dict[str, Any]
 
 
 class StepikConfig(BaseModel):
@@ -53,7 +55,7 @@ def _get_config() -> Config:
         token=_settings.bot_token, parse_mode=_settings.bot.parse_mode
     )
 
-    logs = LogsConfig(log_level=_settings.logs.log_level)
+    logs = LogsConfig(dict_config=_settings.logs.dict_config.to_dict())
 
     redis = RedisConfig(
         host=_settings.get(

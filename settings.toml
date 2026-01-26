@@ -3,25 +3,23 @@
 parse_mode = 'HTML'
 
 # logs
-[default.logs]
-log_level = 'DEBUG'
-
-[default.logs.config_dict]
+[default.logs.dict_config]
 version = 1
 disable_existing_loggers = false
 
-[default.logs.config_dict.formatters.formatter]
+[default.logs.dict_config.formatters.formatter]
 format = '[{asctime}] #{levelname:<8} {filename:<17}:{lineno:4} - <{funcName}> - {message}'
 datefmt = '%Y.%m.%d %H:%M:%S'
 style = '{'
 
-[default.logs.config_dict.handlers.stdout]
+[default.logs.dict_config.handlers.stdout]
 class = 'logging.StreamHandler'
 formatter = 'formatter'
 stream = 'ext://sys.stdout'
 
-[default.logs.config_dict.root]
+[default.logs.dict_config.root]
 handlers = ['stdout']
+level = 'DEBUG'
 
 # redis
 [default.redis]
@@ -35,10 +33,7 @@ port = 5432
 
 # === PRODUCTION ===
 # logs
-[production.logs]
-log_level = 'INFO'
-
-[production.logs.config_dict.handlers.file]
+[production.logs.dict_config.handlers.file]
 class = 'logging.handlers.RotatingFileHandler'
 formatter = 'formatter'
 filename = '/app/logs/app.log'
@@ -46,5 +41,6 @@ maxBytes = 10485760
 backupCount = 3
 mode = 'a'
 
-[production.logs.config_dict.root]
+[production.logs.dict_config.root]
 handlers = ['stdout', 'file']
+level = 'INFO'

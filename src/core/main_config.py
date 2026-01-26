@@ -39,7 +39,7 @@ class Config(BaseModel):
     stepik: StepikConfig
 
 
-settings = Dynaconf(
+_settings = Dynaconf(
     envvar_prefix=False,
     load_dotenv=True,
     settings_files=['settings.toml'],
@@ -48,36 +48,37 @@ settings = Dynaconf(
 )
 
 
-def get_config() -> Config:
+def _get_config() -> Config:
     bot = BotConfig(
-        token=settings.bot_token, parse_mode=settings.bot.parse_mode
+        token=_settings.bot_token, parse_mode=_settings.bot.parse_mode
     )
 
-    logs = LogsConfig(log_level=settings.logs.log_level)
+    logs = LogsConfig(log_level=_settings.logs.log_level)
 
     redis = RedisConfig(
-        host=settings.get(
-            'redis_host', settings.get('redis.host', 'localhost')
+        host=_settings.get(
+            'redis_host', _settings.get('redis.host', 'localhost')
         ),
-        port=settings.redis.port,
-        password=settings.get('redis_password'),
+        port=_settings.redis.port,
+        password=_settings.get('redis_password'),
     )
 
     postgres = PostgresConfig(
-        name=settings.postgres.name,
-        host=settings.get(
-            'postgres_host', settings.get('postgres.host', 'localhost')
+        name=_settings.postgres.name,
+        host=_settings.get(
+            'postgres_host', _settings.get('postgres.host', 'localhost')
         ),
-        port=settings.postgres.port,
-        user=settings.postgres_user,
-        password=settings.postgres_password,
+        port=_settings.postgres.port,
+        user=_settings.postgres_user,
+        password=_settings.postgres_password,
     )
 
     stepik = StepikConfig(
-        stepik_client_id=settings.stepik_client_id,
-        stepik_client_secret=settings.stepik_client_secret,
+        stepik_client_id=_settings.stepik_client_id,
+        stepik_client_secret=_settings.stepik_client_secret,
     )
 
     return Config(
         bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik
     )
+main_config: Config = _get_config()

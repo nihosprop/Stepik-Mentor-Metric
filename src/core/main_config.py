@@ -83,4 +83,5 @@ def _get_config() -> Config:
     return Config(
         bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik
     )
+
 main_config: Config = _get_config()

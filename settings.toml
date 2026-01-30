@@ -51,6 +51,6 @@ handlers = ['stdout', 'file']
 level = 'INFO'
 
 [production.logs.dict_config.loggers."aiogram.dispatcher"]
-level = "WARNING"
+level = 'WARNING'
 propagate = false
 handlers = ['stdout', 'file']

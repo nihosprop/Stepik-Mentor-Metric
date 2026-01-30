@@ -22,7 +22,7 @@ handlers = ['stdout']
 level = 'DEBUG'
 
 [default.logs.dict_config.loggers."aiogram.dispatcher"]
-level = "WARNING"
+level = 'WARNING'
 propagate = false
 handlers = ['stdout']
 

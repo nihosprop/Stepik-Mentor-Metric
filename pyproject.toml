@@ -8,6 +8,8 @@ dependencies = [
     "aiogram-dialog>=2.4.0",
     "dishka>=1.7.2",
     "dynaconf>=3.2.12",
+    "psycopg[binary]>=3.3.2",
+    "sqlalchemy[asyncio]>=2.0.46",
 ]
 
 [dependency-groups]

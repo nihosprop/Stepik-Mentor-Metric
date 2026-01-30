@@ -14,8 +14,8 @@ from core.main_config import main_config
 
 logger = logging.getLogger(__name__)
 
-async def main() -> None:
 
+async def main() -> None:
     setup_logging()
     logger.info('Logging setup complete')
 
@@ -25,14 +25,13 @@ async def main() -> None:
     dp = Dispatcher()
     logger.info('DP instance created')
 
-
     container = make_async_container(ConfigProvider())
     setup_dishka(container=container, router=dp)
     logger.info('Dishka setup complete')
 
     dp.include_routers(start_router, start_dialog)
     logger.info('Include routers complete')
-    
+
     setup_dialogs(dp)
     logger.info('Dialogs setup complete')
 
@@ -42,7 +41,6 @@ async def main() -> None:
     finally:
         await container.close()
         logger.info('Shutting down')
-
 
 
 if __name__ == '__main__':

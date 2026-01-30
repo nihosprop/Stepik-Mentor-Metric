@@ -8,7 +8,7 @@ from dishka.integrations.aiogram import setup_dishka
 
 from bot.dialogs.start.dialog import start_dialog
 from bot.dialogs.start.handlers import start_router
-from bot.providers import ConfigProvider
+from bot.providers import ConfigProvider, DBProvider
 from core.logger import setup_logging
 from core.main_config import main_config
 
@@ -26,7 +26,7 @@ async def main() -> None:
     logger.info('DP instance created')
 
     #Dishka
-    container = make_async_container(ConfigProvider())
+    container = make_async_container(ConfigProvider(), DBProvider())
     setup_dishka(container=container, router=dp)
     logger.info('Dishka setup complete')
 

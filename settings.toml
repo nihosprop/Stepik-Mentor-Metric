@@ -21,7 +21,7 @@ stream = 'ext://sys.stdout'
 handlers = ['stdout']
 level = 'DEBUG'
 
-[default.logs.dict_config.loggers."aiogram.dispatcher"]
+[default.logs.dict_config.loggers.'aiogram.dispatcher']
 level = 'WARNING'
 propagate = false
 handlers = ['stdout']
@@ -50,7 +50,7 @@ mode = 'a'
 handlers = ['stdout', 'file']
 level = 'INFO'
 
-[production.logs.dict_config.loggers."aiogram.dispatcher"]
+[production.logs.dict_config.loggers.'aiogram.dispatcher']
 level = 'WARNING'
 propagate = false
 handlers = ['stdout', 'file']

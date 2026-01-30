@@ -43,6 +43,7 @@ port = 6379
 
 # Postgres
 [default.postgres]
+driver = 'postgresql+psycopg'
 name = 'mentor_db'
 port = 5432
 

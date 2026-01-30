@@ -26,11 +26,17 @@ class RedisConfig(BaseModel):
 
 
 class PostgresConfig(BaseModel):
-    name: str
-    host: str
-    port: int
+    driver: str
     user: str
     password: SecretStr
+    host: str
+    port: int
+    name: str
+
+    def get_dsn(self) -> str:
+        return (f'{self.driver}'
+                f'://{self.user}:{self.password.get_secret_value()}'
+                f'@{self.host}:{self.port}/{self.name}')
 
 
 class Config(BaseModel):
@@ -73,6 +79,7 @@ def _get_config() -> Config:
         port=_settings.postgres.port,
         user=_settings.postgres_user,
         password=_settings.postgres_password,
+        driver=_settings.postgres.driver,
     )
 
     stepik = StepikConfig(

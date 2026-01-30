@@ -25,14 +25,14 @@ level = 'DEBUG'
 [default.redis]
 port = 6379
 
-# postgres
+# Postgres
 [default.postgres]
 name = 'mentor_db'
 port = 5432
 
 
 # === PRODUCTION ===
-# logs
+# Logs
 [production.logs.dict_config.handlers.file]
 class = 'logging.handlers.RotatingFileHandler'
 formatter = 'formatter'

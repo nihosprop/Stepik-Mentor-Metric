@@ -32,6 +32,7 @@ async def main() -> None:
 
     dp.include_routers(start_router, start_dialog)
     logger.info('Include routers complete')
+    
     setup_dialogs(dp)
     logger.info('Dialogs setup complete')
 

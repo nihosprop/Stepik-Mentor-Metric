@@ -21,7 +21,12 @@ stream = 'ext://sys.stdout'
 handlers = ['stdout']
 level = 'DEBUG'
 
-# redis
+[default.logs.dict_config.loggers."aiogram.dispatcher"]
+level = "WARNING"
+propagate = false
+handlers = ['stdout']
+
+# Redis
 [default.redis]
 port = 6379
 
@@ -44,3 +49,8 @@ mode = 'a'
 [production.logs.dict_config.root]
 handlers = ['stdout', 'file']
 level = 'INFO'
+
+[production.logs.dict_config.loggers."aiogram.dispatcher"]
+level = "WARNING"
+propagate = false
+handlers = ['stdout', 'file']

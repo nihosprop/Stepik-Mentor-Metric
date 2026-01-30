@@ -5,6 +5,7 @@ description = ""
 requires-python = ">=3.14"
 dependencies = [
     "aiogram>=3.24.0",
+    "dishka>=1.7.2",
     "dynaconf>=3.2.12",
 ]
 

@@ -25,6 +25,7 @@ async def main() -> None:
     dp = Dispatcher()
     logger.info('DP instance created')
 
+    #Dishka
     container = make_async_container(ConfigProvider())
     setup_dishka(container=container, router=dp)
     logger.info('Dishka setup complete')

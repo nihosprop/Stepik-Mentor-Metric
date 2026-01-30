@@ -71,7 +71,6 @@ level = 'WARNING'
 propagate = false
 handlers = ['stdout', 'file']
 
-
 [production.logs.dict_config.loggers.'aiogram_dialog']
 level = 'WARNING'
 propagate = false

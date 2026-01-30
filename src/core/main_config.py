@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, SecretStr
 
 
 class BotConfig(BaseModel):
-    token: SecretStr
+    token: str
     parse_mode: ParseMode
 
 

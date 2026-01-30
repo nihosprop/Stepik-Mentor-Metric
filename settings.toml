@@ -2,7 +2,7 @@
 [default.bot]
 parse_mode = 'HTML'
 
-# logs
+# Logs
 [default.logs.dict_config]
 version = 1
 disable_existing_loggers = false

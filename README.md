@@ -4,16 +4,23 @@ Stepik-Mentor-Metric/
 ├── src/
 │   ├── bot/
 │   │   ├── dialogs/
+│   │   │   ├── start/
+│   │   │   │   ├── dialog.py
+│   │   │   │   ├── getters.py
+│   │   │   │   ├── handlers.py
+│   │   │   │   └── states.py
 │   │   ├── factory/
 │   │   ├── middlewares/
 │   │   ├── states/
+│   │   └── providers.py
 │   ├── common/
 │   ├── core/
-│   │   ├── constants.py
 │   │   ├── logger.py
 │   │   └── main_config.py
 │   ├── db/
 │   │   ├── models/
+│   │   │   ├── base.py
+│   │   │   └── user.py
 │   │   ├── repository/
 │   ├── services/
 │   ├── tasks/
@@ -24,4 +31,5 @@ Stepik-Mentor-Metric/
 ├── docker-compose.yml
 ├── pyproject.toml
 ├── settings.toml
+├── temp.py
 └── uv.lock

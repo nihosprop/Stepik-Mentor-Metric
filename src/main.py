@@ -29,7 +29,7 @@ async def main() -> None:
     container = make_async_container(ConfigProvider(), DBProvider())
     setup_dishka(container=container, router=dp)
     logger.info('Dishka setup complete')
-
+    
     # Routers
     dp.include_routers(start_router, start_dialog)
     logger.info('Include routers complete')

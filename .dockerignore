@@ -16,6 +16,10 @@ secrets.yaml
 
 # Python
 __pycache__/
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
 .dockerignore
 Dockerfile
 docker-compose.yml
@@ -24,6 +28,7 @@ docker-compose.yml
 *.so
 .Python
 env/
+.venv
 venv/
 ENV/
 env.bak/

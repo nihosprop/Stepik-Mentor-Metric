@@ -21,7 +21,6 @@ async def main() -> None:
 
     bot = Bot(token=main_config.bot.token)
     logger.info('Bot instance created')
-
     dp = Dispatcher()
     logger.info('DP instance created')
 

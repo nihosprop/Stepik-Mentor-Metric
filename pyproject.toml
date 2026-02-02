@@ -18,6 +18,10 @@ dev = [
     "ty>=0.0.14",
 ]
 
+# === TY ===
+[tool.ty.src]
+include = ["src/"]
+
 # === Ruff ===
 [tool.ruff]
 fix = true

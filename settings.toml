@@ -23,18 +23,14 @@ level = 'DEBUG'
 
 [default.logs.dict_config.loggers.'aiogram.dispatcher']
 level = 'WARNING'
-propagate = false
 handlers = ['stdout']
 
 [default.logs.dict_config.loggers.'aiogram.event']
 level = 'WARNING'
-propagate = false
 handlers = ['stdout']
-
 
 [default.logs.dict_config.loggers.'aiogram_dialog']
 level = 'WARNING'
-propagate = false
 handlers = ['stdout']
 
 # Redis
@@ -64,15 +60,12 @@ level = 'INFO'
 
 [production.logs.dict_config.loggers.'aiogram.dispatcher']
 level = 'WARNING'
-propagate = false
 handlers = ['stdout', 'file']
 
 [production.logs.dict_config.loggers.'aiogram.event']
 level = 'WARNING'
-propagate = false
 handlers = ['stdout', 'file']
 
 [production.logs.dict_config.loggers.'aiogram_dialog']
 level = 'WARNING'
-propagate = false
 handlers = ['stdout', 'file']

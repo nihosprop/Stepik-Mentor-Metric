@@ -1,0 +1,68 @@
+services:
+  bot:
+    image: niwibonihs/metrik-bot:0.0.1
+    container_name: Metrik-Bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - metric-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  postgres_db:
+    image: postgres:18-alpine
+    container_name: Metric-DB
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
+      interval: 10s
+    networks:
+      - metric-net
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+
+  redis:
+    image: redis:8-alpine
+    container_name: Redis-Metrik
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - metric-net
+    volumes:
+      - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 64M
+
+networks:
+  metric-net:
+    name: Metrik-Net
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

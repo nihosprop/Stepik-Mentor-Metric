@@ -7,8 +7,7 @@ from dishka import AsyncContainer, make_async_container
 from dishka.integrations.aiogram import setup_dishka
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from bot.dialogs.start.dialog import start_dialog
-from bot.dialogs.start.handlers import start_router
+from bot.dialogs import ROUTERS
 from core.logger import setup_logging
 from core.main_config import main_config
 from infrastructure.database.create_tables import create_tables
@@ -29,17 +28,17 @@ async def main() -> None:
     dp = Dispatcher()
     logger.info('Dispatcher instance created')
 
-
     setup_dishka(container=container, router=dp, auto_inject=True)
     logger.info('Dishka setup complete')
 
     # TODO: create_tables ???
-    engine: AsyncEngine = await container.get(AsyncEngine)
-    await create_tables(engine)
-    logger.info('Database tables synced')
+    async with container() as request_container:
+        engine = await request_container.get(AsyncEngine)
+        await create_tables(engine)
+        logger.warning('Database tables created (DEV MODE ONLY)')
 
     # Routers
-    dp.include_routers(start_router, start_dialog)
+    dp.include_routers(*ROUTERS)
     logger.info('Include routers complete')
 
     # Dialogs

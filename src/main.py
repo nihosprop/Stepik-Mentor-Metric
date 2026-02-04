@@ -31,7 +31,6 @@ async def main() -> None:
     )
 
     engine: AsyncEngine = await container.get(AsyncEngine)
-
     await create_tables(engine)
     logger.info('Database tables synced')
 

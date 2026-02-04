@@ -58,7 +58,7 @@ async def main() -> None:
         dp.shutdown.register(container.close)
         # await container.close()
         logger.info('Dishka container closed')
-        logger.info('Closing polling')
+        logger.info('Polling closed')
 
 
 if __name__ == '__main__':

@@ -51,6 +51,8 @@ async def main() -> None:
     try:
         logger.info('Starting polling...')
         await dp.start_polling(bot)
+    except Exception as e:
+        logger.error(e)
     finally:
         dp.shutdown.register(container.close)
         logger.info('Dishka container closed')

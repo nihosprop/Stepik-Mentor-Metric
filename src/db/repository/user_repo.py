@@ -18,22 +18,25 @@ class UserRepository:
     async def add_if_not_exists(self, telegram_user: TelegramUser) -> None:
         telegram_id: int = telegram_user.id
 
-        stmt = await self.session.execute(
-            select(User).where(User.telegram_id == telegram_id)
-        )
+        stmt = select(User).where(User.telegram_id == telegram_id)
 
-        existing_user: User | None = stmt.scalar_one_or_none()
+        existing_user: User | None = (
+            await self.session.execute(stmt)
+        ).scalar_one_or_none()
 
-        if not existing_user:
-            new_user = User(
-                telegram_id=telegram_id,
-                first_name=telegram_user.first_name,
-                last_name=telegram_user.last_name,
-                username=telegram_user.username,
-            )
-            self.session.add(new_user)
-            await self.session.commit()
-            logger.info(f'User {telegram_id}:{new_user.username} created')
+        if existing_user:
+            logger.debug(f'User {telegram_id} already exists')
             return
 
-        logger.info(f'User {telegram_id} already exists')
+        async with self.session.begin():
+            if not existing_user:
+                user = User(
+                    telegram_id=telegram_id,
+                    first_name=telegram_user.first_name,
+                    last_name=telegram_user.last_name,
+                    username=telegram_user.username,
+                )
+                self.session.add(user)
+        logger.info(
+            f'Created new user {telegram_id}:{telegram_user.first_name}'
+        )

@@ -56,7 +56,6 @@ async def main() -> None:
         await dp.start_polling(bot)
     finally:
         dp.shutdown.register(container.close)
-        # await container.close()
         logger.info('Dishka container closed')
         logger.info('Polling closed')
 

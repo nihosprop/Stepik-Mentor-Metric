@@ -2,8 +2,6 @@ name: "CI: Build and Push to Docker Hub"
 
 on:
   push:
-    branches:
-      - 'main'
     tags:
       - '*'
 
@@ -26,6 +24,4 @@ jobs:
           context: .
           push: true
           tags: |
-            niwibonihs/metrik-bot:latest
             niwibonihs/metrik-bot:${{ github.ref_name }}
-          

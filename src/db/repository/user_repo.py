@@ -29,14 +29,13 @@ class UserRepository:
             return
 
         async with self.session.begin():
-            if not existing_user:
-                user = User(
-                    telegram_id=telegram_id,
-                    first_name=telegram_user.first_name,
-                    last_name=telegram_user.last_name,
-                    username=telegram_user.username,
-                )
-                self.session.add(user)
+            user = User(
+                telegram_id=telegram_id,
+                first_name=telegram_user.first_name,
+                last_name=telegram_user.last_name,
+                username=telegram_user.username,
+            )
+            self.session.add(user)
         logger.info(
             f'Created new user {telegram_id}:{telegram_user.first_name}'
         )

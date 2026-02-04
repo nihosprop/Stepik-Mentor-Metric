@@ -21,21 +21,24 @@ async def main() -> None:
     setup_logging()
     logger.info('Logging setup complete')
 
+    container: AsyncContainer = make_async_container(
+        ConfigProvider(), DBProvider()
+        )
+    logger.info('Dishka container created')
+
     bot = Bot(token=main_config.bot.token)
     logger.info('Bot instance created')
     dp = Dispatcher()
     logger.info('Dispatcher instance created')
 
-    container: AsyncContainer = make_async_container(
-        ConfigProvider(), DBProvider()
-    )
-
-    engine: AsyncEngine = await container.get(AsyncEngine)
-    await create_tables(engine)
-    logger.info('Database tables synced')
 
     setup_dishka(container=container, router=dp, auto_inject=True)
     logger.info('Dishka setup complete')
+
+    # TODO: create_tables ???
+    engine: AsyncEngine = await container.get(AsyncEngine)
+    await create_tables(engine)
+    logger.info('Database tables synced')
 
     # Routers
     dp.include_routers(start_router, start_dialog)
@@ -45,16 +48,17 @@ async def main() -> None:
     setup_dialogs(dp)
     logger.info('Dialogs setup complete')
 
+    # Run bot
     await bot.delete_webhook(drop_pending_updates=True)
 
     try:
-        logger.info('Starting loop')
+        logger.info('Starting polling...')
         await dp.start_polling(bot)
     finally:
         dp.shutdown.register(container.close)
         # await container.close()
         logger.info('Dishka container closed')
-        logger.info('Closing loop')
+        logger.info('Closing polling')
 
 
 if __name__ == '__main__':

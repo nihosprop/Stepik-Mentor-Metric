@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from bot.dialogs.start.dialog import start_dialog
 from bot.dialogs.start.handlers import start_router
-from bot.providers import ConfigProvider, DBProvider
+from bot.providers import ConfigProvider, DBProvider, RepositoryProvider
 from core.logger import setup_logging
 from core.main_config import main_config
 from db.create_tables import create_tables
@@ -22,7 +22,7 @@ async def main() -> None:
     logger.info('Logging setup complete')
 
     container: AsyncContainer = make_async_container(
-        ConfigProvider(), DBProvider()
+        ConfigProvider(), DBProvider(), RepositoryProvider()
         )
     logger.info('Dishka container created')
 

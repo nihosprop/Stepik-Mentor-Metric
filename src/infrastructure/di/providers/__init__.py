@@ -1,8 +1,8 @@
 from dishka import Provider
 
-from .config import ConfigProvider
-from .database import DBProvider
-from .repositories import RepositoryProvider
+from infrastructure.di.providers.config import ConfigProvider
+from infrastructure.di.providers.database import DBProvider
+from infrastructure.di.providers.repositories import RepositoryProvider
 
 PROVIDERS: list[Provider] = [
     ConfigProvider(),
@@ -10,7 +10,7 @@ PROVIDERS: list[Provider] = [
     RepositoryProvider(),
 ]
 
-__all__: list[str] = [
+__all__ = [
     'PROVIDERS',
     'ConfigProvider',
     'DBProvider',

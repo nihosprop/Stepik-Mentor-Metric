@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from core.main_config import Config, main_config
+from db.repository.user_repo import UserRepository
 
 
 class ConfigProvider(Provider):
@@ -16,6 +17,10 @@ class ConfigProvider(Provider):
     def get_config(self) -> Config:
         return main_config
 
+class RepositoryProvider(Provider):
+    @provide(scope=Scope.REQUEST)
+    def get_user_repo(self, session: AsyncSession) -> UserRepository:
+        return UserRepository(session=session)
 
 class DBProvider(Provider):
     @provide(scope=Scope.APP)

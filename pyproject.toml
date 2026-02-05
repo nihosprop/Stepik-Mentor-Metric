@@ -20,7 +20,7 @@ dev = [
 
 # === TY ===
 [tool.ty.src]
-include = ["src/"]
+include = ["src"]
 
 # === Ruff ===
 [tool.ruff]

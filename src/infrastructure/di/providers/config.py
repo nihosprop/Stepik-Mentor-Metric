@@ -1,4 +1,3 @@
-
 from dishka import Provider, Scope, provide
 
 from core.main_config import Config, main_config

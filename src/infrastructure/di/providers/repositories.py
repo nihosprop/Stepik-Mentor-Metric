@@ -7,6 +7,16 @@ from db.repository.user_repo import UserRepository
 
 
 class RepositoryProvider(Provider):
+    """
+    Repository Provider
+    """
     @provide(scope=Scope.REQUEST)
     def get_user_repo(self, session: AsyncSession) -> UserRepository:
+        """
+        Get User Repository
+        Args:
+            session: AsyncSession
+        Returns:
+            UserRepository
+        """
         return UserRepository(session=session)

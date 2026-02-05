@@ -30,4 +30,11 @@ class DBProvider(Provider):
         self, sessionmaker: async_sessionmaker[AsyncSession]
     ) -> AsyncGenerator[AsyncSession]:
         async with sessionmaker() as session:
-            yield session
+            try:
+                yield session
+                await session.commit()
+            except Exception:
+                await session.rollback()
+                raise
+            finally:
+                await session.close()

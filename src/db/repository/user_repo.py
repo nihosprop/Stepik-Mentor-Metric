@@ -20,14 +20,6 @@ class UserRepository:
     session: AsyncSession
 
     async def upsert_user(self, telegram_user: TelegramUser) -> None:
-        """
-        Upsert user
-        Args:
-            telegram_user:
-
-        Returns:
-            None
-        """
         insert_stmt = insert(User).values(
             telegram_id=telegram_user.id,
             first_name=telegram_user.first_name,

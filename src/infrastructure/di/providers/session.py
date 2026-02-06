@@ -1,3 +1,5 @@
+import logging
+
 from collections.abc import AsyncGenerator
 
 from dishka import Provider, Scope, provide
@@ -10,6 +12,7 @@ from sqlalchemy.ext.asyncio import (
 
 from core.main_config import Config
 
+logger = logging.getLogger(__name__)
 
 class SessionProvider(Provider):
     @provide(scope=Scope.APP)

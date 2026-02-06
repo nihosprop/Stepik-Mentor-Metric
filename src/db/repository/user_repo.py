@@ -19,6 +19,10 @@ class UserRepository:
     """
     session: AsyncSession
 
+    async def _user_exists(self, telegram_id: int) -> bool | None:
+        stmt = select(exists().where(User.telegram_id == telegram_id))
+        return await self.session.scalar(stmt)
+
     async def upsert_user(self, telegram_user: TelegramUser) -> None:
         insert_stmt = insert(User).values(
             telegram_id=telegram_user.id,
@@ -36,10 +40,6 @@ class UserRepository:
         )
         await self.session.execute(upsert_stmt)
         logger.debug(f'Upserted user {telegram_user.id}')
-
-    async def _user_exists(self, telegram_id: int) -> bool | None:
-        stmt = select(exists().where(User.telegram_id == telegram_id))
-        return await self.session.scalar(stmt)
 
     async def get_user(self, telegram_user: TelegramUser) -> User | None:
         if await self._user_exists(telegram_user.id):

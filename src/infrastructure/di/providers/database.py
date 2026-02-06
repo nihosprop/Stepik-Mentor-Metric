@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
 from core.main_config import Config
 
 
-class DBProvider(Provider):
+class SessionProvider(Provider):
     @provide(scope=Scope.APP)
     def get_engine(self, config: Config) -> AsyncEngine:
         engine = create_async_engine(config.postgres.get_dsn())

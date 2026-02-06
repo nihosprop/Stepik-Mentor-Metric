@@ -33,11 +33,15 @@ class SessionProvider(Provider):
         self, sessionmaker: async_sessionmaker[AsyncSession]
     ) -> AsyncGenerator[AsyncSession]:
         async with sessionmaker() as session:
+            logger.debug('Session opened')
             try:
                 yield session
                 await session.commit()
+                logger.debug('Session committed')
             except Exception:
                 await session.rollback()
+                logger.debug('Session rollback')
                 raise
             finally:
                 await session.close()
+                logger.debug('Session closed')

@@ -1,15 +1,19 @@
 services:
   bot:
-    image: niwibonihs/metrik-bot:0.0.1
+    image: niwibonihs/metrik-bot:${APP_TAG}
     container_name: Metrik-Bot
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       postgres_db:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     networks:
       - metric-net
     deploy:
@@ -38,6 +42,20 @@ services:
         limits:
           cpus: '0.3'
           memory: 256M
+  migrations:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Migrations
+    environment:
+      - PYTHONPATH=/app/src
+    command: /app/.venv/bin/alembic upgrade head
+    env_file:
+      - .env
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - metric-net
+    restart: "no"
 
   redis:
     image: redis:8-alpine

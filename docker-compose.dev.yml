@@ -5,8 +5,11 @@ services:
     build: .
     image: metrik-bot:dev
     container_name: Metrik-Bot-Dev
+    environment:
+      - PYTHONPATH=/app/src
     volumes:
-      - ./src:/app/src
+      - .:/app
+      - /app/.venv
     env_file:
       - .env
     depends_on:
@@ -14,8 +17,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - metric-net-dev
+      migrations:
+        condition: service_completed_successfully
 
   postgres_db:
     image: postgres:18-alpine
@@ -29,10 +32,24 @@ services:
       interval: 10s
     ports:
       - "5432:5432"
-    networks:
-      - metric-net-dev
     volumes:
       - postgres_data_dev:/var/lib/postgresql
+
+  migrations:
+    image: metrik-bot:dev
+    container_name: Metrik-Migrations-Dev
+    environment:
+      - PYTHONPATH=/app/src
+    command: /app/.venv/bin/alembic upgrade head
+    volumes:
+      - .:/app
+      - /app/.venv
+    env_file:
+      - .env
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    restart: "no"
 
   redis:
     image: redis:8-alpine
@@ -41,16 +58,8 @@ services:
       test: [ "CMD", "redis-cli", "ping" ]
     ports:
       - "6379:6379"
-    networks:
-      - metric-net-dev
     volumes:
       - redis_data_dev:/data
-
-
-networks:
-  metric-net-dev:
-    name: Metrik-Net-Dev
-    driver: bridge
 
 volumes:
   postgres_data_dev:

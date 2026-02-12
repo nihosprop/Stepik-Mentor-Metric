@@ -31,7 +31,7 @@ WORKDIR /app
 
 # Security: creating a system user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
-
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app/logs
 # Copying the created environment from the builder.
 # We immediately set our user as the owner.
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv

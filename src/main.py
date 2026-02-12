@@ -5,12 +5,10 @@ from aiogram import Bot, Dispatcher
 from aiogram_dialog import setup_dialogs
 from dishka import AsyncContainer, make_async_container
 from dishka.integrations.aiogram import setup_dishka
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from bot.dialogs import ROUTERS
 from core.logger import setup_logging
 from core.main_config import main_config
-from infrastructure.database.create_tables import create_tables
 from infrastructure.di.providers import PROVIDERS
 
 logger = logging.getLogger(__name__)
@@ -30,12 +28,6 @@ async def main() -> None:
 
     setup_dishka(container=container, router=dp, auto_inject=True)
     logger.info('Dishka setup complete')
-
-    # TODO: create_tables ???
-    async with container() as request_container:
-        engine = await request_container.get(AsyncEngine)
-        await create_tables(engine)
-        logger.warning('Database tables created (DEV MODE ONLY)')
 
     # Routers
     dp.include_routers(*ROUTERS)

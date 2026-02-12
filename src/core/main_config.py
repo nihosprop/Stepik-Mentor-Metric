@@ -28,7 +28,7 @@ class RedisConfig(BaseModel):
 class PostgresConfig(BaseModel):
     driver: str
     user: str
-    password: SecretStr
+    password: SecretStr = Field(min_length=7)
     host: str
     port: int
     name: str

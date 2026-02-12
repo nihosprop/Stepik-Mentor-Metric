@@ -53,6 +53,7 @@ _settings = Dynaconf(
     settings_files=['settings.toml'],
     environments=True,
     env_switcher='ENV_FOR_DYNACONF',
+    merge_enabled=True
 )
 
 

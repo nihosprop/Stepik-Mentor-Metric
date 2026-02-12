@@ -4,10 +4,10 @@ version = "0.1.0"
 description = ""
 requires-python = ">=3.14"
 dependencies = [
-    "aiogram>=3.24.0",
+    "aiogram>=3.25.0",
     "aiogram-dialog>=2.4.0",
     "alembic>=1.18.3",
-    "dishka>=1.7.2",
+    "dishka>=1.8.0",
     "dynaconf>=3.2.12",
     "psycopg[binary]>=3.3.2",
     "sqlalchemy[asyncio]>=2.0.46",
@@ -16,7 +16,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.15.0",
-    "ty>=0.0.15",
+    "ty>=0.0.16",
 ]
 
 # === TY ===

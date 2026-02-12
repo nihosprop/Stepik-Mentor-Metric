@@ -17,7 +17,11 @@ logger = logging.getLogger(__name__)
 class SessionProvider(Provider):
     @provide(scope=Scope.APP)
     def get_engine(self, config: Config) -> AsyncEngine:
-        engine = create_async_engine(config.postgres.get_dsn())
+        engine = create_async_engine(config.postgres.get_dsn(),
+                                     pool_size=5,
+                                     max_overflow=10,
+                                     pool_pre_ping=True,
+                                     pool_recycle=3600)
         return engine
 
     @provide(scope=Scope.APP)

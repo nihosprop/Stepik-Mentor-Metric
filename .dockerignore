@@ -58,6 +58,7 @@ pip-delete-this-directory.txt
 .settings/
 
 # Documentation
+README.md
 *.md
 README*
 LICENSE*

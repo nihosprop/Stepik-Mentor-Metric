@@ -37,6 +37,9 @@ wheels/
 *.sql
 dump.rdb
 
+# Alembic
+alembic.ini.local
+
 # --- IDE (PyCharm, VS Code) ---
 .idea/
 .vscode/

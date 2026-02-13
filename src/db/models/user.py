@@ -14,4 +14,3 @@ class User(TimestampMixin, Base):
     first_name: Mapped[str] = mapped_column(String(128))
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     username: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    email: Mapped[str | None] = mapped_column(String(255), nullable=True)

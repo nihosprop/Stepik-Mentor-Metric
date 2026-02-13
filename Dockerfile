@@ -30,14 +30,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Security: creating a system user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN mkdir -p /app/logs && chown -R appuser:appuser /app/logs
-# Copying the created environment from the builder.
+RUN groupadd -r appuser && useradd -r -g appuser appuser && \
+    mkdir -p /app/logs && chown -R appuser:appuser /app/logs
+
 # We immediately set our user as the owner.
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 
 # Copying the source code
-COPY --chown=appuser:appuser . .
+COPY --chown=appuser:appuser src/ ./src/
+COPY --chown=appuser:appuser settings.toml alembic.ini ./
 
 # Switching to the user
 USER appuser

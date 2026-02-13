@@ -1,4 +1,3 @@
-# .dockerignore
 # Secrets & sensitive files (ALWAYS EXCLUDED FOR SECURITY)
 .env
 .env.*
@@ -112,3 +111,9 @@ pnpm-debug.log*
 ehthumbs.db
 Thumbs.db
 desktop.ini
+
+# Project root
+docker-compose.prod.yml
+docker-compose.dev.yml
+.env.example
+temp.py

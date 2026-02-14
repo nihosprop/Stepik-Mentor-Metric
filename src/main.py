@@ -46,7 +46,7 @@ async def main() -> None:
     except Exception as e:
         logger.error(e)
     finally:
-        dp.shutdown.register(container.close)
+        await container.close()
         logger.info('Dishka container closed')
         logger.info('Polling closed')
 

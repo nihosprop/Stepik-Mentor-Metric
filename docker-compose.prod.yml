@@ -59,7 +59,7 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: Redis-Metrik
+    container_name: Metrik-Redis
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]

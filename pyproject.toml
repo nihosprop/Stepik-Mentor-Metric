@@ -10,6 +10,7 @@ dependencies = [
     "dishka>=1.8.0",
     "dynaconf>=3.2.12",
     "psycopg[binary]>=3.3.2",
+    "redis>=7.1.1",
     "sqlalchemy[asyncio]>=2.0.46",
 ]
 

@@ -22,7 +22,14 @@ class StepikConfig(BaseModel):
 class RedisConfig(BaseModel):
     host: str
     port: int
-    password: SecretStr | None = Field(default=None, min_length=7)
+    password_secret: SecretStr | None = Field(default=None, min_length=7)
+    decode_responses: bool
+
+    @property
+    def password(self) -> str | None:
+        if self.password_secret is None:
+            return None
+        return self.password_secret.get_secret_value()
 
 
 class PostgresConfig(BaseModel):
@@ -34,9 +41,11 @@ class PostgresConfig(BaseModel):
     name: str
 
     def get_dsn(self) -> str:
-        return (f'{self.driver}'
-                f'://{self.user}:{self.password.get_secret_value()}'
-                f'@{self.host}:{self.port}/{self.name}')
+        return (
+            f'{self.driver}'
+            f'://{self.user}:{self.password.get_secret_value()}'
+            f'@{self.host}:{self.port}/{self.name}'
+        )
 
 
 class Config(BaseModel):
@@ -53,7 +62,7 @@ _settings = Dynaconf(
     settings_files=['settings.toml'],
     environments=True,
     env_switcher='ENV_FOR_DYNACONF',
-    merge_enabled=True
+    merge_enabled=True,
 )
 
 
@@ -69,7 +78,8 @@ def _get_config() -> Config:
             'redis_host', _settings.get('redis.host', 'localhost')
         ),
         port=_settings.redis.port,
-        password=_settings.get('redis_password'),
+        password_secret=_settings.get('redis_password'),
+        decode_responses=_settings.redis.decode_responses,
     )
 
     postgres = PostgresConfig(
@@ -91,5 +101,6 @@ def _get_config() -> Config:
     return Config(
         bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik
     )
+
 
 main_config: Config = _get_config()

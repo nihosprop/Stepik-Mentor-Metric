@@ -36,6 +36,7 @@ handlers = ['stdout']
 # Redis
 [default.redis]
 port = 6379
+decode_responses = true
 
 # Postgres
 [default.postgres]

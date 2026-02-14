@@ -2,14 +2,18 @@ from dishka import Provider
 
 from infrastructure.di.providers.config import ConfigProvider
 from infrastructure.di.providers.db import PostgresProvider
+from infrastructure.di.providers.http import HttpProvider
 from infrastructure.di.providers.redis import RedisProvider
 from infrastructure.di.providers.repositories import RepositoryProvider
+from infrastructure.di.providers.stepik import StepikProvider
 
 PROVIDERS: list[Provider] = [
     ConfigProvider(),
     PostgresProvider(),
     RepositoryProvider(),
     RedisProvider(),
+    HttpProvider(),
+    StepikProvider(),
 ]
 
 __all__ = [
@@ -18,4 +22,6 @@ __all__ = [
     'PostgresProvider',
     'RepositoryProvider',
     'RedisProvider',
+    'HttpProvider',
+    'StepikProvider',
 ]

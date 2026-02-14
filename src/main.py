@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram_dialog import setup_dialogs
 from dishka import AsyncContainer, make_async_container
 from dishka.integrations.aiogram import setup_dishka
@@ -23,7 +24,10 @@ async def main() -> None:
 
     bot = Bot(token=main_config.bot.token)
     logger.info('Bot instance created')
-    dp = Dispatcher()
+
+    storage = await container.get(RedisStorage)
+    dp = Dispatcher(storage=storage)
+
     logger.info('Dispatcher instance created')
 
     setup_dishka(container=container, router=dp, auto_inject=True)

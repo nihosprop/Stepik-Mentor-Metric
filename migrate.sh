@@ -3,6 +3,7 @@ set -e
 
 # --- SETTINGS ---
 # Using example: ./migrate.sh "migration_description"
+
 # File name (example: docker-compose.dev.yml):
 COMPOSE_FILE="docker-compose.dev.yml"
 

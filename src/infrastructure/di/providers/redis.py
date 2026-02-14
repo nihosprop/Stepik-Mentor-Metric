@@ -1,3 +1,5 @@
+import logging
+
 from collections.abc import AsyncIterable
 from typing import NewType
 
@@ -9,6 +11,7 @@ from core.main_config import Config
 
 RedisCache = NewType('RedisCache', Redis)
 
+logger = logging.getLogger(__name__)
 
 class RedisProvider(Provider):
     @provide(scope=Scope.APP)

@@ -1,0 +1,245 @@
+import asyncio
+import logging
+
+from dataclasses import dataclass
+from typing import Any
+
+import aiohttp
+
+from aiohttp import ClientResponseError, ClientSession
+
+from infrastructure.di.providers.redis import RedisCache
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class StepikAPIClient:
+    client_id: str
+    client_secret: str
+    cache: RedisCache
+    session: ClientSession
+    base_url: str = 'https://stepik.org/api'
+
+    async def reset_stepik_token(self) -> None:
+        await self.cache.delete('stepik_token')
+        logger.info('Stepik_token очищен из Redis')
+
+    async def _get_access_token(self) -> str:
+        """
+        Получает токен.
+        Сначала пробует взять из Redis, если нет — запрашивает у API.
+        """
+        cached_token = await self.cache.get('stepik_token')
+        if cached_token:
+            return cached_token
+
+        url = 'https://stepik.org/oauth2/token/'
+        data = {
+            'grant_type': 'client_credentials',
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+        }
+
+        try:
+            async with self.session.post(url, data=data) as resp:
+                if resp.status != 200:
+                    text = await resp.text()
+                    raise RuntimeError(
+                        f'Ошибка получения токена: {resp.status} {text}'
+                    )
+
+                response_json = await resp.json()
+                access_token = response_json.get('access_token')
+                expires_in = response_json.get('expires_in', 36000)
+
+                if not access_token:
+                    raise RuntimeError('Токен не найден в ответе API')
+
+                # Сохраняем с TTL чуть меньше реального (запас 5 минут)
+                await self.cache.set(
+                    'stepik_token', access_token, ex=max(expires_in - 300, 60)
+                )
+                logger.info('Новый токен Stepik получен и сохранен')
+                return access_token
+
+        except Exception as e:
+            logger.error(
+                f'Критическая ошибка при обновлении токена: {e}', exc_info=True
+            )
+            raise
+
+    async def make_api_request(
+        self,
+        method: str,
+        endpoint: str,
+        params: dict[str, Any] | None = None,
+        json_data: dict[str, Any] | None = None,
+        expected_status_codes: list[int] | None = None,
+    ) -> dict[str, Any] | None:
+        if expected_status_codes is None:
+            expected_status_codes = [200, 201]
+
+        endpoint = endpoint.lstrip('/')
+        # Если endpoint уже содержит полный URL(бывает в пагинации),
+        # не дублируем
+        url = (
+            endpoint
+            if endpoint.startswith('http')
+            else f'{self.base_url}/{endpoint}'
+        )
+
+        # Рекурсивная логика для 401 (Expired Token)
+        token = await self._get_access_token()
+        headers = {'Authorization': f'Bearer {token}'}
+
+        try:
+            async with self.session.request(
+                method, url, headers=headers, params=params, json=json_data
+            ) as response:
+                # Логика повтора при истекшем токене (401)
+                if response.status == 401:
+                    logger.warning('Токен протух, пробуем обновить...')
+                    await self.reset_stepik_token()
+                    # ВАЖНО: Рекурсивный вызов, но нужно быть осторожным,
+                    # чтобы не уйти в вечный цикл.
+
+                    # Лучше добавить счетчик попыток(retries)
+                    # Для упрощения просто вызываем еще раз с новым токеном.
+                    headers['Authorization'] = (
+                        f'Bearer {await self._get_access_token()}'
+                    )
+                    async with self.session.request(
+                        method,
+                        url,
+                        headers=headers,
+                        params=params,
+                        json=json_data,
+                    ) as retry_response:
+                        response = retry_response  # подменяем ответ
+
+                # Обработка Rate Limit (429)
+                if response.status == 429:
+                    retry_after = int(response.headers.get('Retry-After', 5))
+                    logger.warning(f'Rate limited. Ждем {retry_after} сек.')
+                    await asyncio.sleep(retry_after)
+                    return await self.make_api_request(
+                        method,
+                        endpoint,
+                        params,
+                        json_data,
+                        expected_status_codes,
+                    )
+
+                body_text = await response.text()
+
+                if response.status not in expected_status_codes:
+                    # 404 обрабатываем мягко, если это ожидаемо, иначе ошибка
+                    if response.status == 404:
+                        logger.info(f'Ресурс не найден: {url}')
+                        return None  # Или raise, зависит от логики
+
+                    logger.error(f'API Fail {response.status}: {body_text}')
+                    raise ClientResponseError(
+                        response.request_info,
+                        response.history,
+                        status=response.status,
+                        message=body_text,
+                    )
+
+                if response.status == 204:  # No content
+                    return None
+
+                try:
+                    return await response.json()
+                except Exception:
+                    # Бывает, что 200 OK, но тело не JSON
+                    return None
+
+        except aiohttp.ClientError as e:
+            logger.error(f'Ошибка сети при запросе {url}: {e}')
+            raise
+
+    async def get_user(self, user_id: int) -> dict[str, Any] | None:
+        res = await self.make_api_request('GET', f'users/{user_id}')
+        if res and res.get('users'):
+            return res['users'][0]
+        return None
+
+    async def get_username(self, user_id: int) -> str | None:
+        user = await self.get_user(user_id)
+        return user.get('full_name') if user else None
+
+    async def get_course_title(self, course_id: int) -> str | None:
+        res = await self.make_api_request('GET', f'courses/{course_id}')
+        if res and res.get('courses'):
+            return res['courses'][0].get('title')
+        return None
+
+    async def get_step_data(self, target_id: int) -> dict[str, Any] | None:
+        return await self.make_api_request('GET', f'steps/{target_id}')
+
+    async def get_comment_data(self, comment_id: int) -> dict[str, Any] | None:
+        res = await self.make_api_request('GET', f'comments/{comment_id}')
+        return res if res and res.get('comments') else None
+
+
+    # --- Specific logic ---
+    async def get_comments(
+        self, course_id: int, limit: int = 20
+    ) -> dict[str, Any]:
+        """
+        Получает последние комментарии курса.
+        Важно: Stepik отдает дефолтно 20 элементов на страницу.
+        """
+        params = {
+            'course': course_id,
+            'order': 'desc',  # Свежие сверху
+            # 'status': 'abuse', # Можно фильтровать, если нужно
+        }
+        # Если нужен лимит > 20, тут потребуется логика пагинации (цикл while has_next),
+        # но для мониторинга часто достаточно первой страницы.
+        return (
+            await self.make_api_request('GET', 'comments', params=params) or {}
+        )
+
+    async def reply_to_comment(
+        self, step_id: int, parent_id: int, text: str
+    ) -> bool:
+        payload = {
+            'comment': {
+                'text': text,
+                'target': step_id,
+                'parent': int(parent_id),
+            }
+        }
+        try:
+            await self.make_api_request('POST', 'comments', json_data=payload)
+            logger.info(f'Ответ на комментарий {parent_id} успешно отправлен')
+            return True
+        except Exception:
+            return False
+
+    async def get_comment_url_context(self, comment_id: int) -> str:
+        """
+        Генерирует ссылку на комментарий.
+        """
+        comment_payload = await self.get_comment_data(comment_id)
+        if not comment_payload:
+            return f'https://stepik.org/discussion/comments/{comment_id}/'
+
+        comment = comment_payload['comments'][0]
+        target_id = comment.get('target')  # Это ID шага (step)
+
+        step_payload = await self.get_step_data(target_id)
+        if not step_payload or not step_payload.get('steps'):
+            return f'https://stepik.org/discussion/comments/{comment_id}/'
+
+        step = step_payload['steps'][0]
+        lesson_id = step.get('lesson')
+        step_pos = step.get('position')
+
+        return (
+            f'https://stepik.org/lesson/{lesson_id}/step/'
+            f'{step_pos}?discussion={comment_id}'
+        )

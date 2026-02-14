@@ -17,20 +17,20 @@ logger = logging.getLogger(__name__)
 class StepikAPIClient:
     client_id: str
     client_secret: str
-    cache: RedisCache
+    redis_cache: RedisCache
     session: ClientSession
     base_url: str = 'https://stepik.org/api'
 
     async def reset_stepik_token(self) -> None:
-        await self.cache.delete('stepik_token')
-        logger.info('Stepik_token очищен из Redis')
+        await self.redis_cache.delete('stepik_token')
+        logger.info('Stepik token cleared of Redis')
 
     async def _get_access_token(self) -> str:
         """
-        Получает токен.
-        Сначала пробует взять из Redis, если нет — запрашивает у API.
+        Get token.
+        First it tries to take it from Redis, if not, it asks the API.
         """
-        cached_token = await self.cache.get('stepik_token')
+        cached_token = await self.redis_cache.get('stepik_token')
         if cached_token:
             return cached_token
 
@@ -57,7 +57,7 @@ class StepikAPIClient:
                     raise RuntimeError('Токен не найден в ответе API')
 
                 # Сохраняем с TTL чуть меньше реального (запас 5 минут)
-                await self.cache.set(
+                await self.redis_cache.set(
                     'stepik_token', access_token, ex=max(expires_in - 300, 60)
                 )
                 logger.info('Новый токен Stepik получен и сохранен')
@@ -197,28 +197,12 @@ class StepikAPIClient:
             'order': 'desc',  # Свежие сверху
             # 'status': 'abuse', # Можно фильтровать, если нужно
         }
-        # Если нужен лимит > 20, тут потребуется логика пагинации (цикл while has_next),
+        # Если нужен лимит > 20, тут потребуется логика пагинации
+        # (цикл while has_next),
         # но для мониторинга часто достаточно первой страницы.
         return (
             await self.make_api_request('GET', 'comments', params=params) or {}
         )
-
-    async def reply_to_comment(
-        self, step_id: int, parent_id: int, text: str
-    ) -> bool:
-        payload = {
-            'comment': {
-                'text': text,
-                'target': step_id,
-                'parent': int(parent_id),
-            }
-        }
-        try:
-            await self.make_api_request('POST', 'comments', json_data=payload)
-            logger.info(f'Ответ на комментарий {parent_id} успешно отправлен')
-            return True
-        except Exception:
-            return False
 
     async def get_comment_url_context(self, comment_id: int) -> str:
         """

@@ -15,6 +15,6 @@ class StepikProvider(Provider):
         return StepikAPIClient(
             client_id=config.stepik.stepik_client_id.get_secret_value(),
             client_secret=config.stepik.stepik_client_secret.get_secret_value(),
-            cache=cache,
+            redis_cache=cache,
             session=session,
         )

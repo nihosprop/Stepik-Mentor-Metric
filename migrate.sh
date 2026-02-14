@@ -68,4 +68,4 @@ docker compose -f "$COMPOSE_FILE" stop "$DB_HOST"
 
 echo "--------------------------------------------------"
 echo "Migration '$MESSAGE' created, tested and applied."
-echo "Check correctness migration file in folder alembic/versions/"
+echo "!!!Check correctness migration file in folder alembic/versions/"

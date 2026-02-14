@@ -67,8 +67,3 @@ coverage.xml
 ._*
 Thumbs.db
 desktop.ini
-
-# --- Docker (optional) ---
-# Usually the Dockerfile and docker-compose.yml themselves are NEEDED in git,
-# but local overrides should be hidden
-docker-compose.override.yml

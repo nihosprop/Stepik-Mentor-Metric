@@ -2,7 +2,6 @@
 .env
 .env.*
 *.key
-*.pem
 *_rsa
 *_rsa.*
 *.p12
@@ -14,11 +13,7 @@ secrets.yml
 secrets.yaml
 
 # Python
-__pycache__/
 **/__pycache__
-*.pyc
-*.pyo
-*.pyd
 .dockerignore
 Dockerfile
 docker-compose.yml
@@ -57,7 +52,6 @@ pip-delete-this-directory.txt
 .settings/
 
 # Documentation
-README.md
 *.md
 README*
 LICENSE*
@@ -71,19 +65,12 @@ mkdocs.yml
 test/
 tests/
 __tests__/
-*.test.js
-*.test.ts
-*.spec.js
-*.spec.ts
 *.test.py
-*_test.go
 coverage/
 .coverage
 htmlcov/
 .pytest_cache/
 .tox/
-jest.config.js
-vitest.config.js
 
 # CI/CD
 .github/
@@ -96,11 +83,7 @@ Jenkinsfile
 
 # Log files
 *.log
-logs/
-npm-debug.log*
-yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
 # OS-specific files
 .DS_Store
@@ -115,5 +98,4 @@ desktop.ini
 # Project root
 docker-compose.prod.yml
 docker-compose.dev.yml
-.env.example
-temp.py
+migrate.sh

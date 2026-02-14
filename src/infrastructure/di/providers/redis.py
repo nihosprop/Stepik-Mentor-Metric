@@ -1,32 +1,38 @@
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncIterable
 from typing import NewType
 
 from dishka import Provider, Scope, provide
 from redis.asyncio import Redis
 
-from core.main_config import main_config
+from core.main_config import Config
 
-CacheRedis = NewType("CacheRedis", Redis)
-StorageRedis = NewType("StorageRedis", Redis)
+CacheRedis = NewType('CacheRedis', Redis)
+StorageRedis = NewType('StorageRedis', Redis)
+
 
 class RedisProvider(Provider):
     @provide(scope=Scope.APP)
-    async def redis_cache(self) -> AsyncGenerator[CacheRedis]:
+    async def redis_cache(self, config: Config) -> AsyncIterable[CacheRedis]:
         redis = Redis(
-            host=main_config.redis.host,
-            port=main_config.redis.port,
-            password=main_config.redis.password,
-            db=0)
+            host=config.redis.host,
+            port=config.redis.port,
+            password=config.redis.password,
+            decode_responses=config.redis.decode_responses,
+            db=0,
+        )
         yield CacheRedis(redis)
         await redis.close()
 
     @provide(scope=Scope.APP)
-    async def redis_storage(self) -> AsyncGenerator[StorageRedis]:
+    async def redis_storage(
+        self, config: Config
+    ) -> AsyncIterable[StorageRedis]:
         redis = Redis(
-            host=main_config.redis.host,
-            port=main_config.redis.port,
-            password=main_config.redis.password,
-            db=1
+            host=config.redis.host,
+            port=config.redis.port,
+            password=config.redis.password,
+            decode_responses=config.redis.decode_responses,
+            db=1,
         )
         yield StorageRedis(redis)
         await redis.close()

@@ -6,10 +6,10 @@ from db.models.mixins import TimestampMixin
 
 
 class User(TimestampMixin, Base):
-    __tablename__ = 'users'
+    __tablename__ = 'tg_users'
 
     telegram_id: Mapped[int] = mapped_column(
-        BigInteger, unique=True, index=True, primary_key=True
+        BigInteger, index=True, primary_key=True
     )
     first_name: Mapped[str] = mapped_column(String(128))
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)

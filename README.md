@@ -55,4 +55,38 @@ Stepik-Mentor-Metric/
     └── .github/
         └── workflows/
             └── build-and-push.yml
+```
 
+**Stepik Mentor Metric Bot** — This is a Telegram bot designed for mentors on the Stepik platform. It allows you to track course metrics, manage user data and monitor new comments through integration with the Stepik API.
+
+## 🚀 Technologies
+
+The project is built on a modern Python technology stack:
+
+*   **Python 3.14+**
+*   **aiogram 3.x** — asynchronous framework for Telegram bots.
+*   **aiogram-dialog** — library for creating complex interactive dialogs.
+*   **Dishka** — modern DI container for dependency management.
+*   **SQLAlchemy 2.0 & PostgreSQL** — working with a database through an asynchronous engine.
+*   **Alembic** — managing database migrations.
+*   **Redis** — used for FSM (Finite State Machine) bot and Stepik API data caching.
+*   **Dynaconf & Pydantic** — flexible configuration management and settings validation.
+*   **uv** — modern package manager and project builder.
+
+## 🛠 Functionality
+
+1.  **Integration with Stepik API:**Automatically receive OAuth2 tokens, cache them in Redis, and make API requests to retrieve user, course, and comment data.
+2.  **Comment monitoring:** Receiving the latest course comments and generating direct links to them in the context of lessons.
+3.  **User management:** Автоматическое сохранение и обновление данных Telegram-пользователей в базе данных (PostgreSQL) при взаимодействии с ботом.
+4.  **Interactive dialogues:** Удобный интерфейс управления через систему окон и кнопок `aiogram-dialog`.
+5.  **Logging:** Настраиваемая система логирования с поддержкой вывода в консоль и ротации файлов в режиме Production.
+
+## 📦 Installation and launch
+
+### Setting up the environment
+Create a file `.env` based on example `.env.example` and fill in the required variables:
+*   `BOT_TOKEN` — your bot's token from BotFather.
+*   `STEPIK_CLIENT_ID` и `STEPIK_CLIENT_SECRET` — your application data Stepik.
+*   Connection settings for PostgreSQL and Redis.
+
+### Run via Docker (recommended)

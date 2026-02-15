@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.kbd import Button
 from dishka import FromDishka
 
 from common.telegram_utils import get_username
-from db.repository.user_repo import UserRepository
+from db.repository.tg_user_repo import TGUserRepository
 
 from .states import StartSG
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 async def start(
     msg: Message,
     dialog_manager: DialogManager,
-    user_repo: FromDishka[UserRepository],
+    user_repo: FromDishka[TGUserRepository],
 ) -> None:
     """
     Handle the /start command.

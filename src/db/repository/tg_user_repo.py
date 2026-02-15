@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class UserRepository:
+class TGUserRepository:
     """
     User Repository
     """

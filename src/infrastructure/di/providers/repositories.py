@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from db.repository.stepik_user_repo import StepikUserRepo
-from db.repository.user_repo import UserRepository
+from db.repository.tg_user_repo import TGUserRepository
 
 
 class RepositoryProvider(Provider):
@@ -14,7 +14,7 @@ class RepositoryProvider(Provider):
     scope = Scope.REQUEST
 
     @provide
-    def tg_user_repo(self, session: AsyncSession) -> UserRepository:
+    def tg_user_repo(self, session: AsyncSession) -> TGUserRepository:
         """
         Telegram user repository
 
@@ -23,7 +23,7 @@ class RepositoryProvider(Provider):
         Returns:
             UserRepository
         """
-        return UserRepository(session=session)
+        return TGUserRepository(session=session)
 
     @provide
     def stepik_user_repo(self, session: AsyncSession) -> StepikUserRepo:

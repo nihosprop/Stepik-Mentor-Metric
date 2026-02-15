@@ -1,7 +1,6 @@
 ## Project structure
 ```text
-Directory structure:
-└── nihosprop-stepik-mentor-metric/
+Stepik-Mentor-Metric/
     ├── alembic.ini
     ├── docker-compose.dev.yml
     ├── docker-compose.prod.yml

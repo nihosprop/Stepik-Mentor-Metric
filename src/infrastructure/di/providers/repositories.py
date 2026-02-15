@@ -11,8 +11,9 @@ class RepositoryProvider(Provider):
     """
     Repository Provider
     """
+    scope = Scope.REQUEST
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def tg_user_repo(self, session: AsyncSession) -> UserRepository:
         """
         Telegram user repository
@@ -23,7 +24,7 @@ class RepositoryProvider(Provider):
         """
         return UserRepository(session=session)
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def stepik_user_repo(self, session: AsyncSession) -> StepikUserRepo:
         """
         Stepik user repository

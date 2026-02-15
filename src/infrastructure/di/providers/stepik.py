@@ -9,7 +9,7 @@ from infrastructure.stepik.client import StepikAPIClient
 
 class StepikProvider(Provider):
     @provide(scope=Scope.APP)
-    async def get_stepik_client(
+    async def stepik_client(
         self, config: Config, cache: RedisCache, session: aiohttp.ClientSession
     ) -> StepikAPIClient:
         return StepikAPIClient(

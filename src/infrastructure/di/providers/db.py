@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class PostgresProvider(Provider):
     @provide(scope=Scope.APP)
-    def get_engine(self, config: Config) -> AsyncEngine:
+    def engine(self, config: Config) -> AsyncEngine:
         engine = create_async_engine(config.postgres.get_dsn(),
                                      pool_size=5,
                                      max_overflow=10,
@@ -25,7 +25,7 @@ class PostgresProvider(Provider):
         return engine
 
     @provide(scope=Scope.APP)
-    def get_sessionmaker(
+    def sessionmaker(
         self, engine: AsyncEngine
     ) -> async_sessionmaker[AsyncSession]:
         return async_sessionmaker(
@@ -33,7 +33,7 @@ class PostgresProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    async def get_session(
+    async def session(
         self, sessionmaker: async_sessionmaker[AsyncSession]
     ) -> AsyncGenerator[AsyncSession]:
         async with sessionmaker() as session:

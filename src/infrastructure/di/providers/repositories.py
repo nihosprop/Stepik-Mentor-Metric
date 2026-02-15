@@ -17,6 +17,7 @@ class RepositoryProvider(Provider):
     def tg_user_repo(self, session: AsyncSession) -> UserRepository:
         """
         Telegram user repository
+
         Args:
             session: AsyncSession
         Returns:
@@ -28,6 +29,7 @@ class RepositoryProvider(Provider):
     def stepik_user_repo(self, session: AsyncSession) -> StepikUserRepo:
         """
         Stepik user repository
+
         Args:
             session: AsyncSession
         Returns:

@@ -46,7 +46,7 @@ class StepikAPIClient:
                 if resp.status != 200:
                     text = await resp.text()
                     raise RuntimeError(
-                        f'Ошибка получения токена: {resp.status} {text}'
+                        f'Error receiving token: {resp.status} {text}'
                     )
 
                 response_json = await resp.json()
@@ -54,18 +54,18 @@ class StepikAPIClient:
                 expires_in = response_json.get('expires_in', 36000)
 
                 if not access_token:
-                    raise RuntimeError('Токен не найден в ответе API')
+                    raise RuntimeError('Token not found in API response')
 
-                # Сохраняем с TTL чуть меньше реального (запас 5 минут)
+                # We save with TTL a little less than real (reserve 5 minutes)
                 await self.redis_cache.set(
                     'stepik_token', access_token, ex=max(expires_in - 300, 60)
                 )
-                logger.info('Новый токен Stepik получен и сохранен')
+                logger.info('New Stepik token received and saved')
                 return access_token
 
         except Exception as e:
             logger.error(
-                f'Критическая ошибка при обновлении токена: {e}', exc_info=True
+                f'Critical error when updating token: {e}', exc_info=True
             )
             raise
 
@@ -87,7 +87,7 @@ class StepikAPIClient:
             else f'{self.base_url}/{endpoint}'
         )
 
-        # Рекурсивная логика для 401 (Expired Token)
+        # Recursive logic for 401 (Expired Token)
         token = await self._get_access_token()
         headers = {'Authorization': f'Bearer {token}'}
 
@@ -114,7 +114,7 @@ class StepikAPIClient:
                         params=params,
                         json=json_data,
                     ) as retry_response:
-                        response = retry_response  # подменяем ответ
+                        response = retry_response
 
                 # Обработка Rate Limit (429)
                 if response.status == 429:
@@ -132,10 +132,9 @@ class StepikAPIClient:
                 body_text = await response.text()
 
                 if response.status not in expected_status_codes:
-                    # 404 обрабатываем мягко, если это ожидаемо, иначе ошибка
                     if response.status == 404:
-                        logger.info(f'Ресурс не найден: {url}')
-                        return None  # Или raise, зависит от логики
+                        logger.info(f'Resource not found: {url}')
+                        return None
 
                     logger.error(f'API Fail {response.status}: {body_text}')
                     raise ClientResponseError(
@@ -151,11 +150,10 @@ class StepikAPIClient:
                 try:
                     return await response.json()
                 except Exception:
-                    # Бывает, что 200 OK, но тело не JSON
                     return None
 
         except aiohttp.ClientError as e:
-            logger.error(f'Ошибка сети при запросе {url}: {e}')
+            logger.error(f'Network error when requesting {url}: {e}')
             raise
 
     async def get_user(self, user_id: int) -> dict[str, Any] | None:
@@ -187,24 +185,24 @@ class StepikAPIClient:
         self, course_id: int, limit: int = 20
     ) -> dict[str, Any]:
         """
-        Получает последние комментарии курса.
-        Важно: Stepik отдает дефолтно 20 элементов на страницу.
+        Retrieves the latest course comments.
+        Important: Stepik defaults to 20 elements per page.
         """
         params = {
             'course': course_id,
-            'order': 'desc',  # Свежие сверху
-            # 'status': 'abuse', # Можно фильтровать, если нужно
+            'order': 'desc',  # Fresh on top
+            # 'status': 'abuse', # You can filter if necessary
         }
-        # Если нужен лимит > 20, тут потребуется логика пагинации
-        # (цикл while has_next),
-        # но для мониторинга часто достаточно первой страницы.
+        # If you need a limit > 20, you will need pagination logic
+        # (cycle while has_next),
+        # but for monitoring the first page is often enough.
         return (
             await self.make_api_request('GET', 'comments', params=params) or {}
         )
 
     async def get_comment_url_context(self, comment_id: int) -> str:
         """
-        Генерирует ссылку на комментарий.
+        Generates a link to the comment.
         """
         comment_payload = await self.get_comment_data(comment_id)
         if not comment_payload:

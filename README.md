@@ -75,7 +75,8 @@ The project is built on a modern Python technology stack:
 
 ## 🛠 Functionality
 
-1.  **Integration with Stepik API:**Automatically receive OAuth2 tokens, cache them in Redis, and make API requests to retrieve user, course, and comment data.
+1.  **Integration with Stepik API:** Automatically receive OAuth2 tokens, 
+    cache them in Redis, and make API requests to retrieve user, course, and comment data.
 2.  **Comment monitoring:** Receiving the latest course comments and generating direct links to them in the context of lessons.
 3.  **User management:** Автоматическое сохранение и обновление данных Telegram-пользователей в базе данных (PostgreSQL) при взаимодействии с ботом.
 4.  **Interactive dialogues:** Удобный интерфейс управления через систему окон и кнопок `aiogram-dialog`.

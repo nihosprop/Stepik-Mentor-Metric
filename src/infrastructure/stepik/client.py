@@ -81,8 +81,6 @@ class StepikAPIClient:
             expected_status_codes = [200, 201]
 
         endpoint = endpoint.lstrip('/')
-        # Если endpoint уже содержит полный URL(бывает в пагинации),
-        # не дублируем
         url = (
             endpoint
             if endpoint.startswith('http')

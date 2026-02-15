@@ -11,7 +11,7 @@ class RepositoryProvider(Provider):
     Repository Provider
     """
     @provide(scope=Scope.REQUEST)
-    def get_tg_user_repo(self, session: AsyncSession) -> UserRepository:
+    def tg_user_repo(self, session: AsyncSession) -> UserRepository:
         """
         Get User Repository
         Args:

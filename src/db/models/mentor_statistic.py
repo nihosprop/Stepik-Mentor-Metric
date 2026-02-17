@@ -1,11 +1,15 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models import Base, TimestampMixin
-from db.models.course import Course
-from db.models.stepik_user import StepikUser
+from db.models.base import Base
+from db.models.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from .course import Course
+    from .stepik_user import StepikUser
 
 
 class MentorStatistic(TimestampMixin, Base):

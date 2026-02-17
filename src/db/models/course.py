@@ -1,7 +1,14 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models import Base, MentorReply, MentorStatistic, TimestampMixin
+from db.models.base import Base
+from db.models.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from .mentor_reply import MentorReply
+    from .mentor_statistic import MentorStatistic
 
 
 class Course(TimestampMixin, Base):

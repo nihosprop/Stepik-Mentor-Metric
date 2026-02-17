@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models import Base, TimestampMixin
-from db.models.mentor_reply import MentorReply
+from db.models.base import Base
+from db.models.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from .mentor_reply import MentorReply
 
 
 class StepikUser(TimestampMixin, Base):

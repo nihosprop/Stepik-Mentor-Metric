@@ -7,7 +7,6 @@ from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from dishka import FromDishka
 
-from common.telegram_utils import get_username
 from db.repository.tg_user_repo import TGUserRepository
 
 from .states import StartSG
@@ -53,31 +52,14 @@ async def start(
     logger.debug('Exit')
 
 
-async def on_help(
+async def in_dev(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,
     **_kwargs,
 ) -> None:
-    """
-    Handle help button callback.
-
-    Sends an alert answer to the user indicating that help
-     will be provided soon.
-
-    Args:
-        clbk (CallbackQuery): The callback query from the pressed help button.
-        _button (Button): The pressed button widget (unused).
-        dialog_manager (DialogManager): Dialog manager instance (unused here).
-        **_kwargs: Additional keyword arguments forwarded by aiogram-dialog.
-
-    Returns:
-        None
-    """
     logger.debug('Entry')
 
-    await clbk.answer(
-        f'{get_username(clbk)}, Помощь скоро будет!', show_alert=True
-    )
+    await clbk.answer('Кнопка в разработке!', show_alert=True)
 
     logger.debug('Exit')

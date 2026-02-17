@@ -1,3 +1,4 @@
+from aiogram.fsm.storage.base import DefaultKeyBuilder
 import logging
 
 from collections.abc import AsyncIterable
@@ -25,7 +26,8 @@ class RedisProvider(Provider):
             decode_responses=True,
             db=0,
         )
-        yield RedisStorage(redis=redis)
+        yield RedisStorage(redis=redis,
+                           key_builder=DefaultKeyBuilder(with_destiny=True))
         await redis.close()
 
     @provide(scope=Scope.APP)

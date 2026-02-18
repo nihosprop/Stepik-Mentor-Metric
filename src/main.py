@@ -10,6 +10,7 @@ from dishka.integrations.aiogram import setup_dishka
 from bot.dialogs import ROUTERS
 from core.logger import setup_logging
 from core.main_config import main_config
+from core.set_main_menu import set_main_menu
 from infrastructure.di.providers import PROVIDERS
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,8 @@ async def main() -> None:
 
     storage = await container.get(RedisStorage)
     dp = Dispatcher(storage=storage)
+
+    await set_main_menu(bot=bot)
 
     logger.info('Dispatcher instance created')
 

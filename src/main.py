@@ -7,10 +7,10 @@ from aiogram_dialog import setup_dialogs
 from dishka import AsyncContainer, make_async_container
 from dishka.integrations.aiogram import setup_dishka
 
+from bot.commands import set_main_menu
 from bot.dialogs import ROUTERS
 from core.logger import setup_logging
 from core.main_config import main_config
-from core.set_main_menu import set_main_menu
 from infrastructure.di.providers import PROVIDERS
 
 logger = logging.getLogger(__name__)

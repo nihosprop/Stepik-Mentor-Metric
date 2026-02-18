@@ -10,6 +10,7 @@ from dishka import FromDishka
 from db.repository.tg_user_repo import TGUserRepository
 
 from .states import StartSG
+from ..mentors.states import MentorSG
 
 start_router = Router()
 
@@ -49,6 +50,17 @@ async def start(
         return
 
     logger.warning('Failed to determine user')
+    logger.debug('Exit')
+
+async def switch_to_mentors(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    logger.debug('Entry')
+
+    await dialog_manager.start(state=MentorSG.start)
+
     logger.debug('Exit')
 
 

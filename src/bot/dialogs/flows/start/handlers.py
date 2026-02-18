@@ -3,7 +3,7 @@ import logging
 from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogManager, StartMode, ShowMode
 from aiogram_dialog.widgets.kbd import Button
 from dishka import FromDishka
 
@@ -40,13 +40,15 @@ async def start(
         None
     """
     logger.debug('Entry')
+    await msg.delete()
 
     if tg_user := msg.from_user:
         await user_repo.upsert_user(telegram_user=tg_user)
         await dialog_manager.start(
-            state=StartSG.start, mode=StartMode.RESET_STACK
+            state=StartSG.start, mode=StartMode.RESET_STACK,
+            show_mode=ShowMode.DELETE_AND_SEND,
         )
-        await msg.delete()
+        logger.debug('Exit')
         return
 
     logger.warning('Failed to determine user')

@@ -2,7 +2,7 @@ import logging
 
 from aiogram import Router
 from aiogram.types import CallbackQuery
-from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Button
 
 from bot.dialogs.flows.start.states import StartSG
@@ -17,6 +17,7 @@ async def switch_to_main_menu(
 ) -> None:
     logger.debug('Entry')
 
-    await dialog_manager.start(state=StartSG.start, mode=StartMode.RESET_STACK)
+    await dialog_manager.start(state=StartSG.start, mode=StartMode.RESET_STACK,
+                               show_mode=ShowMode.EDIT)
 
     logger.debug('Exit')

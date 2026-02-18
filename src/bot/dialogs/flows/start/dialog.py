@@ -8,7 +8,7 @@ from bot.dialogs.flows.start.states import StartSG
 
 start_dialog = Dialog(
     Window(
-        Format(text='Привет {user_name}!\n===  Главное меню  ==='),
+        Format(text='===  Главное меню  ==='),
         Group(
             Row(
                 Button(

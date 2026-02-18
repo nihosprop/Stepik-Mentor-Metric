@@ -61,5 +61,6 @@ async def in_dev(
     logger.debug('Entry')
 
     await clbk.answer('Кнопка в разработке!', show_alert=True)
+    logger.debug('')
 
     logger.debug('Exit')

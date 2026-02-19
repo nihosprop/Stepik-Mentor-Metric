@@ -3,7 +3,11 @@ from aiogram_dialog.widgets.kbd import Button, Group, Row
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.dialogs.flows.start.getters import get_tg_username
-from bot.dialogs.flows.start.handlers import in_dev, switch_to_mentors
+from bot.dialogs.flows.start.handlers import (
+    in_dev,
+    switch_to_courses,
+    switch_to_mentors,
+)
 from bot.dialogs.flows.start.states import StartSG
 
 start_dialog = Dialog(
@@ -16,7 +20,11 @@ start_dialog = Dialog(
                     id='mentors',
                     on_click=switch_to_mentors,
                 ),
-                Button(text=Const('Курсы'), id='courses', on_click=in_dev),
+                Button(
+                    text=Const('Курсы'),
+                    id='courses',
+                    on_click=switch_to_courses,
+                ),
             ),
             Button(text=Const('Статистика'), id='statistic', on_click=in_dev),
         ),

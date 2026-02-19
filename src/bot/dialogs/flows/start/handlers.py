@@ -7,6 +7,7 @@ from aiogram_dialog import DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from dishka.integrations.aiogram import FromDishka
 
+from bot.dialogs.flows.courses.states import CoursesSG
 from db.repository.tg_user_repo import TGUserRepository
 
 from ..mentors.states import MentorSG
@@ -64,6 +65,17 @@ async def switch_to_mentors(
     logger.debug('Entry')
 
     await dialog_manager.start(state=MentorSG.start)
+
+    logger.debug('Exit')
+
+async def switch_to_courses(
+    _clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    logger.debug('Entry')
+
+    await dialog_manager.start(state=CoursesSG.start)
 
     logger.debug('Exit')
 

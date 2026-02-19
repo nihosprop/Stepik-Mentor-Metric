@@ -2,7 +2,7 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Group, Row
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.dialogs.flows.mentors.handlers import switch_to_main_menu
+from bot.dialogs.common.widgets import MAIN_MENU_BUTTON
 from bot.dialogs.flows.mentors.states import MentorSG
 from bot.dialogs.flows.start.getters import get_tg_username
 from bot.dialogs.flows.start.handlers import in_dev
@@ -28,11 +28,7 @@ mentors_dialog = Dialog(
                 id='mentors_list',
                 on_click=in_dev,
             ),
-            Button(
-                text=Const('В главное меню '),
-                id='in_main_menu',
-                on_click=switch_to_main_menu,
-                )
+            MAIN_MENU_BUTTON
         ),
         getter=get_tg_username,
         state=MentorSG.start,

@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Button
-from dishka import FromDishka
+from dishka.integrations.aiogram import FromDishka
 
 from db.repository.tg_user_repo import TGUserRepository
 

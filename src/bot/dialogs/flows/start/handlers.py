@@ -3,7 +3,7 @@ import logging
 from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import DialogManager, StartMode, ShowMode
+from aiogram_dialog import DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from dishka import FromDishka
 
@@ -45,7 +45,8 @@ async def start(
     if tg_user := msg.from_user:
         await user_repo.upsert_user(telegram_user=tg_user)
         await dialog_manager.start(
-            state=StartSG.start, mode=StartMode.RESET_STACK,
+            state=StartSG.start,
+            mode=StartMode.RESET_STACK,
             show_mode=ShowMode.DELETE_AND_SEND,
         )
         logger.debug('Exit')

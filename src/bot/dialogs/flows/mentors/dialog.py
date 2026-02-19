@@ -1,11 +1,11 @@
-from bot.dialogs.flows.mentors.handlers import switch_to_main_menu
-from bot.dialogs.flows.mentors.states import MentorSG
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Group, Row
 from aiogram_dialog.widgets.text import Const, Format
 
+from bot.dialogs.flows.mentors.handlers import switch_to_main_menu
+from bot.dialogs.flows.mentors.states import MentorSG
 from bot.dialogs.flows.start.getters import get_tg_username
-from bot.dialogs.flows.start.handlers import in_dev, switch_to_mentors
+from bot.dialogs.flows.start.handlers import in_dev
 
 mentors_dialog = Dialog(
     Window(

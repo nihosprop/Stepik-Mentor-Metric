@@ -21,3 +21,16 @@ async def switch_to_main_menu(
                                show_mode=ShowMode.EDIT)
 
     logger.debug('Exit')
+
+async def in_dev(
+    clbk: CallbackQuery,
+    _button: Button,
+    _dialog_manager: DialogManager,
+    **_kwargs,
+) -> None:
+    logger.debug('Entry')
+
+    await clbk.answer('Кнопка в разработке!', show_alert=True)
+    logger.debug('')
+
+    logger.debug('Exit')

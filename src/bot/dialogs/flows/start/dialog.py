@@ -2,9 +2,9 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Group, Row
 from aiogram_dialog.widgets.text import Const, Format
 
+from bot.dialogs.common.handlers import in_dev
 from bot.dialogs.flows.start.getters import get_tg_username
 from bot.dialogs.flows.start.handlers import (
-    in_dev,
     switch_to_courses,
     switch_to_mentors,
 )

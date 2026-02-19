@@ -2,10 +2,10 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Group, Row
 from aiogram_dialog.widgets.text import Const, Format
 
+from bot.dialogs.common.handlers import in_dev
 from bot.dialogs.common.widgets import MAIN_MENU_BUTTON
 from bot.dialogs.flows.mentors.states import MentorSG
 from bot.dialogs.flows.start.getters import get_tg_username
-from bot.dialogs.flows.start.handlers import in_dev
 
 mentors_dialog = Dialog(
     Window(

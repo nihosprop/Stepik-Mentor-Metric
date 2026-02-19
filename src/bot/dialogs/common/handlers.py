@@ -22,7 +22,7 @@ async def switch_to_main_menu(
 
     logger.debug('Exit')
 
-async def in_dev(
+async def on_click_in_dev(
     clbk: CallbackQuery,
     _button: Button,
     _dialog_manager: DialogManager,

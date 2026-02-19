@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 @inject
 async def get_tg_username(
-    _dialog_manager: DialogManager, event_from_user: User, **_kwargs
+    dialog_manager: DialogManager, event_from_user: User, **_kwargs
 ) -> dict[str, Any]:
     logger.debug(f'{event_from_user.model_dump_json(indent=4)}')
 

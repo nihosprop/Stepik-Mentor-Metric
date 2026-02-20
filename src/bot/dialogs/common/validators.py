@@ -1,7 +1,7 @@
 import re
 
 
-def check_profile_link(link: str) -> str:
+def check_stepik_profile_link(link: str) -> str:
     match = re.search(
         r'\bhttps?://[^\s/]+/users/(\d+)(?:/profile)?/?\b',
         link,

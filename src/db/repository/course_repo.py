@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class CourseRepo:
     session: AsyncSession
 
-    async def add_course(self, course: Course) -> Course:
+    async def add_course(self, course: Course) -> None:
         pass
 
     async def delete_course(self, course_id: int) -> None:

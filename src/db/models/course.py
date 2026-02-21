@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 class Course(TimestampMixin, Base):
     __tablename__ = 'courses'
 
+    # TODO: nullable=False for course_id and title
     course_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    # TODO: nullable=False for title
     title: Mapped[str] = mapped_column(String(128))
     is_active: Mapped[bool] = mapped_column(default=True)
 

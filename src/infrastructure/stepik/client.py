@@ -94,7 +94,7 @@ class StepikAPIClient:
             async with self.session.request(
                 method, url, headers=headers, params=params, json=json_data
             ) as response:
-                # Логика повтора при истекшем токене (401)
+                # Retry logic for expired token (401)
                 if response.status == 401:
                     logger.warning('Токен протух, пробуем обновить...')
                     await self.reset_stepik_token()

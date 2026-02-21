@@ -4,7 +4,7 @@ from typing import Any
 
 from aiogram.types import User
 from aiogram_dialog import DialogManager
-from dishka.integrations.aiogram import inject
+from dishka.integrations.aiogram_dialog import inject
 
 logger = logging.getLogger(__name__)
 

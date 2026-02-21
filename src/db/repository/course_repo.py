@@ -1,3 +1,4 @@
+from turtle import st
 import logging
 
 from dataclasses import dataclass
@@ -12,13 +13,13 @@ from db.models.telegram_user import User
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class CourseRepo:
     session: AsyncSession
 
-    async def add_course(self, course: Course) -> None:
+    async def add_course(self, course_id: int, course_title: str) -> None:
         pass
 
     async def delete_course(self, course_id: int) -> None:
         pass
-

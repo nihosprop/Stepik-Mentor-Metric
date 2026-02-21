@@ -1,11 +1,13 @@
 import logging
 
 from aiogram import Router
-from aiogram.types import Message
+from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
+from aiogram_dialog.widgets.kbd import Button
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
+from db.repository.stepik_user_repo import StepikUserRepo
 from infrastructure.stepik.client import StepikAPIClient
 
 start_router = Router()
@@ -48,4 +50,30 @@ async def error_link_to_mentor(
     # TODO: write down the msg_id and delete it on the next update
     await msg.answer(f'Вы ввели некорректную ссылку:\n<i>{msg.text}</i>\n')
 
+    logger.debug('Exit')
+
+
+@inject
+async def add_mentor_to_db(
+    clbk: CallbackQuery,
+    button: Button,
+    dialog_manager: DialogManager,
+    stepik_user_repo: FromDishka[StepikUserRepo],
+) -> None:
+    logger.debug('Entry')
+
+    stepik_user_id = dialog_manager.dialog_data['mentor_id']
+    mentor_name = dialog_manager.dialog_data['stepik_username']
+
+    await stepik_user_repo.upsert_user(
+        stepik_user_id=stepik_user_id,
+        full_name=mentor_name,
+        is_mentor=True,
+    )
+    await clbk.answer(
+        f'✅ Ментор {mentor_name} успешно добавлен!\nМожете продолжить.',
+        show_alert=True,
+    )
+
+    await dialog_manager.back()
     logger.debug('Exit')

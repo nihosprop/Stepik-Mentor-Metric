@@ -1,3 +1,4 @@
+from aiogram.utils.markdown import text
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Button, Group, Row, SwitchTo
@@ -55,10 +56,11 @@ mentors_dialog = Dialog(
     ),
     Window(
         Format('Подтвердите добавление Ментора:\n<b>{stepik_username}</b>'),
-        Button(
-            Const(text='✅ Подтвердить'),
+        SwitchTo(
+            text=Const(text='✅ Подтвердить'),
             id='confirm_mentor',
             on_click=add_mentor_to_db,
+            state=MentorSG.fill_link_to_mentor
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

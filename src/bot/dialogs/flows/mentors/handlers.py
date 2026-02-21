@@ -74,6 +74,4 @@ async def add_mentor_to_db(
         f'✅ Ментор {mentor_name} успешно добавлен!\nМожете продолжить.',
         show_alert=True,
     )
-
-    await dialog_manager.back()
     logger.debug('Exit')

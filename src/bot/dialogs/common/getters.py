@@ -9,11 +9,11 @@ from dishka.integrations.aiogram import inject
 logger = logging.getLogger(__name__)
 
 
+
+
 @inject
-async def get_tg_username(
-    dialog_manager: DialogManager, event_from_user: User, **_kwargs
+async def get_tg_username(event_from_user: User, **_kwargs
 ) -> dict[str, Any]:
-    # logger.debug(f'{event_from_user.model_dump_json(indent=4)}')
 
     username = 'Anonymous'
     if event_from_user.username and event_from_user.username.strip():

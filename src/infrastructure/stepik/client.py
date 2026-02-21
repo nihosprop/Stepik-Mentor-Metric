@@ -115,7 +115,7 @@ class StepikAPIClient:
                     ) as retry_response:
                         response = retry_response
 
-                # Обработка Rate Limit (429)
+                # processing Rate Limit (429)
                 if response.status == 429:
                     retry_after = int(response.headers.get('Retry-After', 5))
                     logger.warning(f'Rate limited. Ждем {retry_after} сек.')

@@ -9,6 +9,7 @@ from bot.dialogs.common.validators import check_stepik_profile_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.mentors.getters import get_stepik_username
 from bot.dialogs.flows.mentors.handlers import (
+    add_mentor_to_db,
     correct_link_to_mentor,
     error_link_to_mentor,
 )
@@ -57,7 +58,7 @@ mentors_dialog = Dialog(
         Button(
             Const(text='✅ Подтвердить'),
             id='confirm_mentor',
-            on_click=on_click_in_dev,
+            on_click=add_mentor_to_db,
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 @inject
 async def get_stepik_username(
-    dialog_manager: DialogManager,
-    event_from_user: User, **_kwargs
+    dialog_manager: DialogManager, event_from_user: User, **_kwargs
 ) -> dict[str, Any]:
-    username = dialog_manager.dialog_data.get('stepik_username')
-    return {'stepik_username': username}
+    return {
+        'stepik_username': dialog_manager.dialog_data.get('stepik_username')
+    }

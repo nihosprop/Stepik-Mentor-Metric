@@ -37,6 +37,9 @@ class StepikUserRepo:
         await self.session.execute(upsert_stmt)
         logger.debug(f'Upserted Stepik user {stepik_user_id}')
 
+    async def delete_user(self, stepik_user_id: int) -> None:
+        pass
+
     async def get_stepik_user(self, stepik_user_id: int) -> StepikUser | None:
         """
         Gets a user object by ID.

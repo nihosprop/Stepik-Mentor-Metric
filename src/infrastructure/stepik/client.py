@@ -7,8 +7,7 @@ from typing import Any
 import aiohttp
 
 from aiohttp import ClientResponseError, ClientSession
-
-from infrastructure.di.providers.redis import RedisCache
+from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 class StepikAPIClient:
     client_id: str
     client_secret: str
-    redis_cache: RedisCache
+    redis_cache: Redis
     session: ClientSession
     base_url: str = 'https://stepik.org/api'
 
@@ -178,7 +177,6 @@ class StepikAPIClient:
     async def get_comment_data(self, comment_id: int) -> dict[str, Any] | None:
         res = await self.make_api_request('GET', f'comments/{comment_id}')
         return res if res and res.get('comments') else None
-
 
     # --- Specific logic ---
     async def get_comments(

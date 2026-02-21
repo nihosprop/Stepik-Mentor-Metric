@@ -5,7 +5,6 @@ from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
 from aiogram_dialog.widgets.kbd import Button
-from dishka import AsyncContainer
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from db.repository.stepik_user_repo import StepikUserRepo

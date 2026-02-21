@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 
+from db.repository.course_repo import CourseRepo
 from db.repository.stepik_user_repo import StepikUserRepo
 from db.repository.tg_user_repo import TGUserRepository
 
@@ -36,3 +37,15 @@ class RepositoryProvider(Provider):
             StepikUserRepo
         """
         return StepikUserRepo(session=session)
+
+    @provide
+    def course_repo(self, session: AsyncSession) -> CourseRepo:
+        """
+        Course repository
+
+        Args:
+            session: AsyncSession
+
+        Returns: CourseRepo
+        """
+        return CourseRepo(session=session)

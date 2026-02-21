@@ -58,7 +58,7 @@ mentors_dialog = Dialog(
         Back(
             text=Const(text='✅ Подтвердить'),
             id='confirm_mentor',
-            on_click=add_mentor_to_db,
+            on_click=add_mentor_to_db, # type: ignore[arg-type]
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

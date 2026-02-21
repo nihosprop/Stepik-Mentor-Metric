@@ -29,8 +29,5 @@ async def on_click_in_dev(
     **_kwargs,
 ) -> None:
     logger.debug('Entry')
-
     await clbk.answer('Кнопка в разработке!', show_alert=True)
-    logger.debug('')
-
     logger.debug('Exit')

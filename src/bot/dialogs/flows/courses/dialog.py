@@ -30,7 +30,6 @@ courses_dialog = Dialog(
             ),
             MAIN_MENU_BUTTON,
         ),
-        getter=get_tg_username,
         state=CoursesSG.start,
     )
 )

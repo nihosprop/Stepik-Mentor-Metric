@@ -23,7 +23,7 @@ async def get_stepik_username(
 
 
 @inject
-async def get_mentors_list(
+async def get_mentors(
     dialog_manager: DialogManager,
     event_from_user: User,
     stepik_user_repo: FromDishka[StepikUserRepo],

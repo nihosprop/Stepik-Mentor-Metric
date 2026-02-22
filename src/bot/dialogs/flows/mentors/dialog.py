@@ -16,7 +16,7 @@ from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.validators import check_stepik_profile_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.mentors.getters import (
-    get_mentors_list,
+    get_mentors,
     get_stepik_username,
 )
 from bot.dialogs.flows.mentors.handlers import (
@@ -96,7 +96,7 @@ mentors_dialog = Dialog(
         MAIN_MENU_BUTTON,
         SwitchTo(Const('Назад'), id='back', state=MentorSG.start),
         state=MentorSG.list_mentors,
-        getter=get_mentors_list,
+        getter=get_mentors,
     ),
     Window(
         Format(text='Подтвердите удаление!'),

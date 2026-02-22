@@ -2,7 +2,7 @@ import logging
 
 from dataclasses import dataclass
 
-from sqlalchemy import exists, select
+from sqlalchemy import delete, exists, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,9 +23,7 @@ class StepikUserRepo:
         self, stepik_user_id: int, full_name: str, is_mentor: bool = False
     ) -> None:
         insert_stmt = insert(StepikUser).values(
-            user_id=stepik_user_id,
-            full_name=full_name,
-            is_mentor=is_mentor
+            user_id=stepik_user_id, full_name=full_name, is_mentor=is_mentor
         )
         upsert_stmt = insert_stmt.on_conflict_do_update(
             index_elements=['user_id'],
@@ -36,6 +34,11 @@ class StepikUserRepo:
         )
         await self.session.execute(upsert_stmt)
         logger.debug(f'Upserted Stepik user {stepik_user_id}')
+
+    async def delete_user(self, stepik_user_id: int) -> None:
+        stmt = delete(StepikUser).where(StepikUser.user_id == stepik_user_id)
+        await self.session.execute(stmt)
+        logger.debug(f'Deleted Stepik user {stepik_user_id}')
 
     async def get_stepik_user(self, stepik_user_id: int) -> StepikUser | None:
         """

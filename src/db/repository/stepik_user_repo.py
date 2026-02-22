@@ -46,3 +46,9 @@ class StepikUserRepo:
         """
         stmt = select(StepikUser).where(StepikUser.user_id == stepik_user_id)
         return await self.session.scalar(stmt)
+
+    async def get_all_mentors(self) -> list[StepikUser]:
+        """Returns a list of all users who have is_mentor=True"""
+        stmt = select(StepikUser).where(StepikUser.is_mentor)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())

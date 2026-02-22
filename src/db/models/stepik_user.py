@@ -8,6 +8,7 @@ from db.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
     from .mentor_reply import MentorReply
+    from .mentor_statistic import MentorStatistic
 
 
 class StepikUser(TimestampMixin, Base):
@@ -20,3 +21,6 @@ class StepikUser(TimestampMixin, Base):
     is_mentor: Mapped[bool] = mapped_column(default=False)
 
     replies: Mapped[list[MentorReply]] = relationship(back_populates='mentor')
+    statistics: Mapped[list[MentorStatistic]] = relationship(
+        back_populates='mentor'
+    )

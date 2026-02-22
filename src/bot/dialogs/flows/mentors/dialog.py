@@ -1,17 +1,30 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
-from aiogram_dialog.widgets.kbd import Back, Button, Group, Row, SwitchTo
+from aiogram_dialog.widgets.kbd import (
+    Back,
+    Button,
+    Group,
+    Row,
+    ScrollingGroup,
+    Select,
+    SwitchTo,
+)
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.dialogs.common.getters import get_tg_username
 from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.validators import check_stepik_profile_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
-from bot.dialogs.flows.mentors.getters import get_stepik_username
+from bot.dialogs.flows.mentors.getters import (
+    get_mentors_list,
+    get_stepik_username,
+)
 from bot.dialogs.flows.mentors.handlers import (
     add_mentor_to_db,
     correct_link_to_mentor,
     error_link_to_mentor,
+    on_delete_mentor,
+    on_mentor_selected,
 )
 from bot.dialogs.flows.mentors.states import MentorSG
 
@@ -25,10 +38,10 @@ mentors_dialog = Dialog(
                     id='add_mentor',
                     state=MentorSG.fill_link_to_mentor,
                 ),
-                Button(
+                SwitchTo(
                     text=Const('Удалить ментора'),
                     id='remove_mentor',
-                    on_click=on_click_in_dev,
+                    state=MentorSG.list_mentors,
                 ),
             ),
             Button(
@@ -58,11 +71,43 @@ mentors_dialog = Dialog(
         Back(
             text=Const(text='✅ Подтвердить'),
             id='confirm_mentor',
-            on_click=add_mentor_to_db, # type: ignore[arg-type]
+            on_click=add_mentor_to_db,  # type: ignore[arg-type]
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
         getter=get_stepik_username,
         state=MentorSG.confirm_mentor,
+    ),
+    Window(
+        # TODO: change the text based on the availability of mentors
+        Format('Найдено менторов: {count}\nВыберите нужного:'),
+        ScrollingGroup(
+            Select(
+                Format(text='{item.full_name}'),
+                id='s_mentors',
+                item_id_getter=lambda x: x.user_id,
+                items='mentors',
+                on_click=on_mentor_selected,  # type: ignore[arg-type]
+            ),
+            id='mentors_scroll',
+            width=1,
+            height=4,
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(Const('Назад'), id='back', state=MentorSG.start),
+        state=MentorSG.list_mentors,
+        getter=get_mentors_list,
+    ),
+    Window(
+        Format(text='Подтвердите удаление!'),
+        Back(
+            text=Const(text='✅ Подтвердить'),
+            id='conf_del_mentor',
+            on_click=on_delete_mentor,  # type: ignore[arg-type]
+        ),
+        MAIN_MENU_BUTTON,
+        BACK_BUTTON,
+        getter=get_stepik_username,
+        state=MentorSG.confirm_delete_mentor,
     ),
 )

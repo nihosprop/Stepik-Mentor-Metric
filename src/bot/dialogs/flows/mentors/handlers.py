@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Select
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from db.repository.stepik_user_repo import StepikUserRepo
@@ -73,5 +73,36 @@ async def add_mentor_to_db(
     await clbk.answer(
         f'✅ Ментор {mentor_name} успешно добавлен!\nМожете продолжить.',
         show_alert=True,
+    )
+    logger.debug('Exit')
+
+
+@inject
+async def on_mentor_selected(
+    _clbk: CallbackQuery,
+    _widget: Select,
+    dialog_manager: DialogManager,
+    item_id: str,
+) -> None:
+    logger.debug('Entry')
+
+    dialog_manager.dialog_data['mentor_id'] = int(item_id)
+    await dialog_manager.next()
+
+    logger.debug('Exit')
+
+
+@inject
+async def on_delete_mentor(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+    stepik_user_repo: FromDishka[StepikUserRepo],
+) -> None:
+    logger.debug('Entry')
+
+    await stepik_user_repo.delete_user(dialog_manager.dialog_data['mentor_id'])
+    await clbk.answer(
+        'Ментор успешно удален!\nМожете продолжить.', show_alert=True
     )
     logger.debug('Exit')

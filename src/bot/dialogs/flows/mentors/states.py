@@ -6,3 +6,4 @@ class MentorSG(StatesGroup):
     fill_link_to_mentor = State()
     confirm_mentor = State()
     list_mentors = State()
+    confirm_delete_mentor = State()

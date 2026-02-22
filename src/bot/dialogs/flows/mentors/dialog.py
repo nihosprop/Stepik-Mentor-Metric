@@ -41,7 +41,7 @@ mentors_dialog = Dialog(
                 SwitchTo(
                     text=Const('Удалить ментора'),
                     id='remove_mentor',
-                    state=MentorSG.list_mentors,
+                    state=MentorSG.selection_mentors,
                 ),
             ),
             Button(
@@ -95,7 +95,7 @@ mentors_dialog = Dialog(
         ),
         MAIN_MENU_BUTTON,
         SwitchTo(Const('Назад'), id='back', state=MentorSG.start),
-        state=MentorSG.list_mentors,
+        state=MentorSG.selection_mentors,
         getter=get_mentors,
     ),
     Window(

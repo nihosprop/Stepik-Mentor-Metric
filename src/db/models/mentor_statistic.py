@@ -26,5 +26,5 @@ class MentorStatistic(TimestampMixin, Base):
     replies_count: Mapped[int] = mapped_column(default=0)
     avg_response_time_seconds: Mapped[float] = mapped_column(nullable=True)
 
-    mentor: Mapped[StepikUser] = relationship(back_populates='replies')
-    course: Mapped[Course] = relationship(back_populates='replies')
+    mentor: Mapped[StepikUser] = relationship(back_populates='statistics')
+    course: Mapped[Course] = relationship(back_populates='statistics')

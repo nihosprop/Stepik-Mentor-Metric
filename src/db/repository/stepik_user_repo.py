@@ -41,9 +41,7 @@ class StepikUserRepo:
         logger.debug(f'Deleted Stepik user {stepik_user_id}')
 
     async def get_stepik_user(self, stepik_user_id: int) -> StepikUser | None:
-        """
-        Gets a user object by ID.
-        """
+        """Gets a user object by ID."""
         stmt = select(StepikUser).where(StepikUser.user_id == stepik_user_id)
         return await self.session.scalar(stmt)
 

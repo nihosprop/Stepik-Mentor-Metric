@@ -40,7 +40,7 @@ courses_dialog = Dialog(
         state=CoursesSG.start,
     ),
     Window(
-        Const(text='Отправьте ссылку на профиль ментора'),
+        Const(text='Отправьте ссылку на курс'),
         TextInput(
             id='link_course',
             type_factory=check_stepik_course_link,

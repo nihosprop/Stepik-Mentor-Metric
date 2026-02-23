@@ -2,7 +2,6 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import (
     Back,
-    Button,
     Group,
     Row,
     ScrollingGroup,
@@ -43,10 +42,10 @@ mentors_dialog = Dialog(
                     state=MentorSG.selection_mentors,
                 ),
             ),
-            Button(
+            SwitchTo(
                 text=Const('Список менторов'),
                 id='mentors_list',
-                on_click=on_click_in_dev,
+                state=MentorSG.list_mentors,
             ),
             MAIN_MENU_BUTTON,
         ),
@@ -93,20 +92,30 @@ mentors_dialog = Dialog(
             height=4,
         ),
         MAIN_MENU_BUTTON,
-        SwitchTo(Const('Назад'), id='back', state=MentorSG.start),
+        SwitchTo(Const('◀️ Назад'), id='in_start_1', state=MentorSG.start),
         state=MentorSG.selection_mentors,
         getter=get_mentors,
     ),
     Window(
         Format(text='Подтвердите удаление!'),
-        Back(
+        SwitchTo(
             text=Const(text='✅ Подтвердить'),
             id='conf_del_mentor',
             on_click=on_delete_mentor,  # type: ignore[arg-type]
+            state=MentorSG.list_mentors,
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
         getter=get_stepik_username,
         state=MentorSG.confirm_delete_mentor,
+    ),
+    Window(
+        Const(text='👥 Список менторов:\n'),
+        List(Format(text='{item.full_name}: {item.user_id}'), items='mentors'),
+        MAIN_MENU_BUTTON,
+        # TODO: fix BACK_BUTTON
+        SwitchTo(Const('◀️ Назад'), id='in_start_2', state=MentorSG.start),
+        getter=get_mentors,
+        state=MentorSG.list_mentors,
     ),
 )

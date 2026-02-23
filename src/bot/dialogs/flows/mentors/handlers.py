@@ -103,6 +103,6 @@ async def on_delete_mentor(
 
     await stepik_user_repo.delete_user(dialog_manager.dialog_data['mentor_id'])
     await clbk.answer(
-        'Ментор успешно удален!\nМожете продолжить.', show_alert=True
+        '✅ Ментор успешно удален!\nМожете продолжить.', show_alert=True
     )
     logger.debug('Exit')

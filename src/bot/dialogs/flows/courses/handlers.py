@@ -29,8 +29,8 @@ async def correct_link_to_course(
         dialog_manager.dialog_data['course_id'] = course_id
         dialog_manager.dialog_data['course_title'] = course_title
         await dialog_manager.next()
-    logger.debug(f'Course title: {course_title or "Not found course"}')
 
+    logger.debug(f'Course title: {course_title or "Not found course"}')
     logger.debug('Exit')
 
 

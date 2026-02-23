@@ -1,8 +1,11 @@
+from aiogram import F
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import (
     Back,
     Group,
+    NextPage,
+    PrevPage,
     Row,
     ScrollingGroup,
     Select,
@@ -91,6 +94,18 @@ mentors_dialog = Dialog(
             id='mentors_scroll',
             width=1,
             height=4,
+            hide_pager=True,
+        ),
+        Row(
+            PrevPage(
+                scroll='mentors_scroll',
+                text=Format(text='{data[prev_page_button]}'),
+            ),
+            NextPage(
+                scroll='mentors_scroll',
+                text=Format(text='{data[next_page_button]}'),
+            ),
+            when=F['count'] > 4,
         ),
         MAIN_MENU_BUTTON,
         SwitchTo(Const('◀️ Назад'), id='in_start_1', state=MentorSG.start),
@@ -103,7 +118,7 @@ mentors_dialog = Dialog(
             text=Const(text='✅ Подтвердить'),
             id='conf_del_mentor',
             on_click=on_delete_mentor,  # type: ignore[arg-type]
-            state=MentorSG.list_mentors,
+            state=MentorSG.selection_mentors,
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

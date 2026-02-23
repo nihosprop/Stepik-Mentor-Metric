@@ -27,9 +27,23 @@ async def get_mentors(
     event_from_user: User,
     stepik_user_repo: FromDishka[StepikUserRepo],
     **_kwargs,
-) -> dict[str, Sequence[StepikUser] | int]:
+) -> dict[str, Sequence[StepikUser] | int | str]:
     mentors = await stepik_user_repo.get_all_mentors()
-    return {'mentors': mentors, 'count': len(mentors)}
+    count_mentors = len(mentors)
+    scroll = dialog_manager.find("mentors_scroll")
+
+    current_page = await scroll.get_page() if scroll else 0
+    last_page_index = max(0, (count_mentors - 1) // 4)
+
+    is_first = (current_page == 0)
+    is_last = (current_page >= last_page_index)
+
+    prev_button_text = ' ' if is_first else '◀️'
+    next_button_text = ' ' if is_last else '▶️'
+
+    return {'mentors': mentors, 'count': count_mentors,
+            'prev_page_button': prev_button_text,
+            'next_page_button': next_button_text}
 
 
 @inject

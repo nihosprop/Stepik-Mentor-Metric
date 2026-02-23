@@ -40,8 +40,8 @@ async def get_list_courses(
 ) -> dict[str, list[str] | int]:
     courses = [
         f'<a href="https://stepik.org/course/'
-        f'{item.course_id}/info">{item.title}</a>'
-        f' ID: <code>{item.course_id}</code>'
+        f'{item.course_id}/info">{item.title}</a>\n'
+        f'ID: <code>{item.course_id}</code>\n\n'
         for item in await course_repo.get_all_courses()
     ]
     return {'courses': courses, 'count': len(courses)}

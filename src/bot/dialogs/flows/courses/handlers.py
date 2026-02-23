@@ -28,6 +28,24 @@ async def on_course_selected(
 
 
 @inject
+async def on_delete_course(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+    course_repo: FromDishka[CourseRepo],
+) -> None:
+    logger.debug('Entry')
+
+    await course_repo.delete_course(
+        course_id=dialog_manager.dialog_data['course_id']
+    )
+    await clbk.answer(
+        '✅ Курс успешно удален!\nМожете продолжить.', show_alert=True
+    )
+    logger.debug('Exit')
+
+
+@inject
 async def correct_link_to_course(
     _msg: Message,
     _widget: ManagedTextInput,
@@ -77,9 +95,7 @@ async def add_course_to_db(
     course_id = dialog_manager.dialog_data['course_id']
     course_title = dialog_manager.dialog_data['course_title']
 
-    await course_repo.upsert_course(
-        course_id=course_id, title=course_title
-    )
+    await course_repo.upsert_course(course_id=course_id, title=course_title)
     await clbk.answer(
         f'✅ Курс {course_title} успешно добавлен!\nМожете продолжить.',
         show_alert=True,

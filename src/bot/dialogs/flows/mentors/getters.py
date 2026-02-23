@@ -12,7 +12,6 @@ from db.repository.stepik_user_repo import StepikUserRepo
 
 logger = logging.getLogger(__name__)
 
-
 @inject
 async def get_stepik_username(
     dialog_manager: DialogManager, event_from_user: User, **_kwargs

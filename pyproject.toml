@@ -9,15 +9,15 @@ dependencies = [
     "alembic>=1.18.4",
     "dishka>=1.8.0",
     "dynaconf>=3.2.12",
-    "psycopg[binary]>=3.3.2",
-    "redis>=7.1.1",
+    "psycopg[binary]>=3.3.3",
+    "redis>=7.2.0",
     "sqlalchemy[asyncio]>=2.0.46",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.1",
-    "ty>=0.0.17",
+    "ruff>=0.15.2",
+    "ty>=0.0.18",
 ]
 
 # === TY ===

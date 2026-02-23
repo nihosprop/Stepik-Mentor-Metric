@@ -2,7 +2,6 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import (
     Back,
-    Button,
     Group,
     Row,
     ScrollingGroup,
@@ -11,7 +10,6 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format, List
 
-from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.validators import check_stepik_course_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.courses.getters import (
@@ -38,16 +36,16 @@ courses_dialog = Dialog(
                     id='add_mentor',
                     state=CoursesSG.fill_link_to_course,
                 ),
-                Button(
+                SwitchTo(
                     text=Const('Удалить курс'),
                     id='remove_mentor',
-                    on_click=on_click_in_dev,
+                    state=CoursesSG.selection_courses,
                 ),
             ),
-            Button(
+            SwitchTo(
                 text=Const('Список курсов'),
                 id='mentors_list',
-                on_click=on_click_in_dev,
+                state=CoursesSG.list_courses,
             ),
             MAIN_MENU_BUTTON,
         ),

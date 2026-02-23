@@ -38,10 +38,10 @@ async def get_list_courses(
     course_repo: FromDishka[CourseRepo],
     **_kwargs,
 ) -> dict[str, list[str] | int]:
-    mentors = [
+    courses = [
         f'<a href="https://stepik.org/course/'
         f'{item.course_id}/info">{item.title}</a>'
         f' ID: <code>{item.course_id}</code>'
         for item in await course_repo.get_all_courses()
     ]
-    return {'mentors': mentors, 'count': len(mentors)}
+    return {'courses': courses, 'count': len(courses)}

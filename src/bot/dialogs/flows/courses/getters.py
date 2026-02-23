@@ -29,3 +29,19 @@ async def get_courses(
 ) -> dict[str, Sequence[Course] | int]:
     courses = await course_repo.get_all_courses()
     return {'mentors': courses, 'count': len(courses)}
+
+@inject
+async def get_list_courses(
+    dialog_manager: DialogManager,
+    event_from_user: User,
+    course_repo: FromDishka[CourseRepo],
+    **_kwargs,
+) -> dict[str, list[str] | int]:
+    mentors = [
+        f'<a href="https://stepik.org/course/'
+        f'{item.course_id}/info">{item.title}</a>'
+        f' ID: <code>{item.course_id}</code>'
+        for item in await course_repo.get_all_courses()
+    ]
+
+    return {'mentors': mentors, 'count': len(mentors)}

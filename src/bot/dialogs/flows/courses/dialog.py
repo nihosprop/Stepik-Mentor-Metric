@@ -9,17 +9,22 @@ from aiogram_dialog.widgets.kbd import (
     Select,
     SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const, Format, List
 
 from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.validators import check_stepik_course_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
-from bot.dialogs.flows.courses.getters import get_course_title, get_courses
+from bot.dialogs.flows.courses.getters import (
+    get_course_title,
+    get_courses,
+    get_list_courses,
+)
 from bot.dialogs.flows.courses.handlers import (
     add_course_to_db,
     correct_link_to_course,
     error_link_to_course,
     on_course_selected,
+    on_delete_course,
 )
 from bot.dialogs.flows.courses.states import CoursesSG
 
@@ -91,5 +96,30 @@ courses_dialog = Dialog(
         SwitchTo(Const('◀️ Назад'), id='in_start_1', state=CoursesSG.start),
         state=CoursesSG.selection_courses,
         getter=get_courses,
+    ),
+    Window(
+        Format(text='Подтвердите удаление!'),
+        SwitchTo(
+            text=Const(text='✅ Подтвердить'),
+            id='conf_del_course',
+            on_click=on_delete_course,  # type: ignore[arg-type]
+            state=CoursesSG.list_courses,
+        ),
+        MAIN_MENU_BUTTON,
+        BACK_BUTTON,
+        getter=get_course_title,
+        state=CoursesSG.confirm_delete_course,
+    ),
+    Window(
+        Const(text='📚 Список курсов:\n'),
+        List(
+            Format(text='{item}'),
+            items='courses',
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(Const('◀️ Назад'), id='in_start_2', state=CoursesSG.start),
+        getter=get_list_courses,
+        state=CoursesSG.list_courses,
+        disable_web_page_preview=True,
     ),
 )

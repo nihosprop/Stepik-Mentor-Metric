@@ -1,5 +1,6 @@
 import logging
 
+from collections.abc import Sequence
 from typing import Any
 
 from aiogram.types import User
@@ -28,6 +29,6 @@ async def get_mentors(
     event_from_user: User,
     stepik_user_repo: FromDishka[StepikUserRepo],
     **_kwargs,
-) -> dict[str, list[StepikUser] | int]:
+) -> dict[str, Sequence[StepikUser] | int]:
     mentors = await stepik_user_repo.get_all_mentors()
     return {'mentors': mentors, 'count': len(mentors)}

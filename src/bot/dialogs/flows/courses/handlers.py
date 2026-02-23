@@ -62,8 +62,8 @@ async def add_course_to_db(
     course_id = dialog_manager.dialog_data['course_id']
     course_title = dialog_manager.dialog_data['course_title']
 
-    await course_repo.add_course(
-        course_id=course_id, course_title=course_title
+    await course_repo.upsert_course(
+        course_id=course_id, title=course_title
     )
     await clbk.answer(
         f'✅ Курс {course_title} успешно добавлен!\nМожете продолжить.',

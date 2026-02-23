@@ -30,6 +30,7 @@ async def get_courses(
     courses = await course_repo.get_all_courses()
     return {'mentors': courses, 'count': len(courses)}
 
+
 @inject
 async def get_list_courses(
     dialog_manager: DialogManager,
@@ -43,5 +44,4 @@ async def get_list_courses(
         f' ID: <code>{item.course_id}</code>'
         for item in await course_repo.get_all_courses()
     ]
-
     return {'mentors': mentors, 'count': len(mentors)}

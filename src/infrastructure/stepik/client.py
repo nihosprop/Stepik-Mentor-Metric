@@ -161,6 +161,11 @@ class StepikAPIClient:
             return res['users'][0]
         return None
 
+    @staticmethod
+    def get_link_to_user(user_id: int) -> str:
+        """Generates a direct link to the user's profile."""
+        return f'https://stepik.org/users/{user_id}/profile'
+
     async def get_course(self, course_id: int) -> dict[str, Any] | None:
         res = await self.make_api_request('GET', f'courses/{course_id}')
         if res and res.get('courses'):

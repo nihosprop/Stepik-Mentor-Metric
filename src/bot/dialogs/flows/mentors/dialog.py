@@ -79,7 +79,7 @@ mentors_dialog = Dialog(
     ),
     Window(
         # TODO: change the text based on the availability of mentors
-        Format('Найдено менторов: {count}\nВыберите нужного:'),
+        Format('Найдено менторов: {count}\nВыберите нужного для удаления:'),
         ScrollingGroup(
             Select(
                 Format(text='{item.full_name}'),

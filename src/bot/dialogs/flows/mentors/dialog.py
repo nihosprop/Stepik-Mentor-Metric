@@ -14,6 +14,7 @@ from bot.dialogs.common.getters import get_tg_username
 from bot.dialogs.common.validators import check_stepik_profile_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.mentors.getters import (
+    get_list_mentors,
     get_mentors,
     get_stepik_username,
 )
@@ -111,11 +112,15 @@ mentors_dialog = Dialog(
     ),
     Window(
         Const(text='👥 Список менторов:\n'),
-        List(Format(text='{item.full_name}: {item.user_id}'), items='mentors'),
+        List(
+            Format(text='{item}'),
+            items='mentors',
+        ),
         MAIN_MENU_BUTTON,
         # TODO: fix BACK_BUTTON
         SwitchTo(Const('◀️ Назад'), id='in_start_2', state=MentorSG.start),
-        getter=get_mentors,
+        getter=get_list_mentors,
         state=MentorSG.list_mentors,
+        disable_web_page_preview=True,
     ),
 )

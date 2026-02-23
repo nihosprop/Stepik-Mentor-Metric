@@ -117,7 +117,6 @@ mentors_dialog = Dialog(
             items='mentors',
         ),
         MAIN_MENU_BUTTON,
-        # TODO: fix BACK_BUTTON
         SwitchTo(Const('◀️ Назад'), id='in_start_2', state=MentorSG.start),
         getter=get_list_mentors,
         state=MentorSG.list_mentors,

@@ -28,7 +28,7 @@ async def get_courses(
     **_kwargs,
 ) -> dict[str, Sequence[Course] | int]:
     courses = await course_repo.get_all_courses()
-    return {'mentors': courses, 'count': len(courses)}
+    return {'courses': courses, 'count': len(courses)}
 
 
 @inject

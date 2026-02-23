@@ -3,13 +3,28 @@ import logging
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Select
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from db.repository.course_repo import CourseRepo
 from infrastructure.stepik.client import StepikAPIClient
 
 logger = logging.getLogger(__name__)
+
+
+@inject
+async def on_course_selected(
+    _clbk: CallbackQuery,
+    _widget: Select,
+    dialog_manager: DialogManager,
+    item_id: str,
+) -> None:
+    logger.debug('Entry')
+
+    dialog_manager.dialog_data['course_id'] = int(item_id)
+    await dialog_manager.next()
+
+    logger.debug('Exit')
 
 
 @inject

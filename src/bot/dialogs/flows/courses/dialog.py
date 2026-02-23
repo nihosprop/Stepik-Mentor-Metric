@@ -1,16 +1,25 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
-from aiogram_dialog.widgets.kbd import Back, Button, Group, Row, SwitchTo
+from aiogram_dialog.widgets.kbd import (
+    Back,
+    Button,
+    Group,
+    Row,
+    ScrollingGroup,
+    Select,
+    SwitchTo,
+)
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.validators import check_stepik_course_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
-from bot.dialogs.flows.courses.getters import get_course_title
+from bot.dialogs.flows.courses.getters import get_course_title, get_courses
 from bot.dialogs.flows.courses.handlers import (
     add_course_to_db,
     correct_link_to_course,
     error_link_to_course,
+    on_course_selected,
 )
 from bot.dialogs.flows.courses.states import CoursesSG
 
@@ -62,5 +71,25 @@ courses_dialog = Dialog(
         BACK_BUTTON,
         getter=get_course_title,
         state=CoursesSG.confirm_curse,
+    ),
+    Window(
+        # TODO: change the text based on the availability of mentors
+        Format('Найдено курсов: {count}\nВыберите нужный для удаления:'),
+        ScrollingGroup(
+            Select(
+                Format(text='{item.title}'),
+                id='s_course',
+                item_id_getter=lambda x: x.course_id,
+                items='courses',
+                on_click=on_course_selected,  # type: ignore[arg-type]
+            ),
+            id='courses_scroll',
+            width=1,
+            height=4,
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(Const('◀️ Назад'), id='in_start_1', state=CoursesSG.start),
+        state=CoursesSG.selection_courses,
+        getter=get_courses,
     ),
 )

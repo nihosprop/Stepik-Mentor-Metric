@@ -1,5 +1,6 @@
 from dishka import Provider
 
+from infrastructure.di.providers.bot import BotProvider
 from infrastructure.di.providers.config import ConfigProvider
 from infrastructure.di.providers.db import PostgresProvider
 from infrastructure.di.providers.http import HttpProvider
@@ -14,6 +15,7 @@ PROVIDERS: list[Provider] = [
     RedisProvider(),
     HttpProvider(),
     StepikProvider(),
+    BotProvider(),
 ]
 
 __all__ = [
@@ -24,4 +26,5 @@ __all__ = [
     'RedisProvider',
     'HttpProvider',
     'StepikProvider',
+    'BotProvider',
 ]

@@ -26,10 +26,7 @@ async def main() -> None:
     container: AsyncContainer = make_async_container(*PROVIDERS)
     logger.info('Dishka container created')
 
-    bot = Bot(
-        token=main_config.bot.token,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    )
+    bot = await container.get(Bot)
     logger.info('Bot instance created')
 
     storage = await container.get(RedisStorage)

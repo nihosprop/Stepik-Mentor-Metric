@@ -26,9 +26,22 @@ async def get_courses(
     event_from_user: User,
     course_repo: FromDishka[CourseRepo],
     **_kwargs,
-) -> dict[str, Sequence[Course] | int]:
+) -> dict[str, Sequence[Course] | int | str]:
     courses = await course_repo.get_all_courses()
-    return {'courses': courses, 'count': len(courses)}
+    count_courses = len(courses)
+    scroll = dialog_manager.find('courses_scroll')
+    current_page = await scroll.get_page() if scroll else 0
+    last_page_index = max(0, (count_courses - 1) // 4)
+
+    is_first = (current_page == 0)
+    is_last = (current_page >= last_page_index)
+
+    prev_button_text = ' ' if is_first else '◀️'
+    next_button_text = ' ' if is_last else '▶️'
+
+    return {'courses': courses, 'count': count_courses,
+            'prev_page_button': prev_button_text,
+            'next_page_button': next_button_text}
 
 
 @inject

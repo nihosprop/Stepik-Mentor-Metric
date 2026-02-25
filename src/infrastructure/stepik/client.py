@@ -218,7 +218,7 @@ class StepikAPIClient:
             return f'https://stepik.org/discussion/comments/{comment_id}/'
 
         comment = comment_payload['comments'][0]
-        target_id = comment.get('target')  # Это ID шага (step)
+        target_id = comment.get('target')  # This is the step ID
 
         step_payload = await self.get_step_data(target_id)
         if not step_payload or not step_payload.get('steps'):

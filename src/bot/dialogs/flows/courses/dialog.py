@@ -4,11 +4,13 @@ from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import (
     Back,
     Group,
+    NextPage,
+    PrevPage,
     Row,
     ScrollingGroup,
     Select,
-    SwitchTo, PrevPage, NextPage,
-    )
+    SwitchTo,
+)
 from aiogram_dialog.widgets.text import Const, Format, List
 
 from bot.dialogs.common.validators import check_stepik_course_link
@@ -90,19 +92,19 @@ courses_dialog = Dialog(
             id='courses_scroll',
             width=1,
             height=4,
-            hide_pager=True
+            hide_pager=True,
         ),
         Row(
             PrevPage(
                 scroll='courses_scroll',
                 text=Format(text='{data[prev_page_button]}'),
-                ),
+            ),
             NextPage(
                 scroll='courses_scroll',
                 text=Format(text='{data[next_page_button]}'),
-                ),
-            when=F['count'] > 4,
             ),
+            when=F['count'] > 4,
+        ),
         MAIN_MENU_BUTTON,
         SwitchTo(Const('◀️ Назад'), id='in_start_1', state=CoursesSG.start),
         state=CoursesSG.selection_courses,

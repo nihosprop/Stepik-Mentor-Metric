@@ -33,15 +33,18 @@ async def get_courses(
     current_page = await scroll.get_page() if scroll else 0
     last_page_index = max(0, (count_courses - 1) // 4)
 
-    is_first = (current_page == 0)
-    is_last = (current_page >= last_page_index)
+    is_first = current_page == 0
+    is_last = current_page >= last_page_index
 
     prev_button_text = ' ' if is_first else '◀️'
     next_button_text = ' ' if is_last else '▶️'
 
-    return {'courses': courses, 'count': count_courses,
-            'prev_page_button': prev_button_text,
-            'next_page_button': next_button_text}
+    return {
+        'courses': courses,
+        'count': count_courses,
+        'prev_page_button': prev_button_text,
+        'next_page_button': next_button_text,
+    }
 
 
 @inject

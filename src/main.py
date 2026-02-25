@@ -11,6 +11,7 @@ from dishka.integrations.aiogram import setup_dishka
 
 from bot.commands import set_main_menu
 from bot.dialogs import ROUTERS
+from bot.middlewares.acl import ACLMiddleware
 from core.logger import setup_logging
 from core.main_config import main_config
 from infrastructure.di.providers import PROVIDERS
@@ -40,6 +41,9 @@ async def main() -> None:
 
     setup_dishka(container=container, router=dp, auto_inject=True)
     logger.info('Dishka setup complete')
+
+    # Middlewares
+    dp.message.middleware(ACLMiddleware())
 
     # Routers
     dp.include_routers(*ROUTERS)

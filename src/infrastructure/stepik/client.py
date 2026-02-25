@@ -198,16 +198,15 @@ class StepikAPIClient:
         Important: Stepik defaults to 20 elements per page.
         """
         params = {
-            'course': course_id,
-            'order': 'desc',  # Fresh on top
-            # 'status': 'abuse', # You can filter if necessary
-        }
-        # If you need a limit > 20, you will need pagination logic
-        # (cycle while has_next),
-        # but for monitoring the first page is often enough.
-        return (
-            await self.make_api_request('GET', 'comments', params=params) or {}
-        )
+            "page_size": limit,
+            "course": course_id,
+            'sort': 'time',
+            "order": "desc"}
+
+        comments = await self.make_api_request(
+            "GET", "comments", params=params)
+
+        return comments
 
     async def get_comment_url_context(self, comment_id: int) -> str:
         """

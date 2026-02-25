@@ -33,18 +33,18 @@ courses_dialog = Dialog(
             Row(
                 SwitchTo(
                     text=Const('Добавить курс'),
-                    id='add_mentor',
+                    id='add_course',
                     state=CoursesSG.fill_link_to_course,
                 ),
                 SwitchTo(
                     text=Const('Удалить курс'),
-                    id='remove_mentor',
+                    id='remove_course',
                     state=CoursesSG.selection_courses,
                 ),
             ),
             SwitchTo(
                 text=Const('Список курсов'),
-                id='mentors_list',
+                id='courses_list',
                 state=CoursesSG.list_courses,
             ),
             MAIN_MENU_BUTTON,
@@ -89,6 +89,7 @@ courses_dialog = Dialog(
             id='courses_scroll',
             width=1,
             height=4,
+            hide_pager=True
         ),
         MAIN_MENU_BUTTON,
         SwitchTo(Const('◀️ Назад'), id='in_start_1', state=CoursesSG.start),

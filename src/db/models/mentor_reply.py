@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey
@@ -13,9 +12,7 @@ from db.models.stepik_user import StepikUser
 class MentorReply(TimestampMixin, Base):
     __tablename__ = 'mentor_replies'
 
-    comment_id: Mapped[int] = mapped_column(
-        BigInteger, primary_key=True
-    )
+    comment_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     course_id: Mapped[int] = mapped_column(
         ForeignKey('courses.course_id'), index=True, nullable=False
     )

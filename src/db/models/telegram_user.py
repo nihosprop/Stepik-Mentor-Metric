@@ -5,12 +5,11 @@ from db.models.base import Base
 from db.models.mixins import TimestampMixin
 
 
+# TODO: add fields `is_admin`, `is_viewer`
 class User(TimestampMixin, Base):
     __tablename__ = 'tg_users'
 
-    telegram_id: Mapped[int] = mapped_column(
-        BigInteger, index=True, primary_key=True
-    )
+    telegram_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(128))
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     username: Mapped[str | None] = mapped_column(String(128), nullable=True)

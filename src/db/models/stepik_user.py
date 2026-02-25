@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 class StepikUser(TimestampMixin, Base):
     __tablename__ = 'stepik_users'
 
-    user_id: Mapped[int] = mapped_column(
-        BigInteger, index=True, primary_key=True
-    )
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     full_name: Mapped[str] = mapped_column(String(128), nullable=False)
     is_mentor: Mapped[bool] = mapped_column(default=False)
 

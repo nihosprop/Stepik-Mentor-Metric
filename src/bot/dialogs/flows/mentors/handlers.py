@@ -106,3 +106,15 @@ async def on_delete_mentor(
         '✅ Ментор успешно удален!\nМожете продолжить.', show_alert=True
     )
     logger.debug('Exit')
+
+@inject
+async def test_get_comments(
+    clbk: CallbackQuery,
+    _widget: ManagedTextInput,
+    dialog_manager: DialogManager,
+    stepik_client: FromDishka[StepikAPIClient],
+) -> None:
+    logger.debug('Entry')
+
+
+    logger.debug('Exit')

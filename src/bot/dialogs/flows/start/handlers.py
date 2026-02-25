@@ -32,7 +32,6 @@ async def start(
     deletes the incoming start message.
 
     Args:
-        config (config): Config object.
         msg (Message): Incoming Telegram message that triggered /start.
         dialog_manager (DialogManager): Dialog manager to control dialogs.
         user_repo (FromDishka[UserRepository]): Repository wrapper

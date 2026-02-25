@@ -1,6 +1,7 @@
 # === DEFAULT ===
 [default.bot]
 parse_mode = 'HTML'
+admins = [6567116737]
 
 # Logs
 [default.logs.dict_config]

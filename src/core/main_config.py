@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, SecretStr
 
 class BotConfig(BaseModel):
     token: str
+    admins: list[int]
     parse_mode: ParseMode
 
 
@@ -68,7 +69,9 @@ _settings = Dynaconf(
 
 def _get_config() -> Config:
     bot = BotConfig(
-        token=_settings.bot_token, parse_mode=_settings.bot.parse_mode
+        token=_settings.bot_token,
+        admins=_settings.bot.admins,
+        parse_mode=_settings.bot.parse_mode
     )
 
     logs = LogsConfig(dict_config=_settings.logs.dict_config.to_dict())

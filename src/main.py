@@ -2,8 +2,6 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram_dialog import setup_dialogs
 from dishka import AsyncContainer, make_async_container
@@ -13,7 +11,6 @@ from bot.commands import set_main_menu
 from bot.dialogs import ROUTERS
 from bot.middlewares.acl import ACLMiddleware
 from core.logger import setup_logging
-from core.main_config import main_config
 from infrastructure.di.providers import PROVIDERS
 
 logger = logging.getLogger(__name__)

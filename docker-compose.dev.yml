@@ -54,6 +54,7 @@ services:
   redis:
     image: redis:8-alpine
     container_name: Metrik-Redis-Dev
+    command: redis-server --appendonly yes --appendfsync everysec
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -68,7 +69,7 @@ services:
   worker:
     image: metrik-bot:dev
     container_name: Metrik-Worker-Dev
-    command: python -m taskiq worker tasks.broker:broker --fs-discover
+    command: python -m taskiq worker tasks.tasks:broker --fs-discover
     environment:
       - PYTHONPATH=/app/src
     volumes:

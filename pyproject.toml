@@ -10,16 +10,17 @@ dependencies = [
     "dishka>=1.8.0",
     "dynaconf>=3.2.12",
     "psycopg[binary]>=3.3.3",
-    "redis>=7.2.0",
+    "redis>=7.2.1",
     "sqlalchemy[asyncio]>=2.0.47",
     "taskiq>=0.12.1",
+    "taskiq-postgres[psycopg]>=0.7.0",
     "taskiq-redis>=1.2.2",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.2",
-    "ty>=0.0.18",
+    "ruff>=0.15.4",
+    "ty>=0.0.19",
 ]
 
 # === TY ===

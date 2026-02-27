@@ -86,7 +86,7 @@ services:
   scheduler:
     image: metrik-bot:dev
     container_name: Metrik-Scheduler-Dev
-    command: python -m taskiq scheduler tasks.tasks:scheduler
+    command: python -m taskiq scheduler tasks.scheduled:scheduler
     environment:
       - PYTHONPATH=/app/src
     volumes:

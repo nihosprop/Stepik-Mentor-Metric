@@ -51,3 +51,9 @@ class CourseRepo:
         stmt = select(Course).where(Course.is_active)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def get_ids_active_courses(self) -> Sequence[int]:
+        """Returns a list of all active course IDs."""
+        stmt = select(Course.course_id).where(Course.is_active)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

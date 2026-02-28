@@ -191,20 +191,23 @@ class StepikAPIClient:
 
     # --- Specific logic ---
     async def get_comments(
-        self, course_id: int, limit: int = 20
+        self, course_id: int, page: int = 1, limit: int = 20
     ) -> dict[str, Any] | None:
         """
         Retrieves the latest course comments.
         Important: Stepik defaults to 20 elements per page.
         """
         params = {
-            "page_size": limit,
-            "course": course_id,
+            'page': page,
+            'page_size': limit,
+            'course': course_id,
             'sort': 'time',
-            "order": "desc"}
+            'order': 'desc',
+        }
 
         comments = await self.make_api_request(
-            "GET", "comments", params=params)
+            'GET', 'comments', params=params
+        )
 
         return comments
 

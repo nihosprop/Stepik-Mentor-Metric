@@ -116,7 +116,7 @@ courses_dialog = Dialog(
             text=Const(text='✅ Подтвердить'),
             id='conf_del_course',
             on_click=on_delete_course,  # type: ignore[arg-type]
-            state=CoursesSG.list_courses,
+            state=CoursesSG.selection_courses,
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

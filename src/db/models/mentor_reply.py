@@ -20,7 +20,7 @@ class MentorReply(TimestampMixin, Base):
         ForeignKey('stepik_users.user_id'), index=True, nullable=False
     )
     parent_comment_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    stepik_created_at: Mapped[datetime] = mapped_column(
+    comment_created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )
     mentor: Mapped[StepikUser] = relationship(back_populates='replies')

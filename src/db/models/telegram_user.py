@@ -5,7 +5,7 @@ from db.models.base import Base
 from db.models.mixins import TimestampMixin
 
 
-# TODO: add fields `is_admin`, `is_viewer`
+# TODO: add fields `is_admin`, `is_mentor`
 class User(TimestampMixin, Base):
     __tablename__ = 'tg_users'
 

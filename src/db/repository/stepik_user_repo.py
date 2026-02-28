@@ -51,3 +51,9 @@ class StepikUserRepo:
         stmt = select(StepikUser).where(StepikUser.is_mentor)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def get_ids_mentors(self) -> Sequence[int]:
+        """Returns a list of all mentor IDs."""
+        stmt = select(StepikUser.user_id).where(StepikUser.is_mentor)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

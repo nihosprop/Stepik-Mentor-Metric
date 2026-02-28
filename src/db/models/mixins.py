@@ -1,4 +1,3 @@
-# TODO: bring into mixins/
 from datetime import datetime
 
 from sqlalchemy import DateTime, func

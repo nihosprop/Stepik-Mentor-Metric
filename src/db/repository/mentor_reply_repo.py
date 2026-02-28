@@ -10,12 +10,14 @@ from db.models import MentorReply
 class MentorReplyRepo:
     session: AsyncSession
 
-    async def upsert_reply(self,
-                           course_id: int,
-                           comment_id: str,
-                           mentor_id: int,
-                           parent_comment_id: int,
-                           comment_created_at: str) -> None:
+    async def upsert_reply(
+        self,
+        course_id: int,
+        comment_id: str,
+        mentor_id: int,
+        parent_comment_id: int,
+        comment_created_at: str,
+    ) -> None:
         """Saves the metadata of the mentor's response if
         data not in the database."""
 
@@ -28,6 +30,14 @@ class MentorReplyRepo:
                 parent_comment_id=parent_comment_id,
                 comment_created_at=comment_created_at,
             )
-            .on_conflict_do_update()
+            .on_conflict_do_update(
+                index_elements=['comment_id'],
+                set_={
+                    'course_id': course_id,
+                    'mentor_id': mentor_id,
+                    'parent_comment_id': parent_comment_id,
+                    'stepik_created_at': comment_created_at,
+                },
+            )
         )
         await self.session.execute(stmt)

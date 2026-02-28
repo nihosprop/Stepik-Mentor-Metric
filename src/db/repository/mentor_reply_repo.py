@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +17,7 @@ class MentorReplyRepo:
         comment_id: str,
         mentor_id: int,
         parent_comment_id: int,
-        comment_created_at: str,
+        comment_created_at: datetime,
     ) -> None:
         """Saves the metadata of the mentor's response if
         data not in the database."""
@@ -36,7 +37,7 @@ class MentorReplyRepo:
                     'course_id': course_id,
                     'mentor_id': mentor_id,
                     'parent_comment_id': parent_comment_id,
-                    'stepik_created_at': comment_created_at,
+                    'comment_created_at': comment_created_at,
                 },
             )
         )

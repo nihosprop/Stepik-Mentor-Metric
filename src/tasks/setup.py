@@ -17,6 +17,10 @@ async def setup_schedules(_state: TaskiqState) -> None:
     existing_schedules = await scheduler_source.get_schedules()
     existing_ids = {s.schedule_id for s in existing_schedules}
 
+    if not STATIC_TASKS:
+        logger.info('No static tasks to add.')
+        return
+
     for task in STATIC_TASKS:
         if task.schedule_id not in existing_ids:
             await scheduler_source.add_schedule(task)

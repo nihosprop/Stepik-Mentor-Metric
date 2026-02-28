@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class ACLMiddleware(BaseMiddleware):
+    """Middleware to check access rights to the bot."""
     async def __call__(
         self,
         handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],

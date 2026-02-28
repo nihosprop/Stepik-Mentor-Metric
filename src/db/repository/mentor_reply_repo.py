@@ -10,18 +10,22 @@ from db.models import MentorReply
 class MentorReplyRepo:
     session: AsyncSession
 
-    async def upsert_reply(self, reply_data: dict) -> None:
+    async def upsert_reply(self, comment_id: str,
+                           course_id: int,
+                           mentor_id: int,
+                           parent_comment_id: int,
+                           comment_created_at: str) -> None:
         """Saves the metadata of the mentor's response if
         data not in the database."""
 
         stmt = (
             insert(MentorReply)
             .values(
-                comment_id=reply_data['id'],
-                course_id=reply_data['course'],
-                mentor_id=reply_data['user'],
-                parent_comment_id=reply_data['parent'] or 0,
-                stepik_created_at=reply_data['time'],
+                comment_id=comment_id,
+                course_id=course_id,
+                mentor_id=mentor_id,
+                parent_comment_id=parent_comment_id,
+                comment_created_at=comment_created_at,
             )
             .on_conflict_do_update()
         )

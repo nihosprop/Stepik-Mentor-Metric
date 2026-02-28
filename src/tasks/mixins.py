@@ -1,5 +1,3 @@
-import uuid
-
 from typing import Any
 
 from taskiq.scheduler.scheduled_task.v2 import ScheduledTask

@@ -34,6 +34,14 @@ handlers = ['stdout']
 level = 'WARNING'
 handlers = ['stdout']
 
+[default.logs.dict_config.loggers.'taskiq.worker']
+level = 'INFO'
+handlers = ['stdout']
+
+[default.logs.dict_config.loggers.'taskiq.redis_broker']
+level = 'INFO'
+handlers = ['stdout']
+
 # Redis
 [default.redis]
 port = 6379

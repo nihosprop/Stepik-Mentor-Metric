@@ -10,8 +10,9 @@ from db.models import MentorReply
 class MentorReplyRepo:
     session: AsyncSession
 
-    async def upsert_reply(self, comment_id: str,
+    async def upsert_reply(self,
                            course_id: int,
+                           comment_id: str,
                            mentor_id: int,
                            parent_comment_id: int,
                            comment_created_at: str) -> None:

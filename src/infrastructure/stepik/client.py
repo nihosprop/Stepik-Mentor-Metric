@@ -31,6 +31,7 @@ class StepikAPIClient:
         """
         cached_token = await self.redis_cache.get('stepik_token')
         if cached_token:
+            logger.debug('Stepik token from Redis cache')
             return cached_token
 
         url = 'https://stepik.org/oauth2/token/'
@@ -75,6 +76,7 @@ class StepikAPIClient:
         params: dict[str, Any] | None = None,
         json_data: dict[str, Any] | None = None,
         expected_status_codes: list[int] | None = None,
+        attempts: int = 2,
     ) -> dict[str, Any] | None:
         if expected_status_codes is None:
             expected_status_codes = [200, 201]
@@ -83,7 +85,7 @@ class StepikAPIClient:
         url = (
             endpoint
             if endpoint.startswith('http')
-            else f'{self.base_url}/{endpoint}'
+            else f'{self.base_url}/{endpoint.lstrip("/")}'
         )
 
         token = await self._get_access_token()
@@ -94,46 +96,40 @@ class StepikAPIClient:
                 method, url, headers=headers, params=params, json=json_data
             ) as response:
                 # Retry logic for expired token (401)
-                if response.status == 401:
-                    logger.warning('Токен протух, пробуем обновить...')
-                    await self.reset_stepik_token()
-                    # ВАЖНО: Рекурсивный вызов, но нужно быть осторожным,
-                    # чтобы не уйти в вечный цикл.
-
-                    # Лучше добавить счетчик попыток(retries)
-                    # Для упрощения просто вызываем еще раз с новым токеном.
-                    headers['Authorization'] = (
-                        f'Bearer {await self._get_access_token()}'
+                if response.status == 401 and attempts > 1:
+                    logger.warning(
+                        f'401 Unauthorized.'
+                        f' Repeat request for a new token.'
+                        f' Attempts left: {attempts - 1}'
                     )
-                    async with self.session.request(
-                        method,
-                        url,
-                        headers=headers,
+                    return await self.make_api_request(
+                        method=method,
+                        endpoint=endpoint,
                         params=params,
-                        json=json_data,
-                    ) as retry_response:
-                        response = retry_response
+                        json_data=json_data,
+                        expected_status_codes=expected_status_codes,
+                        attempts=attempts - 1,
+                    )
 
-                # processing Rate Limit (429)
+                # Processing 429 (Rate Limit)
                 if response.status == 429:
                     retry_after = int(response.headers.get('Retry-After', 5))
-                    logger.warning(f'Rate limited. Ждем {retry_after} сек.')
+                    logger.warning(f'Rate limited. Wait {retry_after} sec.')
                     await asyncio.sleep(retry_after)
                     return await self.make_api_request(
-                        method,
-                        endpoint,
-                        params,
-                        json_data,
-                        expected_status_codes,
+                        method=method,
+                        endpoint=endpoint,
+                        params=params,
+                        json_data=json_data,
+                        expected_status_codes=expected_status_codes,
+                        attempts=attempts,
                     )
 
-                body_text = await response.text()
-
                 if response.status not in expected_status_codes:
+                    body_text = await response.text()
                     if response.status == 404:
                         logger.info(f'Resource not found: {url}')
                         return None
-
                     logger.error(f'API Fail {response.status}: {body_text}')
                     raise ClientResponseError(
                         response.request_info,
@@ -142,13 +138,9 @@ class StepikAPIClient:
                         message=body_text,
                     )
 
-                if response.status == 204:  # No content
+                if response.status == 204:
                     return None
-
-                try:
-                    return await response.json()
-                except Exception:
-                    return None
+                return await response.json()
 
         except aiohttp.ClientError as e:
             logger.error(f'Network error when requesting {url}: {e}')

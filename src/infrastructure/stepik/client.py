@@ -86,7 +86,6 @@ class StepikAPIClient:
             else f'{self.base_url}/{endpoint}'
         )
 
-        # Recursive logic for 401 (Expired Token)
         token = await self._get_access_token()
         headers = {'Authorization': f'Bearer {token}'}
 

@@ -7,6 +7,7 @@ from infrastructure.di.providers.http import HttpProvider
 from infrastructure.di.providers.redis import RedisProvider
 from infrastructure.di.providers.repositories import RepositoryProvider
 from infrastructure.di.providers.stepik_client import StepikProvider
+from infrastructure.di.providers.services import ServiceProvider
 
 PROVIDERS: list[Provider] = [
     ConfigProvider(),
@@ -16,6 +17,7 @@ PROVIDERS: list[Provider] = [
     HttpProvider(),
     StepikProvider(),
     BotProvider(),
+    ServiceProvider(),
 ]
 
 __all__ = [
@@ -27,4 +29,5 @@ __all__ = [
     'HttpProvider',
     'StepikProvider',
     'BotProvider',
+    'ServiceProvider',
 ]

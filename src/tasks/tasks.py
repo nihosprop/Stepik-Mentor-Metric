@@ -3,13 +3,16 @@ import logging
 
 from datetime import UTC, datetime, timedelta
 
+from aiogram import Bot
 from dishka.integrations.taskiq import FromDishka, inject
 
+from core.main_config import Config
 from db.repository.course_repo import CourseRepo
 from db.repository.reply_repo import ReplyRepo
 from db.repository.stepik_user_repo import StepikUserRepo
 from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
+from services.statistic_service import StatisticService
 
 from .broker import broker
 from .mixins import MyScheduledTask
@@ -106,10 +109,31 @@ async def poll_stepik_courses(
         await redis_cache.set(time_key, new_last_time.isoformat())
 
 
+@broker.task
+@inject(patch_module=True)
+async def daily_stats(
+    bot: FromDishka[Bot],
+    config: FromDishka[Config],
+    stat_service: FromDishka[StatisticService],
+) -> None:
+    report_text = await stat_service.get_live_report_text()
+
+    for admin_id in config.bot.admins:
+        try:
+            await bot.send_message(chat_id=admin_id, text=report_text)
+        except Exception as e:
+            logging.error(f'Failed to send report to {admin_id}: {e}')
+
+
 STATIC_TASKS = [
     MyScheduledTask(
         task_name=poll_stepik_courses.task_name,
         schedule_id='2f779070-5683-4d6e-bc51-3e5e95175564',
+        cron='* * * * *',
+    ),
+    MyScheduledTask(
+        task_name=daily_stats.task_name,
+        schedule_id='d1c8b9e7-5a3c-4f0e-9c8b-2e5e95175564',
         cron='* * * * *',
     ),
 ]

@@ -7,7 +7,7 @@ from db.models.base import Base
 from db.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
-    from .mentor_reply import MentorReply
+    from .author_reply import AuthorReply
     from .mentor_statistic import MentorStatistic
 
 
@@ -19,6 +19,6 @@ class Course(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(128))
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    replies: Mapped[list[MentorReply]] = relationship(back_populates="course")
+    replies: Mapped[list[AuthorReply]] = relationship(back_populates="course")
     statistics: Mapped[list[MentorStatistic]] = relationship(
         back_populates="course")

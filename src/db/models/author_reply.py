@@ -9,22 +9,22 @@ from db.models.mixins import TimestampMixin
 from db.models.stepik_user import StepikUser
 
 
-class MentorReply(TimestampMixin, Base):
-    __tablename__ = 'mentor_replies'
+class AuthorReply(TimestampMixin, Base):
+    __tablename__ = 'author_replies'
 
     comment_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     course_id: Mapped[int] = mapped_column(
         ForeignKey('courses.course_id'), index=True, nullable=False
     )
-    mentor_id: Mapped[int] = mapped_column(
+    author_id: Mapped[int] = mapped_column(
         ForeignKey('stepik_users.user_id'), index=True, nullable=False
     )
     parent_comment_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
-    is_from_mentor: Mapped[bool] = mapped_column(default=True,
+    is_mentor_reply: Mapped[bool] = mapped_column(default=True,
                                                  server_default='true',
                                                  nullable=False)
     comment_created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )
-    mentor: Mapped[StepikUser] = relationship(back_populates='replies')
+    author: Mapped[StepikUser] = relationship(back_populates='replies')
     course: Mapped[Course] = relationship(back_populates='replies')

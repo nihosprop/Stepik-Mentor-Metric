@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from db.repository.course_repo import CourseRepo
-from db.repository.mentor_reply_repo import MentorReplyRepo
+from db.repository.reply_repo import ReplyRepo
 from db.repository.stepik_user_repo import StepikUserRepo
 from db.repository.tg_user_repo import TGUserRepository
 
@@ -52,13 +52,13 @@ class RepositoryProvider(Provider):
         return CourseRepo(session=session)
 
     @provide
-    def mentor_reply_repo(self, session: AsyncSession) -> MentorReplyRepo:
+    def mentor_reply_repo(self, session: AsyncSession) -> ReplyRepo:
         """
         Mentor reply repository
 
         Args:
             session: AsyncSession
 
-        Returns: MentorReplyRepo
+        Returns: ReplyRepo
         """
-        return MentorReplyRepo(session=session)
+        return ReplyRepo(session=session)

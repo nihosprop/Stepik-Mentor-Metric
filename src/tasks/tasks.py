@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 from dishka.integrations.taskiq import FromDishka, inject
 
 from db.repository.course_repo import CourseRepo
-from db.repository.mentor_reply_repo import MentorReplyRepo
+from db.repository.reply_repo import ReplyRepo
 from db.repository.stepik_user_repo import StepikUserRepo
 from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
@@ -23,7 +23,7 @@ async def poll_stepik_courses(
     stepik_client: FromDishka[StepikAPIClient],
     course_repo: FromDishka[CourseRepo],
     stepik_user_repo: FromDishka[StepikUserRepo],
-    mentor_reply_repo: FromDishka[MentorReplyRepo],
+    reply_repo: FromDishka[ReplyRepo],
     redis_cache: FromDishka[RedisCache],
 ) -> None:
     logger.info('Polling Stepik courses ON')
@@ -79,19 +79,19 @@ async def poll_stepik_courses(
                 comment_time = datetime.fromisoformat(
                     comment['time'].replace('Z', '+00:00')
                 )
-
                 if comment_time > last_time:
                     logger.debug(
                         f'NEW_COMMENT:'
                         f'{json.dumps(comment, indent=2, ensure_ascii=False)}'
                     )
-                    await mentor_reply_repo.upsert_reply(
+                    await reply_repo.upsert_reply(
                         course_id=course_id,
                         comment_id=comment['id'],
-                        mentor_id=comment['user'],
+                        author_id=comment['user'],
                         parent_comment_id=comment['parent'],
                         comment_created_at=comment_time,
-                        is_mentor_reply=True,
+                        is_mentor_reply=str(comment['user'])
+                        in mentors_ids_cache,
                     )
                     new_last_time = max(new_last_time, comment_time)
                 else:

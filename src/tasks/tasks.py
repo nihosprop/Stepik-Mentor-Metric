@@ -81,7 +81,7 @@ async def poll_stepik_courses(
                 )
 
                 if comment_time > last_time:
-                    logger.info(
+                    logger.debug(
                         f'NEW_COMMENT:'
                         f'{json.dumps(comment, indent=2, ensure_ascii=False)}'
                     )

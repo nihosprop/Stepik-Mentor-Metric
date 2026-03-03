@@ -97,6 +97,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      worker:
+        condition: service_started
 
 
 volumes:

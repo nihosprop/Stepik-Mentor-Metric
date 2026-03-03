@@ -1,7 +1,7 @@
 from dishka import Provider, Scope, provide
 
+from db.repository.statistic_repo import StatisticRepo
 from services.statistic_service import StatisticService
-from src.db.repository.statistic_repo import StatisticRepo
 
 
 class ServiceProvider(Provider):

@@ -199,7 +199,6 @@ class StepikAPIClient:
         comments = await self.make_api_request(
             'GET', 'comments', params=params
         )
-
         return comments
 
     async def get_comment_url_context(self, comment_id: int) -> str:

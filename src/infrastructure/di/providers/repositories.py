@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import (
 
 from db.repository.course_repo import CourseRepo
 from db.repository.reply_repo import ReplyRepo
+from db.repository.statistic_repo import StatisticRepo
 from db.repository.stepik_user_repo import StepikUserRepo
 from db.repository.tg_user_repo import TGUserRepository
 
@@ -13,6 +14,7 @@ class RepositoryProvider(Provider):
     """
     Repository Provider
     """
+
     scope = Scope.REQUEST
 
     @provide
@@ -62,3 +64,15 @@ class RepositoryProvider(Provider):
         Returns: ReplyRepo
         """
         return ReplyRepo(session=session)
+
+    @provide
+    def statistic_repo(self, session: AsyncSession) -> StatisticRepo:
+        """
+        Statistic repository
+
+        Args:
+            session: AsyncSession
+
+        Returns: StatisticRepo
+        """
+        return StatisticRepo(session=session)

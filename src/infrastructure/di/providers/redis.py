@@ -1,6 +1,7 @@
 import logging
 
 from collections.abc import AsyncIterable
+from typing import NewType
 
 from aiogram.fsm.storage.base import DefaultKeyBuilder
 from aiogram.fsm.storage.redis import RedisStorage
@@ -9,9 +10,9 @@ from redis.asyncio import Redis
 
 from core.main_config import Config
 
-RedisCache = Redis
-
 logger = logging.getLogger(__name__)
+
+RedisCache = NewType('RedisCache', Redis)
 
 
 class RedisProvider(Provider):
@@ -33,12 +34,12 @@ class RedisProvider(Provider):
 
     @provide(scope=Scope.APP)
     async def redis_cache(self, config: Config) -> AsyncIterable[RedisCache]:
-        redis = RedisCache(
+        redis = Redis(
             host=config.redis.host,
             port=config.redis.port,
             password=config.redis.password,
             decode_responses=config.redis.decode_responses,
             db=1,
         )
-        yield redis
+        yield RedisCache(redis)
         await redis.close()

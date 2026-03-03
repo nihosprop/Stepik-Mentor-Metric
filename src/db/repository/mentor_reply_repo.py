@@ -16,7 +16,7 @@ class MentorReplyRepo:
         course_id: int,
         comment_id: str,
         mentor_id: int,
-        parent_comment_id: int,
+        parent_comment_id: int | None,
         comment_created_at: datetime,
         is_mentor_reply: bool,
     ) -> None:

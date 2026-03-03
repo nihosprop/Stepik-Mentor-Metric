@@ -18,6 +18,7 @@ class MentorReplyRepo:
         mentor_id: int,
         parent_comment_id: int,
         comment_created_at: datetime,
+        is_mentor_reply: bool,
     ) -> None:
         """Saves the metadata of the mentor's response if
         data not in the database."""
@@ -30,6 +31,7 @@ class MentorReplyRepo:
                 mentor_id=mentor_id,
                 parent_comment_id=parent_comment_id,
                 comment_created_at=comment_created_at,
+                is_mentor_reply=is_mentor_reply,
             )
             .on_conflict_do_update(
                 index_elements=['comment_id'],
@@ -38,6 +40,7 @@ class MentorReplyRepo:
                     'mentor_id': mentor_id,
                     'parent_comment_id': parent_comment_id,
                     'comment_created_at': comment_created_at,
+                    'is_mentor_reply': is_mentor_reply,
                 },
             )
         )

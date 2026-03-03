@@ -25,8 +25,8 @@ class StatisticService:
          (from 00:00 to the current moment)."""
         now = datetime.now(UTC)
         rows = await self.repo.get_current_day_stats()
-        header = (f'📊 Оперативный отчет за {now.strftime("%d.%m.%Y")}\n'
-                  f'🕒 _Актуально на {now.strftime("%H:%M")} UTC_')
+        header = (f'📊 Отчет за {now.strftime("%d.%m.%Y")}\n'
+                  f'🕒 Актуально на {now.strftime("%H:%M")} UTC')
         return self._format_report(rows, header)
 
     @staticmethod
@@ -44,7 +44,7 @@ class StatisticService:
                 current_course = row.course_title
                 msg.append(f'📘 Курс: {current_course}')
 
-            msg.append(f'  ▪️ {row.full_name}: {row.replies_count} отв.')
+            msg.append(f'🔹{row.full_name}: {row.replies_count} отв.')
             total_replies += row.replies_count
 
         msg.append(f'\n📈 Всего ответов: {total_replies}')

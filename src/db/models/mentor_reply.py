@@ -20,6 +20,7 @@ class MentorReply(TimestampMixin, Base):
         ForeignKey('stepik_users.user_id'), index=True, nullable=False
     )
     parent_comment_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
+    is_from_mentor: Mapped[bool] = mapped_column(default=True)
     comment_created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )

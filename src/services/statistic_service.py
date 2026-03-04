@@ -9,6 +9,18 @@ from db.repository.statistic_repo import StatisticRepo
 class StatisticService:
     repo: StatisticRepo
 
+    async def get_live_report_text(self) -> str:
+        """
+        Get operational report for current day.
+        Returns:
+            str: text.
+        """
+        now = datetime.now(UTC)
+        rows = await self.repo.get_current_day_stats()
+        header = (f'📊 <b>Live-статистика</b>\n'
+                  f'🕒 {now.strftime("%d.%m.%Y %H:%M")} UTC')
+        return self._format_simple_report(rows, header)
+
     async def get_yesterday_report_text(self) -> str:
         """
         Get operational report for yesterday.
@@ -20,24 +32,13 @@ class StatisticService:
         end = datetime.combine(yesterday, time.max, tzinfo=UTC)
 
         rows = await self.repo.get_stats_for_period(start, end)
-        return self._format_report(
+        return self._format_simple_report(
             rows, f'Итоговый отчет за {yesterday.strftime("%d.%m.%Y")}'
         )
 
-    async def get_live_report_text(self) -> str:
-        """
-        Get operational report for current day.
-        Returns:
-            str: text.
-        """
-        now = datetime.now(UTC)
-        rows = await self.repo.get_current_day_stats()
-        header = (f'📊 Отчет за {now.strftime("%d.%m.%Y")}\n'
-                  f'🕒 Актуально на {now.strftime("%H:%M")} UTC')
-        return self._format_report(rows, header)
 
     @staticmethod
-    def _format_report(rows: Sequence, header: str) -> str:
+    def _format_simple_report(rows: Sequence, header: str) -> str:
         """
         Format statistics report based on the given rows and header.
 

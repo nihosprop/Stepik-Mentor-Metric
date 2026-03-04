@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, date
+from datetime import UTC, date, datetime
 
 from db.repository.statistic_repo import StatisticRepo
 
@@ -25,7 +25,7 @@ class StatisticService:
 
     async def get_daily_report_text(self, target_date: date) -> str:
         """Final report for the day - with efficiency
-         and speed (from the archive)."""
+        and speed (from the archive)."""
         rows = await self.stats_repo.get_report_from_stats(target_date)
         header = f'🏆 <b>Итоги дня: {target_date.strftime("%d.%m.%Y")}</b>'
         return self._format_advanced_report(rows, header)

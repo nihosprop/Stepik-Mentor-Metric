@@ -96,7 +96,6 @@ class StatisticRepo:
              of the mentor,the title of the course, and the number of
              replies made by the mentor in the course during the period.
         """
-
         stmt = (
             select(
                 StepikUser.full_name,
@@ -107,6 +106,7 @@ class StatisticRepo:
             .join(Course, Course.course_id == AuthorReply.course_id)
             .where(
                 AuthorReply.is_mentor_reply,
+                AuthorReply.parent_comment_id.is_not(None),
                 AuthorReply.comment_created_at.between(start_date, end_date),
             )
             .group_by(Course.title, StepikUser.full_name)
@@ -188,7 +188,7 @@ class StatisticRepo:
                 total_comments=total_comments,
                 replies_count=replies_count,
                 helpful_replies_count=replies_count,
-                performance_index=perf_index,
+                help_index=perf_index,
                 avg_response_time_seconds=avg_delay,
             )
             self.session.add(new_stat)

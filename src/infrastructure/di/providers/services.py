@@ -9,4 +9,4 @@ class ServiceProvider(Provider):
 
     @provide
     def stats_service(self, repo: StatisticRepo) -> StatisticService:
-        return StatisticService(repo=repo)
+        return StatisticService(stats_repo=repo)

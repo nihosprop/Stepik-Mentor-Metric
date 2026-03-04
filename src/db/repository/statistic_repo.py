@@ -1,16 +1,49 @@
+import calendar
+
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, time
+from datetime import UTC, date, datetime, time
 
-from sqlalchemy import and_, desc, func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import AuthorReply, Course, StepikUser
+from db.models import AuthorReply, Course, MentorStatistic, StepikUser
 
 
 @dataclass
 class StatisticRepo:
     session: AsyncSession
+
+    async def get_monthly_stats(self, year: int, month: int) -> Sequence:
+        """
+        Aggregates data from the statistics table for a specified month.
+        """
+        _, last_day = calendar.monthrange(year, month)
+        start_date = date(year, month, 1)
+        end_date = date(year, month, last_day)
+
+        stmt = (
+            select(
+                StepikUser.full_name,
+                Course.title.label('course_title'),
+                func.sum(MentorStatistic.total_comments).label('total_t'),
+                func.sum(MentorStatistic.replies_count).label('total_h'),
+                func.avg(MentorStatistic.avg_response_time_seconds).label(
+                    'avg_delay'
+                ),
+            )
+            .join(StepikUser, StepikUser.user_id == MentorStatistic.mentor_id)
+            .join(Course, Course.course_id == MentorStatistic.course_id)
+            .where(
+                MentorStatistic.stat_date.between(start_date, end_date),
+            )
+            .group_by(StepikUser.full_name, Course.title)
+        ).order_by(Course.title, desc('total_h'))
+
+        result = await self.session.execute(stmt)
+        rows = result.all()
+
+        return rows
 
     async def get_current_day_stats(self) -> Sequence:
         """
@@ -50,14 +83,89 @@ class StatisticRepo:
             .join(AuthorReply, StepikUser.user_id == AuthorReply.author_id)
             .join(Course, Course.course_id == AuthorReply.course_id)
             .where(
-                and_(
-                    AuthorReply.is_mentor_reply,
-                    AuthorReply.comment_created_at >= start_date,
-                    AuthorReply.comment_created_at <= end_date,
-                )
+                AuthorReply.is_mentor_reply,
+                AuthorReply.comment_created_at.between(start_date, end_date),
             )
             .group_by(Course.title, StepikUser.full_name)
             .order_by(Course.title, desc('replies_count'))
         )
         result = await self.session.execute(stmt)
         return result.all()
+
+    async def calculate_and_save_daily_stats(self, target_date: date) -> None:
+        """Calculates the daily statistics for a specified period.
+        Args:
+            target_date (date): The target date.
+        Returns:
+            None
+        """
+        start_dt = datetime.combine(target_date, datetime.min.time())
+        end_dt = datetime.combine(target_date, datetime.max.time())
+
+        active_mentors_stmt = (
+            select(AuthorReply.author_id, AuthorReply.course_id)
+            .where(
+                AuthorReply.is_mentor_reply.is_(True),
+                AuthorReply.comment_created_at.between(start_dt, end_dt),
+            )
+            .distinct()
+        )
+        active_mentors: Sequence = (
+            await self.session.execute(active_mentors_stmt)
+        ).all()
+
+        for mentor_id, course_id in active_mentors:
+            replies_stmt = select(AuthorReply).where(
+                AuthorReply.author_id == mentor_id,
+                AuthorReply.course_id == course_id,
+                AuthorReply.comment_created_at.between(start_dt, end_dt),
+            )
+            mentor_replies = (
+                (await self.session.execute(replies_stmt)).scalars().all()
+            )
+
+            total_comments = len(mentor_replies)
+            replies_count = 0
+            total_delay = 0.0
+            timed_replies = 0
+
+            for reply in mentor_replies:
+                if reply.parent_comment_id is not None:
+                    replies_count += 1
+
+                    parent_stmt = select(AuthorReply).where(
+                        AuthorReply.comment_id == reply.parent_comment_id
+                    )
+                    parent_comment = (
+                        await self.session.execute(parent_stmt)
+                    ).scalar_one_or_none()
+
+                    if parent_comment:
+                        delay = (
+                            reply.comment_created_at
+                            - parent_comment.comment_created_at
+                        ).total_seconds()
+                        total_delay += delay
+                        timed_replies += 1
+
+            avg_delay = (
+                (total_delay / timed_replies) if timed_replies > 0 else None
+            )
+            # h_idx: H^2 / T
+            perf_index = (
+                (replies_count**2 / total_comments)
+                if total_comments > 0
+                else 0
+            )
+
+            new_stat = MentorStatistic(
+                mentor_id=mentor_id,
+                course_id=course_id,
+                stat_date=target_date,
+                total_comments=total_comments,
+                replies_count=replies_count,
+                helpful_replies_count=replies_count,
+                performance_index=perf_index,
+                avg_response_time_seconds=avg_delay,
+            )
+            self.session.add(new_stat)

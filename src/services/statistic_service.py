@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 from db.repository.statistic_repo import StatisticRepo
 
@@ -23,11 +23,12 @@ class StatisticService:
         )
         return self._format_simple_report(rows, header)
 
-    async def get_daily_report_text(self, target_date: date) -> str:
-        """Final report for the day - with efficiency
+    async def get_daily_report_text(self) -> str:
+        """Final report for yesterday - with efficiency
         and speed (from the archive)."""
-        rows = await self.stats_repo.get_report_from_stats(target_date)
-        header = f'🏆 <b>Итоги дня: {target_date.strftime("%d.%m.%Y")}</b>'
+        yesterday = datetime.now(UTC).date() - timedelta(days=1)
+        rows = await self.stats_repo.get_report_from_stats(yesterday)
+        header = f'🏆 <b>Итоги дня: {yesterday.strftime("%d.%m.%Y")}</b>'
         return self._format_advanced_report(rows, header)
 
     async def get_monthly_report_text(self, year: int, month: int) -> str:

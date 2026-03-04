@@ -19,6 +19,7 @@ from .mixins import MyScheduledTask
 
 logger = logging.getLogger(__name__)
 
+# TODO: remove `patch_module=True`
 
 @broker.task
 @inject(patch_module=True)
@@ -109,9 +110,10 @@ async def poll_stepik_courses(
         await redis_cache.set(time_key, new_last_time.isoformat())
 
 
+# TODO: remove from static tasks, add to dynamic ones, upon request
 @broker.task
 @inject(patch_module=True)
-async def daily_stats(
+async def live_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
     stat_service: FromDishka[StatisticService],
@@ -124,15 +126,24 @@ async def daily_stats(
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
+@broker.task
+@inject(patch_module=True)
+async def daily_stats(
+    bot: FromDishka[Bot],
+    config: FromDishka[Config],
+    stat_service: FromDishka[StatisticService],
+) -> None:
+    report_text = await stat_service.get_daily_report_text()
+
 
 STATIC_TASKS = [
     MyScheduledTask(
         task_name=poll_stepik_courses.task_name,
         schedule_id='2f779070-5683-4d6e-bc51-3e5e95175564',
-        cron='* * * * *',
+        cron='*/2 * * * *',
     ),
     MyScheduledTask(
-        task_name=daily_stats.task_name,
+        task_name=live_stats.task_name,
         schedule_id='d1c8b9e7-5a3c-4f0e-9c8b-2e5e95175564',
         cron='* * * * *',
     ),

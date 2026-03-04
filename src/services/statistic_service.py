@@ -10,7 +10,11 @@ class StatisticService:
     repo: StatisticRepo
 
     async def get_yesterday_report_text(self) -> str:
-        """Prepares a report for yesterday's full day for distribution."""
+        """
+        Get operational report for yesterday.
+        Returns:
+            str: text.
+        """
         yesterday = datetime.now(UTC).date() - timedelta(days=1)
         start = datetime.combine(yesterday, time.min, tzinfo=UTC)
         end = datetime.combine(yesterday, time.max, tzinfo=UTC)
@@ -21,8 +25,11 @@ class StatisticService:
         )
 
     async def get_live_report_text(self) -> str:
-        """Prepares operational report for today
-         (from 00:00 to the current moment)."""
+        """
+        Get operational report for current day.
+        Returns:
+            str: text.
+        """
         now = datetime.now(UTC)
         rows = await self.repo.get_current_day_stats()
         header = (f'📊 Отчет за {now.strftime("%d.%m.%Y")}\n'
@@ -31,7 +38,18 @@ class StatisticService:
 
     @staticmethod
     def _format_report(rows: Sequence, header: str) -> str:
-        """Internal method for rendering text (Presentation Layer)."""
+        """
+        Format statistics report based on the given rows and header.
+
+        Args:
+            rows (Sequence): A sequence of tuples containing
+                the full name of the mentor, the title of the course,
+                and the number of replies made by the mentor.
+            header (str): Report header.
+
+        Returns:
+            str: Formatted report.
+        """
         if not rows:
             return f'{header}\n\nАктивности менторов не зафиксировано. 📭'
 

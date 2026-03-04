@@ -59,6 +59,29 @@ class StatisticRepo:
 
         return await self.get_stats_for_period(start_of_day, now)
 
+    async def get_report_from_stats(self, target_date: date) -> Sequence:
+        """
+        Gets ready-made statistics for a specific day from
+         the table MentorStatistic. Already here help_index и avg_delay.
+        """
+        stmt = (
+            select(
+                StepikUser.full_name,
+                Course.title.label('course_title'),
+                MentorStatistic.total_comments,
+                MentorStatistic.replies_count,
+                MentorStatistic.help_index,
+                MentorStatistic.avg_response_time_seconds.label('avg_delay'),
+            )
+            .join(StepikUser, StepikUser.user_id == MentorStatistic.mentor_id)
+            .join(Course, Course.course_id == MentorStatistic.course_id)
+            .where(MentorStatistic.stat_date == target_date)
+            .order_by(Course.title, desc(MentorStatistic.help_index))
+        )
+
+        result = await self.session.execute(stmt)
+        return result.all()
+
     async def get_stats_for_period(
         self, start_date: datetime, end_date: datetime
     ) -> Sequence:

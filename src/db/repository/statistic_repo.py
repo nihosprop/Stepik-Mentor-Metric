@@ -13,8 +13,14 @@ class StatisticRepo:
     session: AsyncSession
 
     async def get_current_day_stats(self) -> Sequence:
-        """Gets statistics for the current day
-        (from 00:00 to the current moment)."""
+        """
+        Gets statistics for the current day.
+
+        Returns:
+            Sequence: A sequence of tuples containing the full name
+             of the mentor,the title of the course, and the number of
+             replies made by the mentor in the course during the current day.
+        """
         now = datetime.now(UTC)
         start_of_day = datetime.combine(now.date(), time.min, tzinfo=UTC)
 
@@ -23,6 +29,18 @@ class StatisticRepo:
     async def get_stats_for_period(
         self, start_date: datetime, end_date: datetime
     ) -> Sequence:
+        """Gets statistics for a specified period.
+
+        Args:
+            start_date (datetime): The start of the period.
+            end_date (datetime): The end of the period.
+
+        Returns:
+            Sequence: A sequence of tuples containing the full name
+             of the mentor,the title of the course, and the number of
+             replies made by the mentor in the course during the period.
+        """
+
         stmt = (
             select(
                 StepikUser.full_name,

@@ -108,6 +108,11 @@ class StatisticRepo:
                 AuthorReply.is_mentor_reply,
                 AuthorReply.parent_comment_id.is_not(None),
                 AuthorReply.comment_created_at.between(start_date, end_date),
+                ~AuthorReply.parent_comment_id.in_(
+                    select(AuthorReply.comment_id).where(
+                        AuthorReply.is_mentor_reply
+                    )
+                ),
             )
             .group_by(Course.title, StepikUser.full_name)
             .order_by(Course.title, desc('replies_count'))

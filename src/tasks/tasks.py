@@ -120,6 +120,7 @@ async def live_stats(
 ) -> None:
     report_text = await stat_service.get_live_report_text()
 
+    # TODO: remove duplicate code 1
     for admin_id in config.bot.admins:
         try:
             await bot.send_message(chat_id=admin_id, text=report_text)
@@ -134,6 +135,12 @@ async def daily_stats(
     stat_service: FromDishka[StatisticService],
 ) -> None:
     report_text = await stat_service.get_daily_report_text()
+    # TODO: remove duplicate code 2
+    for admin_id in config.bot.admins:
+        try:
+            await bot.send_message(chat_id=admin_id, text=report_text)
+        except Exception as e:
+            logging.error(f'Failed to send report to {admin_id}: {e}')
 
 
 STATIC_TASKS = [

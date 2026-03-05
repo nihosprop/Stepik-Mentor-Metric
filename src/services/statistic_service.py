@@ -39,6 +39,15 @@ class StatisticService:
         return self._format_advanced_report(rows, header, is_monthly=True)
 
     async def get_monthly_report_text(self, prev_month: bool = True) -> str:
+        """
+        Final report for yesterday - with efficiency
+        and speed (from the archive).
+        Args:
+            prev_month (bool, optional): Whether the previous month
+
+        Returns:
+            str: text.
+        """
         now = datetime.now(UTC)
 
         if prev_month:

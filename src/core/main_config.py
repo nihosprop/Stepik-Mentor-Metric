@@ -59,6 +59,7 @@ class Config(BaseModel):
     redis: RedisConfig
     postgres: PostgresConfig
     stepik: StepikConfig
+    tasks: TaskConfig
 
 
 _settings = Dynaconf(
@@ -105,8 +106,11 @@ def _get_config() -> Config:
         stepik_client_secret=_settings.stepik_client_secret,
     )
 
+    tasks = TaskConfig(initial_poll_days=_settings.tasks.intial_poll_days)
+
     return Config(
-        bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik
+        bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik,
+        tasks=tasks
     )
 
 

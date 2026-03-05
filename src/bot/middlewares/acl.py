@@ -19,7 +19,7 @@ class ACLMiddleware(BaseMiddleware):
         handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
         data: dict[str, Any],
-    ) -> Any:
+    ) -> Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
         user = data.get('event_from_user')
         if not user:
             return await handler(event, data)

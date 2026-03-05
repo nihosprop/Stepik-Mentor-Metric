@@ -5,6 +5,10 @@ from dynaconf import Dynaconf
 from pydantic import BaseModel, Field, SecretStr
 
 
+class TaskConfig(BaseModel):
+    initial_poll_days: int = Field(default=1, ge=0, le=365)
+
+
 class BotConfig(BaseModel):
     token: str
     admins: list[int]
@@ -71,7 +75,7 @@ def _get_config() -> Config:
     bot = BotConfig(
         token=_settings.bot_token,
         admins=_settings.bot.admins,
-        parse_mode=_settings.bot.parse_mode
+        parse_mode=_settings.bot.parse_mode,
     )
 
     logs = LogsConfig(dict_config=_settings.logs.dict_config.to_dict())

@@ -1,7 +1,12 @@
 # === DEFAULT ===
+# Bot
 [default.bot]
 parse_mode = 'HTML'
 admins = [6567116737]
+
+# Tasks
+[default.tasks]
+initial_poll_days = 3
 
 # Logs
 [default.logs.dict_config]
@@ -55,6 +60,11 @@ port = 5432
 
 
 # === PRODUCTION ===
+# Tasks
+[default.tasks]
+initial_poll_days = 30
+
+
 # Logs
 [production.logs.dict_config.handlers.file]
 class = 'logging.handlers.RotatingFileHandler'

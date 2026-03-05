@@ -32,7 +32,7 @@ include = ["./src"]
 fix = true
 line-length = 79
 target-version = "py314"
-exclude = ["venv", ".venv", ".mypy_cache"]
+extend-exclude = ["venv", ".venv", ".mypy_cache", "tests", "src/alembic"]
 
 [tool.ruff.format]
 quote-style = "single"

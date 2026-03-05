@@ -1,7 +1,9 @@
+import asyncio
 import json
 import logging
+import uuid
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 from aiogram import Bot
 from dishka.integrations.taskiq import FromDishka, inject
@@ -21,6 +23,9 @@ logger = logging.getLogger(__name__)
 
 # TODO: remove `patch_module=True`
 
+
+# OPT: Too many branches(14 > 12)-Ruff
+# OPT: Too many arguments(6 > 5)-Ruff
 @broker.task
 @inject(patch_module=True)
 async def poll_stepik_courses(
@@ -29,6 +34,7 @@ async def poll_stepik_courses(
     stepik_user_repo: FromDishka[StepikUserRepo],
     reply_repo: FromDishka[ReplyRepo],
     redis_cache: FromDishka[RedisCache],
+    config: FromDishka[Config],
 ) -> None:
     logger.info('Polling Stepik courses ON')
 
@@ -58,10 +64,11 @@ async def poll_stepik_courses(
         if last_time_str:
             last_time = datetime.fromisoformat(last_time_str)
         else:
-            last_time = datetime.now(UTC) - timedelta(days=1)
+            days_back = config.tasks.initial_poll_days
+            last_time = datetime.now() - timedelta(days=days_back)
             logger.info(
-                f'First start for course {course_id}.'
-                f' Parsing from: {last_time}'
+                f'🆕 Cold start for course {course_id}. '
+                f'Parsing from: {last_time} ({days_back} days back)'
             )
 
         new_last_time = last_time
@@ -127,6 +134,7 @@ async def live_stats(
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
+
 @broker.task
 @inject(patch_module=True)
 async def daily_stats(
@@ -135,6 +143,7 @@ async def daily_stats(
     stat_service: FromDishka[StatisticService],
 ) -> None:
     report_text = await stat_service.get_daily_report_text()
+
     # TODO: remove duplicate code 2
     for admin_id in config.bot.admins:
         try:
@@ -143,15 +152,48 @@ async def daily_stats(
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
 
+@broker.task
+@inject(patch_module=True)
+async def month_stats(
+    bot: FromDishka[Bot],
+    config: FromDishka[Config],
+    stat_service: FromDishka[StatisticService],
+) -> None:
+    report_text = await stat_service.get_monthly_report_text()
+
+    # TODO: remove duplicate code 3
+    for admin_id in config.bot.admins:
+        try:
+            await bot.send_message(chat_id=admin_id, text=report_text)
+            await asyncio.sleep(1)
+        except Exception as e:
+            logging.error(f'Failed to send report to {admin_id}: {e}')
+
+
+def _schedule_id(task_name: str) -> str:
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, task_name))
+
+
 STATIC_TASKS = [
     MyScheduledTask(
         task_name=poll_stepik_courses.task_name,
-        schedule_id='2f779070-5683-4d6e-bc51-3e5e95175564',
-        cron='*/2 * * * *',
+        schedule_id=_schedule_id(task_name=poll_stepik_courses.task_name),
+        # TODO: replace polling frequency
+        cron='* * * * *',
     ),
     MyScheduledTask(
         task_name=live_stats.task_name,
-        schedule_id='d1c8b9e7-5a3c-4f0e-9c8b-2e5e95175564',
+        schedule_id=_schedule_id(task_name=live_stats.task_name),
         cron='* * * * *',
+    ),
+    MyScheduledTask(
+        task_name=daily_stats.task_name,
+        schedule_id=_schedule_id(task_name=daily_stats.task_name),
+        cron='* * * * *',
+    ),
+    MyScheduledTask(
+        task_name=month_stats.task_name,
+        schedule_id=_schedule_id(task_name=month_stats.task_name),
+        cron='5 0 1 * *',
     ),
 ]

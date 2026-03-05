@@ -68,7 +68,7 @@ class StepikAPIClient:
                 f'Critical error when updating token: {e}', exc_info=True
             )
             raise
-
+    # OPT: Ruff(too-many-arguments)-(6 > 5)
     async def make_api_request(
         self,
         method: str,

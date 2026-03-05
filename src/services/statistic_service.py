@@ -31,12 +31,29 @@ class StatisticService:
         header = f'🏆 <b>Итоги дня: {yesterday.strftime("%d.%m.%Y")}</b>'
         return self._format_advanced_report(rows, header)
 
-    async def get_monthly_report_text(self, year: int, month: int) -> str:
+    async def get_report_by_date_text(self, year: int, month: int) -> str:
         """Final report for the month."""
         rows = await self.stats_repo.get_monthly_stats(year, month)
         header = f'📈 <b>Results of the month: {month:02d}.{year}</b>'
 
         return self._format_advanced_report(rows, header, is_monthly=True)
+
+    async def get_monthly_report_text(self, prev_month: bool = True) -> str:
+        now = datetime.now(UTC)
+
+        if prev_month:
+            first_day_this_month = now.replace(day=1)
+            last_day_prev_month = first_day_this_month - timedelta(days=1)
+
+            year = last_day_prev_month.year
+            month = last_day_prev_month.month
+        else:
+            year = now.year
+            month = now.month
+
+        return await self.get_report_by_date_text(
+            year=year,
+            month=month)
 
     @staticmethod
     def _format_simple_report(rows: Sequence, header: str) -> str:

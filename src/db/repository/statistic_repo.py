@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 
 from sqlalchemy import desc, func, not_, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import AuthorReply, Course, MentorStatistic, StepikUser
@@ -188,14 +189,28 @@ class StatisticRepo:
                 else 0
             )
 
-            new_stat = MentorStatistic(
-                mentor_id=mentor_id,
-                course_id=course_id,
-                stat_date=target_date,
-                total_comments=total_comments,
-                replies_count=replies_count,
-                helpful_replies_count=replies_count,
-                help_index=perf_index,
-                avg_response_time_seconds=avg_delay,
+            stmt = (
+                insert(MentorStatistic)
+                .values(
+                    mentor_id=mentor_id,
+                    course_id=course_id,
+                    stat_date=target_date,
+                    total_comments=total_comments,
+                    replies_count=replies_count,
+                    helpful_replies_count=replies_count,
+                    help_index=perf_index,
+                    avg_response_time_seconds=avg_delay,
+                    )
+                .on_conflict_do_update(
+                    index_elements=['stat_date', 'mentor_id', 'course_id'],
+                    set_={
+                        'total_comments': total_comments,
+                        'replies_count': replies_count,
+                        'helpful_replies_count': replies_count,
+                        'help_index': perf_index,
+                        'avg_response_time_seconds': avg_delay,
+                        'created_at': func.now(),
+                        },
+                    )
             )
-            self.session.add(new_stat)
+            await self.session.execute(stmt)

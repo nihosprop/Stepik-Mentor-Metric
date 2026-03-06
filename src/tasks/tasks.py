@@ -139,7 +139,7 @@ async def aggregate_daily_stats(
 
 @broker.task
 @inject(patch_module=True)
-async def daily_stats(
+async def sends_daily_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
     stat_service: FromDishka[StatisticService],
@@ -189,8 +189,9 @@ STATIC_TASKS = [
         cron='2 0 * * *',
     ),
     MyScheduledTask(
-        task_name=daily_stats.task_name,
-        schedule_id=_schedule_id(task_name=daily_stats.task_name),
+        task_name=sends_daily_stats.task_name,
+        schedule_id=_schedule_id(task_name=sends_daily_stats.task_name),
+        # TODO: set cron 00:05(5 0 * * *) daily
         cron='*/2 * * * *',
     ),
     # MyScheduledTask(

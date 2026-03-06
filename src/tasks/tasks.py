@@ -3,7 +3,7 @@ import json
 import logging
 import uuid
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from aiogram import Bot
 from dishka.integrations.taskiq import FromDishka, inject
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 # OPT: Too many branches(14 > 12)-Ruff
-# OPT: Too many arguments(6 > 5)-Ruff
+# OPT: Too many arguments(6 > 5)-Ruff(make service for arguments)
 @broker.task
 @inject(patch_module=True)
 async def poll_stepik_courses(
@@ -60,12 +60,13 @@ async def poll_stepik_courses(
     for course_id in courses_ids_cache:
         time_key = f'time:course:{course_id}'
         last_time_str: str = await redis_cache.get(time_key)
+        logger.debug(f'Last Time from cache:{last_time_str=}')
 
         if last_time_str:
             last_time = datetime.fromisoformat(last_time_str)
         else:
             days_back = config.tasks.initial_poll_days
-            last_time = datetime.now() - timedelta(days=days_back)
+            last_time: datetime = datetime.now(UTC) - timedelta(days=days_back)
             logger.info(
                 f'🆕 Cold start for course {course_id}. '
                 f'Parsing from: {last_time} ({days_back} days back)'
@@ -87,7 +88,7 @@ async def poll_stepik_courses(
             found_old_on_this_page = False
 
             for comment in response['comments']:
-                comment_time = datetime.fromisoformat(
+                comment_time: datetime = datetime.fromisoformat(
                     comment['time'].replace('Z', '+00:00')
                 )
                 if comment_time > last_time:
@@ -178,22 +179,22 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=poll_stepik_courses.task_name,
         schedule_id=_schedule_id(task_name=poll_stepik_courses.task_name),
-        # TODO: replace polling frequency
+        # TODO: replace polling frequency on 2/min
         cron='* * * * *',
     ),
-    MyScheduledTask(
-        task_name=live_stats.task_name,
-        schedule_id=_schedule_id(task_name=live_stats.task_name),
-        cron='* * * * *',
-    ),
+    # MyScheduledTask(
+    #     task_name=live_stats.task_name,
+    #     schedule_id=_schedule_id(task_name=live_stats.task_name),
+    #     cron='* * * * *',
+    # ),
     MyScheduledTask(
         task_name=daily_stats.task_name,
         schedule_id=_schedule_id(task_name=daily_stats.task_name),
-        cron='* * * * *',
+        cron='*/2 * * * *',
     ),
-    MyScheduledTask(
-        task_name=month_stats.task_name,
-        schedule_id=_schedule_id(task_name=month_stats.task_name),
-        cron='5 0 1 * *',
-    ),
+    # MyScheduledTask(
+    #     task_name=month_stats.task_name,
+    #     schedule_id=_schedule_id(task_name=month_stats.task_name),
+    #     cron='5 0 1 * *',
+    # ),
 ]

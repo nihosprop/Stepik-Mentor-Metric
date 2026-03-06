@@ -106,7 +106,7 @@ def _get_config() -> Config:
         stepik_client_secret=_settings.stepik_client_secret,
     )
 
-    tasks = TaskConfig(initial_poll_days=_settings.tasks.intial_poll_days)
+    tasks = TaskConfig(initial_poll_days=_settings.tasks.initial_poll_days)
 
     return Config(
         bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik,

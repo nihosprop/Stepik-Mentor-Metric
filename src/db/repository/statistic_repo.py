@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import AuthorReply, Course, MentorStatistic, StepikUser
@@ -56,7 +56,6 @@ class StatisticRepo:
         """
         now = datetime.now(UTC)
         start_of_day = datetime.combine(now.date(), time.min, tzinfo=UTC)
-
         return await self.get_stats_for_period(start_of_day, now)
 
     async def get_report_from_stats(self, target_date: date) -> Sequence:
@@ -96,6 +95,7 @@ class StatisticRepo:
              of the mentor,the title of the course, and the number of
              replies made by the mentor in the course during the period.
         """
+        # Фильтруем ответы только на комментарии студентов (не менторов)
         stmt = (
             select(
                 StepikUser.full_name,
@@ -108,9 +108,11 @@ class StatisticRepo:
                 AuthorReply.is_mentor_reply,
                 AuthorReply.parent_comment_id.is_not(None),
                 AuthorReply.comment_created_at.between(start_date, end_date),
-                ~AuthorReply.parent_comment_id.in_(
-                    select(AuthorReply.comment_id).where(
-                        AuthorReply.is_mentor_reply
+                not_(
+                    AuthorReply.parent_comment_id.in_(
+                        select(AuthorReply.comment_id).where(
+                            AuthorReply.is_mentor_reply
+                        )
                     )
                 ),
             )

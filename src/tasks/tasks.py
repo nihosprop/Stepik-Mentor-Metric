@@ -156,7 +156,7 @@ async def sends_daily_stats(
 
 @broker.task
 @inject(patch_module=True)
-async def month_stats(
+async def sends_month_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
     stat_service: FromDishka[StatisticService],
@@ -194,9 +194,9 @@ STATIC_TASKS = [
         # TODO: set cron 00:05(5 0 * * *) daily
         cron='*/2 * * * *',
     ),
-    # MyScheduledTask(
-    #     task_name=month_stats.task_name,
-    #     schedule_id=_schedule_id(task_name=month_stats.task_name),
-    #     cron='5 0 1 * *',
-    # ),
+    MyScheduledTask(
+        task_name=sends_month_stats.task_name,
+        schedule_id=_schedule_id(task_name=sends_month_stats.task_name),
+        cron='10 0 1 * *',
+    ),
 ]

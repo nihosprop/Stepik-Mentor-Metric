@@ -1,27 +1,16 @@
+import logging
+
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from db.repository.statistic_repo import StatisticRepo
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class StatisticService:
     stats_repo: StatisticRepo
-
-    async def get_live_report_text(self) -> str:
-        """
-        Get operational report for current day.
-        Returns:
-            str: text.
-        """
-        now = datetime.now(UTC)
-        rows = await self.stats_repo.get_current_day_stats()
-        header = (
-            f'📊 <b>Live-статистика</b>\n'
-            f'🕒 {now.strftime("%d.%m.%Y %H:%M")} UTC'
-        )
-        return self._format_simple_report(rows, header)
 
     async def get_daily_report_text(self) -> str:
         """Final report for yesterday - with efficiency

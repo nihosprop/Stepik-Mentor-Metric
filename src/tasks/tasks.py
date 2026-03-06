@@ -131,7 +131,7 @@ async def aggregate_daily_stats(
     yesterday: date = datetime.now(UTC).date() - timedelta(days=1)
     try:
         await stat_repo.calculate_and_save_daily_stats(yesterday)
-        logger.info(f'✅ Daily stats aggregated for {yesterday}')
+        logger.info(f'Daily stats aggregated for {yesterday}')
     except Exception as e:
         logger.error(
             f'❌ Failed to aggregate stats for {yesterday}: {e}', exc_info=True

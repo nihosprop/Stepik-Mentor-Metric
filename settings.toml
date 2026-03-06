@@ -61,7 +61,7 @@ port = 5432
 
 # === PRODUCTION ===
 # Tasks
-[default.tasks]
+[production.tasks]
 initial_poll_days = 30
 
 

@@ -1,10 +1,9 @@
-from db.repository.statistic_repo import StatisticRepo
 import asyncio
 import json
 import logging
 import uuid
 
-from datetime import UTC, datetime, timedelta, date
+from datetime import UTC, date, datetime, timedelta
 
 from aiogram import Bot
 from dishka.integrations.taskiq import FromDishka, inject
@@ -12,6 +11,7 @@ from dishka.integrations.taskiq import FromDishka, inject
 from core.main_config import Config
 from db.repository.course_repo import CourseRepo
 from db.repository.reply_repo import ReplyRepo
+from db.repository.statistic_repo import StatisticRepo
 from db.repository.stepik_user_repo import StepikUserRepo
 from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
@@ -121,6 +121,7 @@ async def poll_stepik_courses(
 
 # TODO: remove from static tasks, add to dynamic ones, upon request
 
+
 @broker.task
 @inject(patch_module=True)
 async def aggregate_daily_stats(
@@ -133,8 +134,8 @@ async def aggregate_daily_stats(
         logger.info(f'✅ Daily stats aggregated for {yesterday}')
     except Exception as e:
         logger.error(
-            f'❌ Failed to aggregate stats for {yesterday}: {e}',
-            exc_info=True)
+            f'❌ Failed to aggregate stats for {yesterday}: {e}', exc_info=True
+        )
 
 
 @broker.task

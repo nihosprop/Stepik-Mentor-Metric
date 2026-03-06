@@ -120,21 +120,6 @@ async def poll_stepik_courses(
 
 
 # TODO: remove from static tasks, add to dynamic ones, upon request
-@broker.task
-@inject(patch_module=True)
-async def live_stats(
-    bot: FromDishka[Bot],
-    config: FromDishka[Config],
-    stat_service: FromDishka[StatisticService],
-) -> None:
-    report_text = await stat_service.get_live_report_text()
-
-    # TODO: remove duplicate code 1
-    for admin_id in config.bot.admins:
-        try:
-            await bot.send_message(chat_id=admin_id, text=report_text)
-        except Exception as e:
-            logging.error(f'Failed to send report to {admin_id}: {e}')
 
 @broker.task
 @inject(patch_module=True)
@@ -143,8 +128,13 @@ async def aggregate_daily_stats(
 ) -> None:
     """Aggregates statistics for yesterday"""
     yesterday: date = datetime.now(UTC).date() - timedelta(days=1)
-    await stat_repo.calculate_and_save_daily_stats(yesterday)
-    logger.info(f'Statistics aggregated for {yesterday}')
+    try:
+        await stat_repo.calculate_and_save_daily_stats(yesterday)
+        logger.info(f'✅ Daily stats aggregated for {yesterday}')
+    except Exception as e:
+        logger.error(
+            f'❌ Failed to aggregate stats for {yesterday}: {e}',
+            exc_info=True)
 
 
 @broker.task
@@ -193,15 +183,10 @@ STATIC_TASKS = [
         # TODO: replace polling frequency on 2/min
         cron='* * * * *',
     ),
-    # MyScheduledTask(
-    #     task_name=live_stats.task_name,
-    #     schedule_id=_schedule_id(task_name=live_stats.task_name),
-    #     cron='* * * * *',
-    # ),
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,
         schedule_id=_schedule_id(aggregate_daily_stats.task_name),
-        cron='* * * * *',  # Каждый день в 01:00
+        cron='5 * * * *',  # Каждый день в 01:00
     ),
     MyScheduledTask(
         task_name=daily_stats.task_name,

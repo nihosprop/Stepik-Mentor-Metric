@@ -186,7 +186,7 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,
         schedule_id=_schedule_id(aggregate_daily_stats.task_name),
-        cron='5 * * * *',  # Каждый день в 01:00
+        cron='2 0 * * *',
     ),
     MyScheduledTask(
         task_name=daily_stats.task_name,

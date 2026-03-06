@@ -1,9 +1,10 @@
+from db.repository.statistic_repo import StatisticRepo
 import asyncio
 import json
 import logging
 import uuid
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, date
 
 from aiogram import Bot
 from dishka.integrations.taskiq import FromDishka, inject
@@ -135,6 +136,16 @@ async def live_stats(
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
+@broker.task
+@inject(patch_module=True)
+async def aggregate_daily_stats(
+    stat_repo: FromDishka[StatisticRepo],
+) -> None:
+    """Aggregates statistics for yesterday"""
+    yesterday: date = datetime.now(UTC).date() - timedelta(days=1)
+    await stat_repo.calculate_and_save_daily_stats(yesterday)
+    logger.info(f'Statistics aggregated for {yesterday}')
+
 
 @broker.task
 @inject(patch_module=True)
@@ -187,6 +198,11 @@ STATIC_TASKS = [
     #     schedule_id=_schedule_id(task_name=live_stats.task_name),
     #     cron='* * * * *',
     # ),
+    MyScheduledTask(
+        task_name=aggregate_daily_stats.task_name,
+        schedule_id=_schedule_id(aggregate_daily_stats.task_name),
+        cron='* * * * *',  # Каждый день в 01:00
+    ),
     MyScheduledTask(
         task_name=daily_stats.task_name,
         schedule_id=_schedule_id(task_name=daily_stats.task_name),

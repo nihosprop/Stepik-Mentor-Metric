@@ -42,6 +42,7 @@ class StatisticService:
         """
         Final report for yesterday - with efficiency
         and speed (from the archive).
+
         Args:
             prev_month (bool, optional): Whether the previous month
         Returns:

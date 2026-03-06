@@ -44,7 +44,6 @@ class StatisticService:
         and speed (from the archive).
         Args:
             prev_month (bool, optional): Whether the previous month
-
         Returns:
             str: text.
         """

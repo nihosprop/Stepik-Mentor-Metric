@@ -6,7 +6,7 @@ admins = [6567116737]
 
 # Tasks
 [default.tasks]
-initial_poll_days = 3
+initial_poll_days = 4
 
 # Logs
 [default.logs.dict_config]

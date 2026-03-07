@@ -2,15 +2,18 @@ import logging
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
+from core.main_config import Config
 from db.repository.statistic_repo import StatisticRepo
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class StatisticService:
     stats_repo: StatisticRepo
+    config: Config
 
     async def get_daily_report_text(self) -> str:
         """Final report for yesterday - with efficiency
@@ -29,9 +32,6 @@ class StatisticService:
 
     async def get_monthly_report_text(self, prev_month: bool = True) -> str:
         """
-        Final report for yesterday - with efficiency
-        and speed (from the archive).
-
         Args:
             prev_month (bool, optional): Whether the previous month
         Returns:
@@ -49,9 +49,33 @@ class StatisticService:
             year = now.year
             month = now.month
 
-        return await self.get_report_by_date_text(
-            year=year,
-            month=month)
+        return await self.get_report_by_date_text(year=year, month=month)
+
+    async def aggregate_stats_period(
+        self,
+        start_date: date,
+        end_date: date | None = None,
+    ) -> None:
+        """Aggregates statistics for an arbitrary period."""
+
+        end_date = end_date or datetime.now(UTC).date()
+
+        logger.info(f'Start aggregation {start_date} - {end_date}')
+
+        current = start_date
+        days_processed = 0
+
+        while current <= end_date:
+            try:
+                await self.stats_repo.calculate_and_save_daily_stats(current)
+                days_processed += 1
+                logger.debug(f'Aggregated stats for {current}')
+            except Exception as e:
+                logger.error(f'Failed to aggregate stats for {current}: {e}')
+
+            current += timedelta(days=1)
+
+        logger.info(f'Aggregated {days_processed} days of statistics')
 
     @staticmethod
     def _format_simple_report(rows: Sequence, header: str) -> str:
@@ -115,6 +139,6 @@ class StatisticService:
 
             msg.append(
                 f' └ <b>{row.full_name}</b>\n'
-                f'   КПД: <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
+                f'   КПД: <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}c'
             )
         return '\n'.join(msg)

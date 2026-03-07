@@ -69,7 +69,7 @@ async def poll_stepik_courses(
             days_back = config.tasks.initial_poll_days
             last_time: datetime = datetime.now(UTC) - timedelta(days=days_back)
             logger.info(
-                f'🆕 Cold start for course {course_id}. '
+                f'Cold start for course {course_id}. '
                 f'Parsing from: {last_time} ({days_back} days back)'
             )
 

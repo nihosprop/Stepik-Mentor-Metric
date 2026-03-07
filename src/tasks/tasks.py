@@ -120,32 +120,6 @@ async def poll_stepik_courses(
         await redis_cache.set(time_key, new_last_time.isoformat())
 
 
-@broker.task
-@inject(patch_module=True)
-async def aggregate_stats_period(
-        stat_repo: FromDishka[StatisticRepo],
-        start_date: date,
-        end_date: date,
-        ) -> None:
-    """Aggregates statistics for an arbitrary period."""
-    logger.info(f'Start stats aggregation {start_date} - {end_date}')
-
-    current = start_date
-    days_processed = 0
-
-    while current <= end_date:
-        try:
-            await stat_repo.calculate_and_save_daily_stats(current)
-            days_processed += 1
-            logger.debug(f'Aggregated stats for {current}')
-        except Exception as e:
-            logger.error(f'Failed to aggregate stats for {current}: {e}')
-
-        current += timedelta(days=1)
-
-    logger.info(f'Aggregated {days_processed} days of statistics')
-
-
 # TODO: remove from static tasks, add to dynamic ones, upon request
 
 @broker.task
@@ -181,6 +155,18 @@ async def sends_daily_stats(
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
+@broker.task
+@inject(patch_module=True)
+async def test_cold_aggregate(
+    config: FromDishka[Config],
+    stat_service: FromDishka[StatisticService]) -> None:
+    logger.debug('Start Cold aggregation test...')
+
+    now = datetime.now(UTC)
+    start_day = (now - timedelta(days=config.tasks.initial_poll_days)).date()
+    await stat_service.aggregate_stats_period(start_date=start_day)
+
+    logger.debug('End Cold aggregation test.')
 
 @broker.task
 @inject(patch_module=True)
@@ -189,7 +175,7 @@ async def sends_month_stats(
     config: FromDishka[Config],
     stat_service: FromDishka[StatisticService],
 ) -> None:
-    report_text = await stat_service.get_monthly_report_text()
+    report_text = await stat_service.get_monthly_report_text(prev_month=False)
 
     # TODO: remove duplicate code 3
     for admin_id in config.bot.admins:
@@ -211,6 +197,10 @@ STATIC_TASKS = [
         # TODO: replace polling frequency on 2/min
         cron='* * * * *',
     ),
+    MyScheduledTask(task_name=test_cold_aggregate.task_name,
+                    schedule_id=_schedule_id(
+                        task_name=test_cold_aggregate.task_name),
+                    cron='*/5 * * * *'),
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,
         schedule_id=_schedule_id(aggregate_daily_stats.task_name),
@@ -219,11 +209,13 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=sends_daily_stats.task_name,
         schedule_id=_schedule_id(task_name=sends_daily_stats.task_name),
-        cron='5 0 * * *',
+        # cron='5 0 * * *',
+        cron='*/2 * * * *'
     ),
     MyScheduledTask(
         task_name=sends_month_stats.task_name,
         schedule_id=_schedule_id(task_name=sends_month_stats.task_name),
-        cron='10 0 1 * *',
+        # cron='10 0 1 * *',
+        cron='*/3 * * * *',
     ),
 ]

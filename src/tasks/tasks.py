@@ -209,13 +209,13 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=sends_daily_stats.task_name,
         schedule_id=_schedule_id(task_name=sends_daily_stats.task_name),
-        # cron='5 0 * * *',
-        cron='*/2 * * * *'
+        cron='5 0 * * *',
+        # cron='*/2 * * * *'
     ),
     MyScheduledTask(
         task_name=sends_month_stats.task_name,
         schedule_id=_schedule_id(task_name=sends_month_stats.task_name),
-        # cron='10 0 1 * *',
-        cron='*/3 * * * *',
+        cron='10 0 1 * *',
+        # cron='*/3 * * * *',
     ),
 ]

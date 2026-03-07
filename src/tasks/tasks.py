@@ -97,6 +97,7 @@ async def poll_stepik_courses(
                         f'NEW_COMMENT:'
                         f'{json.dumps(comment, indent=2, ensure_ascii=False)}'
                     )
+                    # TODO: transfer to service `await reply_repo.upsert_reply`
                     await reply_repo.upsert_reply(
                         course_id=course_id,
                         comment_id=comment['id'],
@@ -119,8 +120,33 @@ async def poll_stepik_courses(
         await redis_cache.set(time_key, new_last_time.isoformat())
 
 
-# TODO: remove from static tasks, add to dynamic ones, upon request
+@broker.task
+@inject(patch_module=True)
+async def aggregate_stats_period(
+        stat_repo: FromDishka[StatisticRepo],
+        start_date: date,
+        end_date: date,
+        ) -> None:
+    """Aggregates statistics for an arbitrary period."""
+    logger.info(f'Start stats aggregation {start_date} - {end_date}')
 
+    current = start_date
+    days_processed = 0
+
+    while current <= end_date:
+        try:
+            await stat_repo.calculate_and_save_daily_stats(current)
+            days_processed += 1
+            logger.debug(f'Aggregated stats for {current}')
+        except Exception as e:
+            logger.error(f'Failed to aggregate stats for {current}: {e}')
+
+        current += timedelta(days=1)
+
+    logger.info(f'Aggregated {days_processed} days of statistics')
+
+
+# TODO: remove from static tasks, add to dynamic ones, upon request
 
 @broker.task
 @inject(patch_module=True)
@@ -173,7 +199,7 @@ async def sends_month_stats(
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
-
+# TODO: move _schedule_id
 def _schedule_id(task_name: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, task_name))
 
@@ -193,8 +219,7 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=sends_daily_stats.task_name,
         schedule_id=_schedule_id(task_name=sends_daily_stats.task_name),
-        # TODO: set cron 00:05(5 0 * * *) daily
-        cron='*/2 * * * *',
+        cron='5 0 * * *',
     ),
     MyScheduledTask(
         task_name=sends_month_stats.task_name,

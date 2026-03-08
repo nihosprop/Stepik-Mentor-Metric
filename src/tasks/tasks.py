@@ -132,18 +132,19 @@ async def poll_stepik_courses(
         if not await redis_cache.get(aggregation_flag):
             logger.info('Cold start detected. Running initial aggregation...')
 
-            start_date = (datetime.now(UTC) - timedelta(
-                days=config.tasks.initial_poll_days)).date()
+            start_date = (
+                datetime.now(UTC)
+                - timedelta(days=config.tasks.initial_poll_days)
+            ).date()
             end_date = datetime.now(UTC).date() - timedelta(days=1)
 
             if start_date <= end_date:
                 await stats_service.aggregate_stats_period(
-                    start_date=start_date,
-                    end_date=end_date
-                    )
+                    start_date=start_date, end_date=end_date
+                )
                 logger.info(
-                    f'Init aggregation completed for'
-                    f' {start_date} - {end_date}')
+                    f'Init aggregation completed for {start_date} - {end_date}'
+                )
 
             await redis_cache.set(aggregation_flag, 'true')
             logger.info('Aggregation flag set (persists until restart)')
@@ -155,7 +156,6 @@ async def aggregate_daily_stats(
     stat_repo: FromDishka[StatisticRepo],
     redis_cache: FromDishka[RedisCache],
 ) -> None:
-
     yesterday: date = datetime.now(UTC).date() - timedelta(days=1)
 
     try:
@@ -186,7 +186,7 @@ async def aggregate_daily_stats(
                 logger.warning(
                     f'Gap detected for course {course_id}: '
                     f'{gap} since last poll'
-                    )
+                )
 
                 start_date = last_time.date()
                 end_date = yesterday
@@ -199,8 +199,9 @@ async def aggregate_daily_stats(
                     except Exception as e:
                         logger.error(
                             f'❌ Failed to fill gap for {current}: {e}',
-                            exc_info=True
-                            )
+                            exc_info=True,
+                        )
+
 
 # TODO: add checking exists courses and mentors?
 @broker.task
@@ -220,6 +221,7 @@ async def sends_daily_stats(
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 
+
 @broker.task
 @inject(patch_module=True)
 async def sends_month_stats(
@@ -236,6 +238,7 @@ async def sends_month_stats(
             await asyncio.sleep(1)
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
+
 
 # TODO: move _schedule_id
 def _schedule_id(task_name: str) -> str:

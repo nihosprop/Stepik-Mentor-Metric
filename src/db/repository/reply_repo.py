@@ -10,7 +10,7 @@ from db.models import AuthorReply
 @dataclass
 class ReplyRepo:
     session: AsyncSession
-
+    # OPT: Too many arguments(6 > 5)-Ruff
     async def upsert_reply(
         self,
         course_id: int,

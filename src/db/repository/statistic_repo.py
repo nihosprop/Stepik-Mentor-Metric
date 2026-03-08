@@ -123,6 +123,7 @@ class StatisticRepo:
         result = await self.session.execute(stmt)
         return result.all()
 
+    # TODO: take the payment to another place
     async def calculate_and_save_daily_stats(self, target_date: date) -> None:
         """Calculates the daily statistics for a specified period.
         Args:
@@ -200,7 +201,7 @@ class StatisticRepo:
                     helpful_replies_count=replies_count,
                     help_index=perf_index,
                     avg_response_time_seconds=avg_delay,
-                    )
+                )
                 .on_conflict_do_update(
                     index_elements=['stat_date', 'mentor_id', 'course_id'],
                     set_={
@@ -210,7 +211,7 @@ class StatisticRepo:
                         'help_index': perf_index,
                         'avg_response_time_seconds': avg_delay,
                         'created_at': func.now(),
-                        },
-                    )
+                    },
+                )
             )
             await self.session.execute(stmt)

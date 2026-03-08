@@ -68,6 +68,7 @@ class StepikAPIClient:
                 f'Critical error when updating token: {e}', exc_info=True
             )
             raise
+
     # OPT: Ruff(too-many-arguments)-(6 > 5)
     async def make_api_request(
         self,
@@ -228,8 +229,6 @@ class StepikAPIClient:
     # TODO: complete and test the receipt of course teachers (instructors)
     async def get_course_instructors(self, course_id: int):
         """
-            Returns a list of IDs of all course administrators/teachers.
-            """
-        response = await self.make_api_request(
-            'GET', f'courses/{course_id}'
-            )
+        Returns a list of IDs of all course administrators/teachers.
+        """
+        response = await self.make_api_request('GET', f'courses/{course_id}')

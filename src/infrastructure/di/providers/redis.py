@@ -34,6 +34,22 @@ class RedisProvider(Provider):
 
     @provide(scope=Scope.APP)
     async def redis_cache(self, config: Config) -> AsyncIterable[RedisCache]:
+        """
+        Provides a RedisCache instance.
+
+        This provider connects to a Redis instance and
+            yields a RedisCache instance.
+        After the yield statement is done, it closes the connection
+            to the Redis instance.
+        Delete key 'initial_aggregation_done' of redis instance.
+
+        Args:
+            config (Config): The Config instance.
+
+        Yields:
+            RedisCache: A RedisCache instance.
+
+        """
         redis = Redis(
             host=config.redis.host,
             port=config.redis.port,
@@ -41,5 +57,6 @@ class RedisProvider(Provider):
             decode_responses=config.redis.decode_responses,
             db=1,
         )
+        await redis.delete('initial_aggregation_done')
         yield RedisCache(redis)
         await redis.close()

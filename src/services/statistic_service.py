@@ -91,6 +91,7 @@ class StatisticService:
         Returns:
             str: Formatted report.
         """
+        logger.debug('Generating simple report.')
         if not rows:
             return f'{header}\n\nАктивности менторов не зафиксировано. 📭'
 
@@ -113,6 +114,10 @@ class StatisticService:
     def _format_advanced_report(
         rows: Sequence, header: str, is_monthly: bool = False
     ) -> str:
+        """
+        Format statistics report based on the given rows and header.
+        """
+        logger.debug('Generating advanced report.')
         if not rows:
             return f'{header}\n\nНет архивных данных. 📭'
 

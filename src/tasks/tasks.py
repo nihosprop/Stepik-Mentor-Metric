@@ -25,8 +25,9 @@ logger = logging.getLogger(__name__)
 # TODO: remove `patch_module=True`
 
 
-# OPT: Too many branches(14 > 12)-Ruff
-# OPT: Too many arguments(6 > 5)-Ruff(make service for arguments)
+# OPT: Too many arguments(7 > 5)-Ruff
+# OPT: Too many branches (17 > 12)-Ruff
+# OPT: Too many statements(57 > 50)-Ruff
 @broker.task
 @inject(patch_module=True)
 async def poll_stepik_courses(
@@ -35,6 +36,7 @@ async def poll_stepik_courses(
     stepik_user_repo: FromDishka[StepikUserRepo],
     reply_repo: FromDishka[ReplyRepo],
     redis_cache: FromDishka[RedisCache],
+    stats_service: FromDishka[StatisticService],
     config: FromDishka[Config],
 ) -> None:
     logger.info('Polling Stepik courses ON')
@@ -58,6 +60,8 @@ async def poll_stepik_courses(
         else:
             logger.info('No active mentor IDs found in DB')
 
+    cold_start_flag = False
+
     for course_id in courses_ids_cache:
         time_key = f'time:course:{course_id}'
         last_time_str: str = await redis_cache.get(time_key)
@@ -72,6 +76,7 @@ async def poll_stepik_courses(
                 f'Cold start for course {course_id}. '
                 f'Parsing from: {last_time} ({days_back} days back)'
             )
+            cold_start_flag = True
 
         new_last_time = last_time
         page = 1
@@ -119,16 +124,40 @@ async def poll_stepik_courses(
 
         await redis_cache.set(time_key, new_last_time.isoformat())
 
+    if cold_start_flag:
+        # TODO: this logic transfer from this method
 
-# TODO: remove from static tasks, add to dynamic ones, upon request
+        aggregation_flag = 'initial_aggregation_flag'
+
+        if not await redis_cache.get(aggregation_flag):
+            logger.info('Cold start detected. Running initial aggregation...')
+
+            start_date = (datetime.now(UTC) - timedelta(
+                days=config.tasks.initial_poll_days)).date()
+            end_date = datetime.now(UTC).date() - timedelta(days=1)
+
+            if start_date <= end_date:
+                await stats_service.aggregate_stats_period(
+                    start_date=start_date,
+                    end_date=end_date
+                    )
+                logger.info(
+                    f'Init aggregation completed for'
+                    f' {start_date} - {end_date}')
+
+            await redis_cache.set(aggregation_flag, 'true')
+            logger.info('Aggregation flag set (persists until restart)')
+
 
 @broker.task
 @inject(patch_module=True)
 async def aggregate_daily_stats(
     stat_repo: FromDishka[StatisticRepo],
+    redis_cache: FromDishka[RedisCache],
 ) -> None:
-    """Aggregates statistics for yesterday"""
+
     yesterday: date = datetime.now(UTC).date() - timedelta(days=1)
+
     try:
         await stat_repo.calculate_and_save_daily_stats(yesterday)
         logger.info(f'Daily stats aggregated for {yesterday}')
@@ -136,8 +165,44 @@ async def aggregate_daily_stats(
         logger.error(
             f'❌ Failed to aggregate stats for {yesterday}: {e}', exc_info=True
         )
+        course_ids = await redis_cache.smembers('courses_ids')  # type: ignore
+        if not course_ids:
+            logger.debug('No courses in cache, skipping reconciliation')
+            return
 
+        for course_id in course_ids:
+            time_key = f'time:course:{course_id}'
+            last_time_str: str | None = await redis_cache.get(time_key)
 
+            if not last_time_str:
+                logger.debug(f'No last_time for course {course_id}, skipping')
+                continue
+
+            last_time = datetime.fromisoformat(last_time_str)
+            now = datetime.now(UTC)
+            gap = now - last_time
+
+            if gap > timedelta(hours=25):
+                logger.warning(
+                    f'Gap detected for course {course_id}: '
+                    f'{gap} since last poll'
+                    )
+
+                start_date = last_time.date()
+                end_date = yesterday
+
+                current = start_date
+                while current <= end_date:
+                    try:
+                        await stat_repo.calculate_and_save_daily_stats(current)
+                        current += timedelta(days=1)
+                    except Exception as e:
+                        logger.error(
+                            f'❌ Failed to fill gap for {current}: {e}',
+                            exc_info=True
+                            )
+
+# TODO: add checking exists courses and mentors?
 @broker.task
 @inject(patch_module=True)
 async def sends_daily_stats(
@@ -154,19 +219,6 @@ async def sends_daily_stats(
             await asyncio.sleep(1)
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
-
-@broker.task
-@inject(patch_module=True)
-async def test_cold_aggregate(
-    config: FromDishka[Config],
-    stat_service: FromDishka[StatisticService]) -> None:
-    logger.debug('Start Cold aggregation test...')
-
-    now = datetime.now(UTC)
-    start_day = (now - timedelta(days=config.tasks.initial_poll_days)).date()
-    await stat_service.aggregate_stats_period(start_date=start_day)
-
-    logger.debug('End Cold aggregation test.')
 
 @broker.task
 @inject(patch_module=True)
@@ -197,10 +249,6 @@ STATIC_TASKS = [
         # TODO: replace polling frequency on 120s
         interval=60,
     ),
-    MyScheduledTask(task_name=test_cold_aggregate.task_name,
-                    schedule_id=_schedule_id(
-                        task_name=test_cold_aggregate.task_name),
-                    cron='*/5 * * * *'),
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,
         schedule_id=_schedule_id(aggregate_daily_stats.task_name),

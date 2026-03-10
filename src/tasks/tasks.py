@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 
 # OPT: Too many arguments(7 > 5)-Ruff
-# OPT: Too many branches (17 > 12)-Ruff
-# OPT: Too many statements(57 > 50)-Ruff
+# OPT: Too many branches (18 > 12)-Ruff
+# OPT: Too many statements(59 > 50)-Ruff
 @broker.task
 @inject(patch_module=True)
 async def poll_stepik_courses(
@@ -97,6 +97,10 @@ async def poll_stepik_courses(
                 comment_time: datetime = datetime.fromisoformat(
                     comment['time'].replace('Z', '+00:00')
                 )
+
+                if str(comment['user']) not in mentors_ids_cache:
+                    continue
+
                 if comment_time > last_time:
                     logger.debug(
                         f'NEW_COMMENT:'

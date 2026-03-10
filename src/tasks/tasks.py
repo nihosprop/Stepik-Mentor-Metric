@@ -202,7 +202,7 @@ async def aggregate_daily_stats(
                         current += timedelta(days=1)
                     except Exception as e:
                         logger.error(
-                            f'❌ Failed to fill gap for {current}: {e}',
+                            f'Failed to fill gap for {current}: {e}',
                             exc_info=True,
                         )
 

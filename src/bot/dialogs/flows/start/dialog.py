@@ -12,7 +12,7 @@ from bot.dialogs.flows.start.states import StartSG
 
 start_dialog = Dialog(
     Window(
-        Format(text='===  Главное меню  ==='),
+        Const(text='===  Главное меню  ==='),
         Group(
             Row(
                 Button(

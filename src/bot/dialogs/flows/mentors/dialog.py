@@ -53,6 +53,7 @@ mentors_dialog = Dialog(
             ),
             MAIN_MENU_BUTTON,
         ),
+        # TODO: delete getter
         getter=get_tg_username,
         state=MentorSG.start,
     ),

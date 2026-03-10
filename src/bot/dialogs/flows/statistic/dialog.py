@@ -31,4 +31,18 @@ from bot.dialogs.flows.mentors.handlers import (
 from bot.dialogs.flows.statistic.states import StatisticSG
 
 statistic_dialog = Dialog(
-    Window(Format(text='===  Меню Статистики  ===')))
+    Window(
+        Format(text='===  Меню Статистики  ==='),
+        SwitchTo(
+            text=Const('Общая'),
+            id='general_stat',
+            state=StatisticSG.general
+        ),
+        SwitchTo(
+            text=Const('Индивидуальная'),
+            id='individual',
+            state=StatisticSG.individual),
+        MAIN_MENU_BUTTON,
+        BACK_BUTTON,
+        state=StatisticSG.start)
+    )

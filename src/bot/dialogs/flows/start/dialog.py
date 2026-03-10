@@ -31,6 +31,11 @@ start_dialog = Dialog(
                 id='statistic',
                 on_click=on_click_in_dev,
             ),
+            Button(
+                text=Const('Настройки'),
+                id='settings',
+                on_click=on_click_in_dev,
+            ),
         ),
         getter=get_tg_username,
         state=StartSG.start,

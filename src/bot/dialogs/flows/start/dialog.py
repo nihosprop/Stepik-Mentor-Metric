@@ -1,6 +1,6 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Group, Row
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const
 
 from bot.dialogs.common.getters import get_tg_username
 from bot.dialogs.common.handlers import on_click_in_dev
@@ -9,6 +9,7 @@ from bot.dialogs.flows.start.handlers import (
     switch_to_mentors,
 )
 from bot.dialogs.flows.start.states import StartSG
+from bot.dialogs.flows.statistic.handlers import switch_to_statistic
 
 start_dialog = Dialog(
     Window(
@@ -29,7 +30,7 @@ start_dialog = Dialog(
             Button(
                 text=Const('Статистика'),
                 id='statistic',
-                on_click=on_click_in_dev,
+                on_click=switch_to_statistic,
             ),
             Button(
                 text=Const('Настройки'),

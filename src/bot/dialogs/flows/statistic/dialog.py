@@ -43,6 +43,5 @@ statistic_dialog = Dialog(
             id='individual',
             state=StatisticSG.individual),
         MAIN_MENU_BUTTON,
-        BACK_BUTTON,
         state=StatisticSG.start)
     )

@@ -98,23 +98,42 @@ async def poll_stepik_courses(
                     comment['time'].replace('Z', '+00:00')
                 )
 
-                if str(comment['user']) not in mentors_ids_cache:
-                    continue
-
                 if comment_time > last_time:
                     logger.debug(
                         f'NEW_COMMENT:'
                         f'{json.dumps(comment, indent=2, ensure_ascii=False)}'
                     )
+
+                    author_id = comment['user']
+                    author_username = await stepik_client.get_username(
+                        author_id
+                    )
+
+                    if not author_username:
+                        author_username = f'User_{author_id}'
+
+                    author_id_str = str(comment['user'])
+                    is_mentor = author_id_str in mentors_ids_cache
+
+                    if not is_mentor:
+                        await stepik_user_repo.upsert_user(
+                            stepik_user_id=author_id,
+                            full_name=author_username,
+                            is_mentor=False,
+                        )
+                        logger.debug(
+                            f'Auto-registered student'
+                            f' {author_id}: {author_username}'
+                        )
+
                     # TODO: transfer to service `await reply_repo.upsert_reply`
                     await reply_repo.upsert_reply(
                         course_id=course_id,
                         comment_id=comment['id'],
-                        author_id=comment['user'],
+                        author_id=author_id,
                         parent_comment_id=comment['parent'],
                         comment_created_at=comment_time,
-                        is_mentor_reply=str(comment['user'])
-                        in mentors_ids_cache,
+                        is_mentor_reply=is_mentor,
                     )
                     new_last_time = max(new_last_time, comment_time)
                 else:

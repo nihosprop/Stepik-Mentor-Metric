@@ -129,7 +129,7 @@ class StatisticRepo:
         result = await self.session.execute(stmt)
         return result.all()
 
-    # TODO: take the payment to another place
+    # TODO: take to another place
     async def calculate_and_save_daily_stats(self, target_date: date) -> None:
         """Calculates the daily statistics for a specified period.
         Args:

@@ -5,6 +5,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const
 
+from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.statistic.handlers import (
     send_current_month,
@@ -18,10 +19,10 @@ statistic_dialog = Dialog(
         SwitchTo(
             text=Const('Общая'), id='general_stat', state=StatisticSG.general
         ),
-        SwitchTo(
+        Button(
             text=Const('Индивидуальная'),
             id='individual',
-            state=StatisticSG.individual,
+            on_click=on_click_in_dev,
         ),
         MAIN_MENU_BUTTON,
         state=StatisticSG.start,

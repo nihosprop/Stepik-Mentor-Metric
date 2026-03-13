@@ -25,9 +25,9 @@ logger = logging.getLogger(__name__)
 # TODO: remove `patch_module=True`
 
 
-# OPT: Too many arguments(7 > 5)-Ruff
-# OPT: Too many branches (18 > 12)-Ruff
-# OPT: Too many statements(59 > 50)-Ruff
+# OPT: Too many arguments(6 > 5)-Ruff
+# OPT: Too many branches (16 > 12)-Ruff
+# OPT: Too many statements(55 > 50)-Ruff
 @broker.task
 @inject(patch_module=True)
 async def poll_stepik_courses(
@@ -36,7 +36,6 @@ async def poll_stepik_courses(
     stepik_user_repo: FromDishka[StepikUserRepo],
     reply_repo: FromDishka[ReplyRepo],
     redis_cache: FromDishka[RedisCache],
-    stats_service: FromDishka[StatisticService],
     config: FromDishka[Config],
 ) -> None:
     logger.info('Polling Stepik courses ON')
@@ -60,8 +59,6 @@ async def poll_stepik_courses(
         else:
             logger.info('No active mentor IDs found in DB')
 
-    cold_start_flag = False
-
     for course_id in courses_ids_cache:
         time_key = f'time:course:{course_id}'
         last_time_str: str = await redis_cache.get(time_key)
@@ -76,7 +73,6 @@ async def poll_stepik_courses(
                 f'Cold start for course {course_id}. '
                 f'Parsing from: {last_time} ({days_back} days back)'
             )
-            cold_start_flag = True
 
         new_last_time = last_time
         page = 1
@@ -146,31 +142,6 @@ async def poll_stepik_courses(
             page += 1
 
         await redis_cache.set(time_key, new_last_time.isoformat())
-
-    if cold_start_flag:
-        # TODO: this logic transfer from this method
-
-        aggregation_flag = 'initial_aggregation_flag'
-
-        if not await redis_cache.get(aggregation_flag):
-            logger.info('Cold start detected. Running initial aggregation...')
-
-            start_date = (
-                datetime.now(UTC)
-                - timedelta(days=config.tasks.initial_poll_days)
-            ).date()
-            end_date = datetime.now(UTC).date() - timedelta(days=1)
-
-            if start_date <= end_date:
-                await stats_service.aggregate_stats_period(
-                    start_date=start_date, end_date=end_date
-                )
-                logger.info(
-                    f'Init aggregation completed for {start_date} - {end_date}'
-                )
-
-            await redis_cache.set(aggregation_flag, 'true')
-            logger.info('Aggregation flag set (persists until restart)')
 
 
 @broker.task

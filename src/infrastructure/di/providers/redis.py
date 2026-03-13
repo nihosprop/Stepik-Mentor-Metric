@@ -57,6 +57,5 @@ class RedisProvider(Provider):
             decode_responses=config.redis.decode_responses,
             db=1,
         )
-        await redis.delete('initial_aggregation_flag')
         yield RedisCache(redis)
         await redis.close()

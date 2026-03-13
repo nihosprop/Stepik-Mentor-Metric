@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 
-from sqlalchemy import desc, func, not_, select
+from sqlalchemy import asc, desc, func, not_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -39,7 +39,9 @@ class StatisticRepo:
                 MentorStatistic.stat_date.between(start_date, end_date),
             )
             .group_by(StepikUser.full_name, Course.title)
-        ).order_by(Course.title, desc('total_h'))
+        ).order_by(
+            Course.title, desc('total_h'), asc('avg_delay').nulls_last()
+        )
 
         result = await self.session.execute(stmt)
         rows = result.all()
@@ -76,7 +78,11 @@ class StatisticRepo:
             .join(StepikUser, StepikUser.user_id == MentorStatistic.mentor_id)
             .join(Course, Course.course_id == MentorStatistic.course_id)
             .where(MentorStatistic.stat_date == target_date)
-            .order_by(Course.title, desc(MentorStatistic.help_index))
+            .order_by(
+                Course.title,
+                desc(MentorStatistic.help_index),
+                asc(MentorStatistic.avg_response_time_seconds).nulls_last(),
+            )
         )
 
         result = await self.session.execute(stmt)

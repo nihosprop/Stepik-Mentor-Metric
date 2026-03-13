@@ -26,7 +26,7 @@ class StatisticService:
     async def get_report_by_date_text(self, year: int, month: int) -> str:
         """Final report for the month."""
         rows = await self.stats_repo.get_monthly_stats(year, month)
-        header = f'📈 <b>Results of the month: {month:02d}.{year}</b>'
+        header = f'📈 <b>Текущий месяц: {month:02d}.{year}</b>'
 
         return self._format_advanced_report(rows, header, is_monthly=True)
 

@@ -25,15 +25,16 @@ logger = logging.getLogger(__name__)
 # TODO: remove `patch_module=True`
 
 
-# OPT: Too many arguments(6 > 5)-Ruff
-# OPT: Too many branches (16 > 12)-Ruff
-# OPT: Too many statements(55 > 50)-Ruff
+# OPT: Too many arguments-Ruff
+# OPT: Too many branches-Ruff
+# OPT: Too many statements-Ruff
 @broker.task
 @inject(patch_module=True)
 async def poll_stepik_courses(
     stepik_client: FromDishka[StepikAPIClient],
     course_repo: FromDishka[CourseRepo],
     stepik_user_repo: FromDishka[StepikUserRepo],
+    stats_service: FromDishka[StatisticService],
     reply_repo: FromDishka[ReplyRepo],
     redis_cache: FromDishka[RedisCache],
     config: FromDishka[Config],
@@ -142,6 +143,33 @@ async def poll_stepik_courses(
             page += 1
 
         await redis_cache.set(time_key, new_last_time.isoformat())
+
+        if not last_time_str:
+            aggregation_flag = f'initial_aggregation_flag:{course_id}'
+
+            if not await redis_cache.get(aggregation_flag):
+                logger.info(
+                    f'Cold start for course {course_id}.'
+                    f' Running aggregation...'
+                )
+
+                start_date = (
+                    datetime.now(UTC)
+                    - timedelta(days=config.tasks.initial_poll_days)
+                ).date()
+                end_date = datetime.now(UTC).date() - timedelta(days=1)
+
+                if start_date <= end_date:
+                    await stats_service.aggregate_stats_period(
+                        start_date=start_date, end_date=end_date
+                    )
+                    logger.info(
+                        f'Init aggregation completed for'
+                        f' {start_date} - {end_date}'
+                    )
+
+                await redis_cache.set(aggregation_flag, 'true')
+                logger.info(f'Aggregation flag set for course:{course_id}')
 
 
 @broker.task

@@ -251,7 +251,7 @@ async def sends_month_stats(
     config: FromDishka[Config],
     stat_service: FromDishka[StatisticService],
 ) -> None:
-    report_text = await stat_service.get_monthly_report_text(prev_month=False)
+    report_text = await stat_service.get_monthly_report_text()
 
     # TODO: remove duplicate code 3
     for admin_id in config.bot.admins:

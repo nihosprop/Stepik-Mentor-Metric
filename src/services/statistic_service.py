@@ -49,11 +49,19 @@ class StatisticService:
             first_day_this_month = now.replace(day=1)
             last_day_prev_month = first_day_this_month - timedelta(days=1)
 
+            start_date = last_day_prev_month.replace(day=1).date()
+            end_date = last_day_prev_month.date()
+
             year = last_day_prev_month.year
             month = last_day_prev_month.month
         else:
+            start_date = now.replace(day=1).date()
+            end_date = now.date()
+
             year = now.year
             month = now.month
+
+        await self.aggregate_stats_period(start_date, end_date)
 
         return await self.get_report_by_date_text(year=year, month=month)
 

@@ -56,7 +56,7 @@ class StatisticService:
             start_date = last_day_prev_month.replace(day=1).date()
             end_date = last_day_prev_month.date()
             header = (
-                f'🏆 <b>Прошедший месяц:\n'
+                f'🏆 <b>Прошедший месяц\n'
                 f' {start_date.strftime("%d.%m.%Y")}'
                 f' - {end_date.strftime("%d.%m.%Y")}</b>'
             )
@@ -64,9 +64,9 @@ class StatisticService:
             start_date = now.replace(day=1).date()
             end_date = now.date()
             header = (
-                f'🏆 <b>Текущий месяц:\n'
-                f'<pre>{start_date.strftime("%d.%m.%Y")}'
-                f' - {end_date.strftime("%d.%m.%Y")}</pre></b>'
+                f'🏆 <b>Текущий месяц\n'
+                f'{start_date.strftime("%d.%m.%Y")}'
+                f' - {end_date.strftime("%d.%m.%Y")}</b>'
             )
 
         rows = await self.stats_repo.get_general_stats(start_date, end_date)

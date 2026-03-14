@@ -28,6 +28,44 @@ async def send_current_month(
 
 
 @inject
+async def send_general_stats(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+    statistic_service: FromDishka[StatisticService],
+    bot: FromDishka[Bot],
+) -> None:
+    logger.debug('Entry')
+
+    report = await statistic_service.get_general_report_text(prev_month=False)
+    if report:
+        await bot.send_message(chat_id=clbk.from_user.id, text=report)
+        return
+    await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
+    logger.debug('Exit')
+
+
+@inject
+# TODO: rename method
+async def send_general_stats_last(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+    statistic_service: FromDishka[StatisticService],
+    bot: FromDishka[Bot],
+) -> None:
+    logger.debug('Entry')
+
+    report = await statistic_service.get_general_report_text(prev_month=True)
+    if report:
+        await bot.send_message(chat_id=clbk.from_user.id, text=report)
+        return
+    await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
+
+    logger.debug('Exit')
+
+
+@inject
 async def send_last_month(
     clbk: CallbackQuery,
     _button: Button,

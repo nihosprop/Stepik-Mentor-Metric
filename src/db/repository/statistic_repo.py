@@ -4,9 +4,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 
-from sqlalchemy import asc, desc, func, not_, select
+from sqlalchemy import asc, cast, desc, func, not_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.sqltypes import Text
 
 from db.models import AuthorReply, Course, MentorStatistic, StepikUser
 
@@ -47,6 +48,47 @@ class StatisticRepo:
         rows = result.all()
 
         return rows
+
+    async def get_general_stats(
+        self, start_date: date | None = None, end_date: date | None = None
+    ) -> Sequence:
+        """
+        Gets aggregated statistics for all mentors across all courses
+         for specified period.
+
+        Args:
+            start_date: Start date for filtering (inclusive)
+            end_date: End date for filtering (inclusive)
+
+        Returns:
+            Sequence: Aggregated statistics for each mentor across all courses.
+        """
+        stmt = select(
+            StepikUser.full_name,
+            func.sum(MentorStatistic.total_comments).label('total_t'),
+            func.sum(MentorStatistic.replies_count).label('total_h'),
+            func.avg(MentorStatistic.avg_response_time_seconds).label(
+                'avg_delay'
+            ),
+            cast(None, Text).label('course_title'),
+        ).join(StepikUser, StepikUser.user_id == MentorStatistic.mentor_id)
+
+        # Добавляем фильтрацию по периоду, если указаны даты
+        if start_date and end_date:
+            stmt = stmt.where(
+                MentorStatistic.stat_date.between(start_date, end_date)
+            )
+        elif start_date:
+            stmt = stmt.where(MentorStatistic.stat_date >= start_date)
+        elif end_date:
+            stmt = stmt.where(MentorStatistic.stat_date <= end_date)
+
+        stmt = stmt.group_by(StepikUser.full_name).order_by(
+            desc('total_h'), asc('avg_delay').nulls_last()
+        )
+
+        result = await self.session.execute(stmt)
+        return result.all()
 
     async def get_current_day_stats(self) -> Sequence:
         """

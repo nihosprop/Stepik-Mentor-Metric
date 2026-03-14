@@ -9,6 +9,8 @@ from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.statistic.handlers import (
     send_current_month,
+    send_general_stats,
+    send_general_stats_last,
     send_last_month,
 )
 from bot.dialogs.flows.statistic.states import StatisticSG
@@ -30,12 +32,22 @@ statistic_dialog = Dialog(
     Window(
         Const('Выберите период.'),
         Button(
-            text=Const('За текущий месяц'),
+            text=Const('Общая (Текущий месяц)'),
+            id='general_stats_current',
+            on_click=send_general_stats,  # type: ignore[arg-type]
+        ),
+        Button(
+            text=Const('Общая (Прошедший месяц)'),
+            id='general_stats_last',
+            on_click=send_general_stats_last,  # type: ignore[arg-type]
+        ),
+        Button(
+            text=Const('Текущий месяц'),
             id='curr_month',
             on_click=send_current_month,  # type: ignore[arg-type]
         ),
         Button(
-            text=Const('За прошедший месяц'),
+            text=Const('Прошедший месяц'),
             id='last_month',
             on_click=send_last_month,  # type: ignore[arg-type]
         ),

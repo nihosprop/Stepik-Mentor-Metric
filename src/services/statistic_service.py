@@ -36,6 +36,42 @@ class StatisticService:
 
         return self._format_advanced_report(rows, header, is_monthly=True)
 
+    async def get_general_report_text(
+        self, prev_month: bool = True
+    ) -> str | None:
+        """
+        Retrieves a general report for the current month or the previous month.
+
+        Args:
+            prev_month (bool, optional): Whether to retrieve the report
+             for the previous month. Defaults to True.
+        Returns:
+            str: The general report text.
+        """
+        now = datetime.now(UTC)
+
+        if prev_month:
+            first_day_this_month = now.replace(day=1)
+            last_day_prev_month = first_day_this_month - timedelta(days=1)
+            start_date = last_day_prev_month.replace(day=1).date()
+            end_date = last_day_prev_month.date()
+            header = (
+                f'🏆 <b>Прошедший месяц:\n'
+                f' {start_date.strftime("%d.%m.%Y")}'
+                f' - {end_date.strftime("%d.%m.%Y")}</b>'
+            )
+        else:
+            start_date = now.replace(day=1).date()
+            end_date = now.date()
+            header = (
+                f'🏆 <b>Текущий месяц:\n'
+                f'<pre>{start_date.strftime("%d.%m.%Y")}'
+                f' - {end_date.strftime("%d.%m.%Y")}</pre></b>'
+            )
+
+        rows = await self.stats_repo.get_general_stats(start_date, end_date)
+        return self._format_general_report(rows, header)
+
     async def get_monthly_report_text(self, prev_month: bool = True) -> str:
         """
         Args:
@@ -125,6 +161,33 @@ class StatisticService:
         return '\n'.join(msg)
 
     @staticmethod
+    def _format_general_report(
+        rows: Sequence,
+        header: str,
+    ) -> str | None:
+        """
+        Format general statistics report (aggregated across all courses).
+        """
+        logger.debug('Generating general report.')
+        if not rows:
+            return None
+
+        msg = [header, '=== Общая статистика по менторам ===']
+
+        for row in rows:
+            perf_idx = (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
+            replies = row.total_h
+
+            speed = f'{int(row.avg_delay // 60)}м' if row.avg_delay else 'н/д'
+
+            msg.append(
+                f'👤 <b>{row.full_name}</b>\n'
+                f'   КПД: <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
+            )
+
+        return '\n'.join(msg)
+
+    @staticmethod
     def _format_advanced_report(
         rows: Sequence, header: str, is_monthly: bool = False
     ) -> str:
@@ -135,7 +198,7 @@ class StatisticService:
         if not rows:
             return '📭 Нет архивных данных за прошедший месяц.'
 
-        msg = [header, '']
+        msg = [header, '=== Статистика по курсам ===']
         current_course = ''
         for row in rows:
             if row.course_title != current_course:

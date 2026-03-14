@@ -28,7 +28,7 @@ statistic_dialog = Dialog(
         state=StatisticSG.start,
     ),
     Window(
-        Const('Выберите отчет'),
+        Const('Выберите период.'),
         Button(
             text=Const('За текущий месяц'),
             id='curr_month',

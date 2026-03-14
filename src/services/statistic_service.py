@@ -16,8 +16,14 @@ class StatisticService:
     config: Config
 
     async def get_daily_report_text(self) -> str:
-        """Final report for yesterday - with efficiency
-        and speed (from the archive)."""
+        """Final report for yesterday - with efficiency and
+         speed (from the archive).
+
+        Args:
+            self
+        Returns:
+            str: text
+        """
         yesterday = datetime.now(UTC).date() - timedelta(days=1)
         rows = await self.stats_repo.get_report_from_stats(yesterday)
         header = f'🏆 <b>Итоги дня: {yesterday.strftime("%d.%m.%Y")}</b>'

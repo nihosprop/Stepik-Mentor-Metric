@@ -8,8 +8,12 @@ from infrastructure.di.providers import PROVIDERS
 
 setup_logging()
 
+redis_password = main_config.redis.password
+redis_password_str = f':{redis_password}@' if redis_password else ''
+
 broker = RedisStreamBroker(
-    url=f'redis://{main_config.redis.host}:{main_config.redis.port}'
+    url=f'redis://{redis_password_str}{main_config.redis.host}'
+        f':{main_config.redis.port}'
 )
 
 container = make_async_container(*PROVIDERS)

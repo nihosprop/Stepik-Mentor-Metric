@@ -86,7 +86,7 @@ def _get_config() -> Config:
             'redis_host', _settings.get('redis.host', 'localhost')
         ),
         port=_settings.redis.port,
-        password_secret=_settings.redis_password,
+        password_secret=_settings.get('redis_password'),
         decode_responses=_settings.redis.decode_responses,
     )
 

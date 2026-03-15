@@ -26,6 +26,8 @@ services:
     image: postgres:18-alpine
     container_name: Metric-DB
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -63,6 +65,8 @@ services:
     container_name: Metrik-Redis
     command: redis-server --appendonly yes --appendfsync everysec --requirepass ${REDIS_PASSWORD}
     restart: unless-stopped
+    env_file:
+      - .env
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
       interval: 10s

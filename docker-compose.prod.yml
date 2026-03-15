@@ -42,6 +42,7 @@ services:
         limits:
           cpus: '0.3'
           memory: 256M
+
   migrations:
     image: niwibonihs/metrik-bot:${APP_TAG}
     container_name: Metrik-Migrations
@@ -76,6 +77,49 @@ services:
         limits:
           cpus: '0.3'
           memory: 64M
+  worker:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Worker
+    command: python -m taskiq worker tasks.setup:broker --fs-discover
+    environment:
+      - PYTHONPATH=/app/src
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres_db:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+    networks:
+      - metric-net
+
+  scheduler:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Scheduler
+    command: python -m taskiq scheduler tasks.scheduler:scheduler
+    environment:
+      - PYTHONPATH=/app/src
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      worker:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    networks:
+      - metric-net
 
 networks:
   metric-net:

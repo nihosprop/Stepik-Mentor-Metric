@@ -2,7 +2,7 @@
 # Bot
 [default.bot]
 parse_mode = 'HTML'
-admins = [6567116737]
+admins = [6567116737, 537283645]
 
 # Tasks
 [default.tasks]

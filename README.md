@@ -1,93 +1,208 @@
-## Project structure
+# Stepik Mentor Metric Bot
+
+A Telegram bot for tracking mentor activity metrics on the Stepik platform. Automatically collects comments, calculates statistics, and generates reports for course mentors.
+
+## Features
+
+- **Mentor Management**: Add/remove mentors via Stepik profile links
+- **Course Tracking**: Monitor multiple Stepik courses for new comments
+- **Automatic Polling**: Fetches comments every 120 seconds with intelligent 
+  caching
+- **Statistics Aggregation**: Daily and monthly reports with efficiency metrics
+- **Smart Cold Start**: Configurable historical data polling (2 days dev / 15 days prod)
+- **Admin Reports**: Automated daily/monthly statistics sent to admins
+
+## Technology Stack
+
+| Component            | Technology                                        |
+|----------------------|---------------------------------------------------|
+| **Language**         | Python 3.14                                       |
+| **Bot Framework**    | aiogram 3.x + aiogram-dialog                      |
+| **DI Container**     | Dishka                                            |
+| **Database**         | PostgreSQL 18 + SQLAlchemy 2.0 (Async)            |
+| **Migrations**       | Alembic                                           |
+| **Cache/FSM**        | Redis 8                                           |
+| **Task Queue**       | Taskiq (Redis Stream Broker)                      |
+| **Scheduler**        | Taskiq Scheduler (PostgreSQL source)              |
+| **Config**           | Dynaconf + Pydantic                               |
+| **Package Manager**  | uv                                                |
+| **Containerization** | Docker + Docker Compose                           |
+| **Code Quality**     | Ruff (linting/formatting)<br/> Ty (type checking) |
+
+## Project Structure
+
 ```text
-Stepik-Mentor-Metric/
-    ├── alembic.ini
-    ├── docker-compose.dev.yml
-    ├── docker-compose.prod.yml
-    ├── Dockerfile
-    ├── migrate.sh
-    ├── pyproject.toml
-    ├── settings.toml
-    ├── uv.lock
-    ├── .env.example
-    ├── src/
-    │   ├── main.py
-    │   ├── alembic/
-    │   │   ├── README
-    │   │   ├── env.py
-    │   │   └── script.py.mako
-    │   ├── bot/
-    │   │   ├── dialogs/
-    │   │   │   └── start/
-    │   │   │       ├── dialog.py
-    │   │   │       ├── getters.py
-    │   │   │       ├── handlers.py
-    │   │   │       └── states.py
-    │   │   ├── factory/
-    │   │   ├── middlewares/
-    │   │   └── states/
-    │   ├── common/
-    │   │   └── telegram_utils.py
-    │   ├── core/
-    │   │   ├── logger.py
-    │   │   └── main_config.py
-    │   ├── db/
-    │   │   ├── models/
-    │   │   │   ├── base.py
-    │   │   │   ├── mixins.py
-    │   │   │   └── user.py
-    │   │   └── repository/
-    │   │       └── user_repo.py
-    │   ├── infrastructure/
-    │   │   ├── di/
-    │   │   │   └── providers/
-    │   │   │       ├── config.py
-    │   │   │       ├── db.py
-    │   │   │       ├── http.py
-    │   │   │       ├── redis.py
-    │   │   │       ├── repositories.py
-    │   │   │       └── stepik.py
-    │   │   └── stepik/
-    │   │       └── client.py
-    │   ├── services/
-    │   └── tasks/
-    ├── tests/
-    └── .github/
-        └── workflows/
-            └── build-and-push.yml
+.
+├── src/
+│ ├── bot/             # Telegram bot handlers & dialogs
+│ │ ├── dialogs/
+│ │ │ ├── flows/
+│ │ │ │ ├── courses/   # Course management dialog
+│ │ │ │ ├── mentors/   # Mentor management dialog
+│ │ │ │ ├── start/     # Main menu
+│ │ │ │ └── statistic/ # Statistics reports
+│ │ └── middlewares/   # ACL & other middlewares
+│ ├── core/            # Application core (config, logging)
+│ ├── db/
+│ │ ├── models/        # SQLAlchemy models
+│ │ └── repository/    # Data access layer
+│ ├── infrastructure/
+│ │ ├── di/providers/  # Dishka dependency providers
+│ │ └── stepik/        # Stepik API client
+│ ├── services/        # Business logic layer
+│ ├── tasks/           # Background tasks (Taskiq)
+│ ├── alembic/         # Database migrations
+│ └── main.py          # Application entry point
+├── tests/
+├── docker-compose.dev.yml
+├── docker-compose.prod.yml
+├── Dockerfile
+├── migrate.sh         # Migration automation script
+├── pyproject.toml
+├── settings.toml
+└── .env.example
 ```
 
-**Stepik Mentor Metric Bot** — This is a Telegram bot designed for mentors on the Stepik platform. It allows you to track course metrics, manage user data and monitor new comments through integration with the Stepik API.
+## Quick Start
 
-## 🚀 Technologies
+### Prerequisites
 
-The project is built on a modern Python technology stack:
+- Docker & Docker Compose
+- Telegram Bot Token (from @BotFather)
+- Stepik API Credentials (Client ID & Secret)
+- Redis & PostgreSQL (included in Docker Compose)
 
-*   **Python 3.14+**
-*   **aiogram 3.x** — asynchronous framework for Telegram bots.
-*   **aiogram-dialog** — library for creating complex interactive dialogs.
-*   **Dishka** — modern DI container for dependency management.
-*   **SQLAlchemy 2.0 & PostgreSQL** — working with a database through an asynchronous engine.
-*   **Alembic** — managing database migrations.
-*   **Redis** — used for FSM (Finite State Machine) bot and Stepik API data caching.
-*   **Dynaconf & Pydantic** — flexible configuration management and settings validation.
-*   **uv** — modern package manager and project builder.
+### 1. Clone and Configure
 
-## 🛠 Functionality
+```bash
+git clone <repository-url>
+cd stepik-mentor-metric-bot
+cp .env.example .env
+```
+### 2. Edit ```.env```
+```dotenv
+APP_TAG=<actual-tag>
+ENV_FOR_DYNACONF=production
+BOT_TOKEN=your_telegram_bot_token
 
-1.  **Integration with Stepik API:** Automatically receive OAuth2 tokens, 
-    cache them in Redis, and make API requests to retrieve user, course, and comment data.
-2.  **Comment monitoring:** Receiving the latest course comments and generating direct links to them in the context of lessons.
-3.  **User management:** Автоматическое сохранение и обновление данных Telegram-пользователей в базе данных (PostgreSQL) при взаимодействии с ботом.
-4.  **Interactive dialogues:** Удобный интерфейс управления через систему окон и кнопок `aiogram-dialog`.
-5.  **Logging:** Настраиваемая система логирования с поддержкой вывода в консоль и ротации файлов в режиме Production.
+# Stepik
+STEPIK_CLIENT_ID=your_stepik_client_id
+STEPIK_CLIENT_SECRET=your_stepik_client_secret
 
-## 📦 Installation and launch
+# Redis
+REDIS_PASSWORD=your_redis_password
+REDIS_HOST=redis
 
-### Setting up the environment
-Create a file `.env` based on example `.env.example` and fill in the required variables:
-*   `BOT_TOKEN` — your bot's token from BotFather.
-*   `STEPIK_CLIENT_ID` и `STEPIK_CLIENT_SECRET` — your application data Stepik.
-*   Connection settings for PostgreSQL and Redis.
+# PostgreSQL
+POSTGRES_USER=superuser
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_HOST=postgres_db
+POSTGRES_DB=mentor_db
+```
+### 3. Run with Docker Compose
+```bash
+# Production
+docker compose -f docker-compose.prod.yml up -d
 
-### Run via Docker (recommended)
+# Development (with hot reload)
+docker compose -f docker-compose.dev.yml up -d
+```
+### 4.  Check Logs
+```bash
+docker compose -f docker-compose.prod.yml logs -f bot
+docker compose -f docker-compose.prod.yml logs -f worker
+docker compose -f docker-compose.prod.yml logs -f scheduler
+```
+## Development
+
+### Local Setup with uv
+```bash
+# Install uv (if not installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create virtual environment and install dependencies
+uv sync --dev
+
+# Run the bot
+uv run python src/main.py
+```
+
+## Database Migrations
+Use the automated migration script:
+```bash
+# Create and test a new migration
+./migrate.sh "your_migration_description"
+```
+The script performs:
+1. Starts the database container
+2. Generates migration with `alembic revision --autogenerate`
+3. Test Drive: Upgrade → Downgrade → Upgrade
+4. Runs `alembic check` for model compliance
+5. Stops the database
+
+## Manual Alembic Commands
+```bash
+# Generate migration
+docker compose -f docker-compose.dev.yml run --rm bot alembic revision --autogenerate -m "description"
+
+# Apply migrations
+docker compose -f docker-compose.dev.yml run --rm bot alembic upgrade head
+
+# Check model compliance
+docker compose -f docker-compose.dev.yml run --rm bot alembic check
+
+# Rollback one version
+docker compose -f docker-compose.dev.yml run --rm bot alembic downgrade -1
+```
+
+## Code Quality
+```bash
+# Format code
+uv run ruff format src/
+
+# Lint code
+uv run ruff check src/
+
+# Type checking (ty)
+uv run ty src/
+```
+## API Integration
+### Stepik OAuth2
+1. The bot automatically:
+2. Requests OAuth2 token from Stepik
+3. Caches token in Redis (TTL: expires_in - 300 seconds)
+4. Refreshes token on 401 Unauthorized
+5. Handles rate limiting (429) with retry
+
+## Cached Endpoints
+
+* stepik_token — OAuth2 access token (Redis DB 1)
+* courses_ids — Active course IDs (Redis DB 1, TTL: 1h)
+* users_ids — Mentor IDs (Redis DB 1, TTL: 1h)
+* time:course:{id} — Last poll timestamp per course
+
+## Security
+* Non-root user (appuser) in production container
+* Secrets managed via environment variables
+* PostgreSQL and Redis not exposed externally (internal network only)
+* Passwords validated (min 7 characters) via Pydantic
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

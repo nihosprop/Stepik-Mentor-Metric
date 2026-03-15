@@ -269,7 +269,7 @@ STATIC_TASKS = [
         task_name=poll_stepik_courses.task_name,
         schedule_id=_schedule_id(task_name=poll_stepik_courses.task_name),
         # TODO: replace polling frequency on 120s
-        interval=60,
+        interval=120,
     ),
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,

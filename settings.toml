@@ -6,7 +6,7 @@ admins = [6567116737]
 
 # Tasks
 [default.tasks]
-initial_poll_days = 4
+initial_poll_days = 2
 
 # Logs
 [default.logs.dict_config]
@@ -62,7 +62,7 @@ port = 5432
 # === PRODUCTION ===
 # Tasks
 [production.tasks]
-initial_poll_days = 30
+initial_poll_days = 15
 
 
 # Logs

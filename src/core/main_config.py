@@ -75,7 +75,7 @@ _settings = Dynaconf(
 def _get_config() -> Config:
     bot = BotConfig(
         token=_settings.bot_token,
-        admins=_settings.bot.admins,
+        admins=list(map(int, _settings.bot_admins.split(' '))),
         parse_mode=_settings.bot.parse_mode,
     )
 

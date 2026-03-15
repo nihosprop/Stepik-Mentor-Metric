@@ -187,6 +187,107 @@ uv run ty src/
 * PostgreSQL and Redis not exposed externally (internal network only)
 * Passwords validated (min 7 characters) via Pydantic
 
+# Dependency Injection Graph
+
+```mermaid
+---
+  config:
+    class:
+      hideEmptyMembersBox: true
+---
+classDiagram
+direction LR
+namespace Scope_APP {
+class factory3["📥 AsyncContainer"]{
+ 
+}
+class factory4["🏭 Config"]{
+ConfigProvider.config()
+}
+class factory5["🏭 AsyncEngine"]{
+PostgresProvider.engine()
+Config
+}
+class factory6["🏭 async_sessionmaker[AsyncSession]"]{
+PostgresProvider.sessionmaker()
+AsyncEngine
+}
+class factory7["🏭 RedisStorage"]{
+RedisProvider.redis_storage()
+Config
+}
+class factory8["🏭 RedisCache"]{
+RedisProvider.redis_cache()
+Config
+}
+class factory9["🏭 ClientSession"]{
+HttpProvider.client_session()
+}
+class factory10["🏭 StepikAPIClient"]{
+StepikProvider.stepik_client()
+Config
+RedisCache
+ClientSession
+}
+class factory11["🏭 Bot"]{
+BotProvider.bot()
+Config
+}
+}
+
+factory4 <.. factory5
+factory5 <.. factory6
+factory4 <.. factory7
+factory4 <.. factory8
+factory4 <.. factory10
+factory8 <.. factory10
+factory9 <.. factory10
+factory4 <.. factory11
+namespace Scope_REQUEST {
+class factory14["📥 AsyncContainer"]{
+ 
+}
+class factory15["🏭 AsyncSession"]{
+PostgresProvider.session()
+async_sessionmaker[AsyncSession]
+}
+class factory16["🏭 TGUserRepository"]{
+RepositoryProvider.tg_user_repo()
+AsyncSession
+}
+class factory17["🏭 StepikUserRepo"]{
+RepositoryProvider.stepik_user_repo()
+AsyncSession
+}
+class factory18["🏭 CourseRepo"]{
+RepositoryProvider.course_repo()
+AsyncSession
+}
+class factory19["🏭 ReplyRepo"]{
+RepositoryProvider.mentor_reply_repo()
+AsyncSession
+}
+class factory20["🏭 StatisticRepo"]{
+RepositoryProvider.statistic_repo()
+AsyncSession
+}
+class factory21["🏭 StatisticService"]{
+ServiceProvider.stats_service()
+StatisticRepo
+Config
+}
+}
+
+factory6 <.. factory15
+factory15 <.. factory16
+factory15 <.. factory17
+factory15 <.. factory18
+factory15 <.. factory19
+factory15 <.. factory20
+factory20 <.. factory21
+factory4 <.. factory21
+```
+
 
 
 

@@ -42,7 +42,7 @@ async def send_general_stats(
         await bot.send_message(chat_id=clbk.from_user.id, text=report)
         return
     await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
-    
+
     logger.debug('Exit')
 
 

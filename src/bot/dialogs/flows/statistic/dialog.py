@@ -10,7 +10,7 @@ from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.statistic.handlers import (
     send_current_month,
     send_general_stats,
-    send_general_stats_last,
+    send_last_month_stats,
     send_last_month,
 )
 from bot.dialogs.flows.statistic.states import StatisticSG
@@ -39,7 +39,7 @@ statistic_dialog = Dialog(
         Button(
             text=Const('Общая (Прошедший месяц)'),
             id='general_stats_last',
-            on_click=send_general_stats_last,  # type: ignore[arg-type]
+            on_click=send_last_month_stats,  # type: ignore[arg-type]
         ),
         Button(
             text=Const('Текущий месяц'),

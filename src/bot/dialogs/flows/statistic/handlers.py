@@ -47,8 +47,7 @@ async def send_general_stats(
 
 
 @inject
-# TODO: rename method
-async def send_general_stats_last(
+async def send_last_month_stats(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,

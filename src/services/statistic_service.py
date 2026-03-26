@@ -77,7 +77,7 @@ class StatisticService:
     async def get_monthly_report_text(self, prev_month: bool = True) -> str:
         """
         Args:
-            prev_month (bool, optional): Whether the previous month
+            prev_month (bool, optional): Flag for previous month
         Returns:
             str: text.
         """

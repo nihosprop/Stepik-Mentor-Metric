@@ -71,7 +71,7 @@ courses_dialog = Dialog(
         Back(
             text=Const(text='✅ Подтвердить'),
             id='confirm_curse',
-            on_click=add_course_to_db,  # type: ignore[arg-type]
+            on_click=add_course_to_db,  # ty:ignore[invalid-argument-type]
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
@@ -87,7 +87,7 @@ courses_dialog = Dialog(
                 id='s_course',
                 item_id_getter=lambda x: x.course_id,
                 items='courses',
-                on_click=on_course_selected,  # type: ignore[arg-type]
+                on_click=on_course_selected,  # ty:ignore[invalid-argument-type]
             ),
             id='courses_scroll',
             width=1,
@@ -115,7 +115,7 @@ courses_dialog = Dialog(
         SwitchTo(
             text=Const(text='✅ Подтвердить'),
             id='conf_del_course',
-            on_click=on_delete_course,  # type: ignore[arg-type]
+            on_click=on_delete_course,  # ty:ignore[invalid-argument-type]
             state=CoursesSG.selection_courses,
         ),
         MAIN_MENU_BUTTON,

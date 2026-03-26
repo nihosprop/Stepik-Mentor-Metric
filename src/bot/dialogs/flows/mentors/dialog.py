@@ -74,7 +74,7 @@ mentors_dialog = Dialog(
         Back(
             text=Const(text='✅ Подтвердить'),
             id='confirm_mentor',
-            on_click=add_mentor_to_db,  # type: ignore[arg-type]
+            on_click=add_mentor_to_db,  # ty:ignore[invalid-argument-type]
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
@@ -90,7 +90,7 @@ mentors_dialog = Dialog(
                 id='s_mentors',
                 item_id_getter=lambda x: x.user_id,
                 items='mentors',
-                on_click=on_mentor_selected,  # type: ignore[arg-type]
+                on_click=on_mentor_selected,  # ty:ignore[invalid-argument-type]
             ),
             id='mentors_scroll',
             width=1,
@@ -118,7 +118,7 @@ mentors_dialog = Dialog(
         SwitchTo(
             text=Const(text='✅ Подтвердить'),
             id='conf_del_mentor',
-            on_click=on_delete_mentor,  # type: ignore[arg-type]
+            on_click=on_delete_mentor,  # ty:ignore[invalid-argument-type]
             state=MentorSG.selection_mentors,
         ),
         MAIN_MENU_BUTTON,

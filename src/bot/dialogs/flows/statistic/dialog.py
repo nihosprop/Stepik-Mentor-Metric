@@ -34,22 +34,22 @@ statistic_dialog = Dialog(
         Button(
             text=Const('Общая (Текущий месяц)'),
             id='general_stats_current',
-            on_click=send_general_stats,  # type: ignore[arg-type]
+            on_click=send_general_stats,  # ty:ignore[invalid-argument-type]
         ),
         Button(
             text=Const('Общая (Прошедший месяц)'),
             id='general_stats_last',
-            on_click=send_last_month_stats,  # type: ignore[arg-type]
+            on_click=send_last_month_stats,  # ty:ignore[invalid-argument-type]
         ),
         Button(
             text=Const('Текущий месяц'),
             id='curr_month',
-            on_click=send_current_month,  # type: ignore[arg-type]
+            on_click=send_current_month,  # ty:ignore[invalid-argument-type]
         ),
         Button(
             text=Const('Прошедший месяц'),
             id='last_month',
-            on_click=send_last_month,  # type: ignore[arg-type]
+            on_click=send_last_month,  # ty:ignore[invalid-argument-type]
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

@@ -8,6 +8,7 @@ from aiogram_dialog.widgets.kbd import Button, Select
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from db.repository.stepik_user_repo import StepikUserRepo
+from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
 
 start_router = Router()
@@ -57,6 +58,7 @@ async def error_link_to_mentor(
 async def add_mentor_to_db(
     clbk: CallbackQuery,
     _button: Button,
+    redis_cache: FromDishka[RedisCache],
     dialog_manager: DialogManager,
     stepik_user_repo: FromDishka[StepikUserRepo],
 ) -> None:
@@ -70,6 +72,8 @@ async def add_mentor_to_db(
         full_name=mentor_name,
         is_mentor=True,
     )
+    await redis_cache.delete('users_ids')
+    logger.info(f'Cleared mentors cache after adding mentor {stepik_user_id}')
     await clbk.answer(
         f'✅ Ментор {mentor_name} успешно добавлен!\nМожете продолжить.',
         show_alert=True,

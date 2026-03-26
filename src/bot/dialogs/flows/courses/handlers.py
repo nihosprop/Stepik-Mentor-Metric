@@ -7,6 +7,7 @@ from aiogram_dialog.widgets.kbd import Button, Select
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from db.repository.course_repo import CourseRepo
+from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
 
 logger = logging.getLogger(__name__)
@@ -89,15 +90,29 @@ async def add_course_to_db(
     _button: Button,
     dialog_manager: DialogManager,
     course_repo: FromDishka[CourseRepo],
+    redis_cache: FromDishka[RedisCache],
 ) -> None:
     logger.debug('Entry')
 
     course_id = dialog_manager.dialog_data['course_id']
     course_title = dialog_manager.dialog_data['course_title']
 
-    await course_repo.upsert_course(course_id=course_id, title=course_title)
-    await clbk.answer(
-        f'Курс {course_title} успешно добавлен! ✅\nМожете продолжить.',
-        show_alert=True,
-    )
+    try:
+        await course_repo.upsert_course(
+            course_id=course_id, title=course_title
+        )
+        await redis_cache.delete('courses_ids')
+        await clbk.answer(
+            f'Курс {course_title} успешно добавлен! ✅\nМожете продолжить.',
+            show_alert=True,
+        )
+    except Exception:
+        logger.error(f'Error adding course {course_id}', exc_info=True)
+        await clbk.answer(
+            f'❌ Ошибка при добавлении курса {course_id}.\n'
+            'Повторите или обратитесь к разработчику.',
+            show_alert=True,
+        )
+        return
+
     logger.debug('Exit')

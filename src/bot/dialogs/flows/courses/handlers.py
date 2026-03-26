@@ -97,7 +97,7 @@ async def add_course_to_db(
 
     await course_repo.upsert_course(course_id=course_id, title=course_title)
     await clbk.answer(
-        f'✅ Курс {course_title} успешно добавлен!\nМожете продолжить.',
+        f'Курс {course_title} успешно добавлен! ✅\nМожете продолжить.',
         show_alert=True,
     )
     logger.debug('Exit')

@@ -10,8 +10,8 @@ from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.statistic.handlers import (
     send_current_month,
     send_general_stats,
-    send_last_month_stats,
     send_last_month,
+    send_last_month_stats,
 )
 from bot.dialogs.flows.statistic.states import StatisticSG
 

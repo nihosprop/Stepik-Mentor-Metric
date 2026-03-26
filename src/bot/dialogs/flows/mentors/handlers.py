@@ -58,8 +58,8 @@ async def error_link_to_mentor(
 async def add_mentor_to_db(
     clbk: CallbackQuery,
     _button: Button,
-    redis_cache: FromDishka[RedisCache],
     dialog_manager: DialogManager,
+    redis_cache: FromDishka[RedisCache],
     stepik_user_repo: FromDishka[StepikUserRepo],
 ) -> None:
     logger.debug('Entry')
@@ -111,6 +111,7 @@ async def on_delete_mentor(
     )
     logger.debug('Exit')
 
+
 @inject
 async def test_get_comments(
     clbk: CallbackQuery,
@@ -119,6 +120,5 @@ async def test_get_comments(
     stepik_client: FromDishka[StepikAPIClient],
 ) -> None:
     logger.debug('Entry')
-
 
     logger.debug('Exit')

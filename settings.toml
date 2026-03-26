@@ -5,7 +5,7 @@ parse_mode = 'HTML'
 
 # Tasks
 [default.tasks]
-initial_poll_days = 2
+initial_poll_days = 3
 
 # Logs
 [default.logs.dict_config]

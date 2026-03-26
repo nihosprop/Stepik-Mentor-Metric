@@ -182,7 +182,8 @@ class StatisticService:
 
             msg.append(
                 f'👤 <b>{row.full_name}</b>\n'
-                f'   КПД: <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
+                f'   \tКПД:'
+                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
             )
 
         return '\n'.join(msg)

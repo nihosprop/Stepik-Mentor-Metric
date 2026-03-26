@@ -69,6 +69,8 @@ class StatisticService:
                 f' - {end_date.strftime("%d.%m.%Y")}</b>'
             )
 
+        await self.aggregate_stats_period(start_date, end_date)
+
         rows = await self.stats_repo.get_general_stats(start_date, end_date)
         return self._format_general_report(rows, header)
 
@@ -182,7 +184,7 @@ class StatisticService:
 
             msg.append(
                 f'👤 <b>{row.full_name}</b>\n'
-                f'   \tКПД:'
+                f'  └ КПД:'
                 f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
             )
 
@@ -221,7 +223,8 @@ class StatisticService:
             speed = f'{int(row.avg_delay // 60)}м' if row.avg_delay else 'н/д'
 
             msg.append(
-                f' └ <b>{row.full_name}</b>\n'
-                f'   КПД: <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
+                f' └👤 <b>{row.full_name}</b>\n'
+                f'    └ КПД:'
+                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
             )
         return '\n'.join(msg)

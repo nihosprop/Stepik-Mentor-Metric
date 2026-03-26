@@ -1,6 +1,6 @@
 [project]
 name = "stepik-mentor-metric"
-version = "v0.2.1b"
+version = "v0.2.4b"
 description = ""
 requires-python = ">=3.14"
 dependencies = [

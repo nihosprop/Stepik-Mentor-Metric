@@ -33,13 +33,13 @@ async def send_general_stats(
     _button: Button,
     dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
-    bot: FromDishka[Bot],
 ) -> None:
     logger.debug('Entry')
 
     report = await statistic_service.get_general_report_text(prev_month=False)
     if report:
-        await bot.send_message(chat_id=clbk.from_user.id, text=report)
+        if clbk.message:
+            await clbk.message.answer(text=report)
         return
     await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
 

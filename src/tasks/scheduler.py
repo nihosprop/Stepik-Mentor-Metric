@@ -30,16 +30,6 @@ logger.info(f'Found {len(STATIC_TASKS)} static tasks')
 async def setup_schedules() -> None:
     """Setup schedules."""
     logger.info('Setting up schedules in scheduler...')
-    try:
-        await scheduler_source.startup()
-        logger.info('Scheduler source started successfully')
-    except Exception as e:
-        if "already exists" in str(e):
-            logger.info('Scheduler table already exists, continuing...')
-        else:
-            logger.error(f'Failed to startup scheduler source: {e}',
-                         exc_info=True)
-            return
     
     try:
         existing_schedules = await scheduler_source.get_schedules()

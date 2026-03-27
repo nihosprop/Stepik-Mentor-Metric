@@ -30,7 +30,7 @@ logger.info(f'Found {len(STATIC_TASKS)} static tasks')
 async def setup_schedules() -> None:
     """Setup schedules."""
     logger.info('Setting up schedules in scheduler...')
-    await scheduler_source.startup()
+    # await scheduler_source.startup()
     try:
         existing_schedules = await scheduler_source.get_schedules()
         existing_ids = {s.schedule_id for s in existing_schedules}
@@ -50,4 +50,4 @@ async def setup_schedules() -> None:
         logger.error(f'Failed to setup schedules: {e}', exc_info=True)
 
 
-asyncio.create_task(setup_schedules())
+# asyncio.create_task(setup_schedules())

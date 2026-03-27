@@ -40,11 +40,18 @@ async def poll_stepik_courses(
 ) -> None:
     logger.info('Polling Stepik courses ON')
 
-    courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
+    try:
+        courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
+        logger.info(f'Courses IDs from cache: {courses_ids_cache}')
+    except Exception as e:
+        logger.error(f'Redis connection error: {e}')
+        return
+    
     if not courses_ids_cache:
         active_ids = set(map(str, await course_repo.get_ids_active_courses()))
+        logger.info(f'Active courses from DB: {active_ids}')
         if not active_ids:
-            logger.info('No active courses in DB')
+            logger.warning('No active courses in DB - task will exit')
             return
         await redis_cache.sadd('courses_ids', *active_ids)  # type: ignore
         await redis_cache.expire('courses_ids', 3600)

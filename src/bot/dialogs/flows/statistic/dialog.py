@@ -47,7 +47,7 @@ statistic_dialog = Dialog(
             on_click=send_current_month,  # ty:ignore[invalid-argument-type]
         ),
         Button(
-            text=Const('Общая (Прошедший месяц)'),
+            text=Const('Подробная (Прошедший месяц)'),
             id='last_month',
             on_click=send_last_month,  # ty:ignore[invalid-argument-type]
         ),

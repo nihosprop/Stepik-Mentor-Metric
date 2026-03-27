@@ -26,8 +26,9 @@ logger.info('TaskIQ scheduler initialized')
 logger.info(f'Found {len(STATIC_TASKS)} static tasks')
 
 
-async def setup_scheduler() -> None:
-    """Setup schedules when scheduler starts."""
+# Setup schedules immediately
+async def setup_schedules() -> None:
+    """Setup schedules."""
     logger.info('Setting up schedules in scheduler...')
     try:
         await scheduler_source.startup()
@@ -51,12 +52,4 @@ async def setup_scheduler() -> None:
         logger.error(f'Failed to setup schedules: {e}', exc_info=True)
 
 
-async def main() -> None:
-    """Main function to setup and run scheduler."""
-    logger.info('Starting scheduler setup...')
-    await setup_scheduler()
-    logger.info('Scheduler setup completed. Starting scheduler loop...')
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.create_task(setup_schedules())

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from taskiq import TaskiqScheduler
@@ -23,3 +24,39 @@ scheduler = TaskiqScheduler(broker=broker, sources=[scheduler_source])
 
 logger.info('TaskIQ scheduler initialized')
 logger.info(f'Found {len(STATIC_TASKS)} static tasks')
+
+
+async def setup_scheduler() -> None:
+    """Setup schedules when scheduler starts."""
+    logger.info('Setting up schedules in scheduler...')
+    try:
+        await scheduler_source.startup()
+        logger.info('Scheduler source started successfully')
+        
+        existing_schedules = await scheduler_source.get_schedules()
+        existing_ids = {s.schedule_id for s in existing_schedules}
+        logger.info(f'Existing schedules: {existing_ids}')
+
+        if not STATIC_TASKS:
+            logger.info('No static tasks to add.')
+            return
+
+        for task in STATIC_TASKS:
+            if task.schedule_id not in existing_ids:
+                await scheduler_source.add_schedule(task)
+                logger.info(f'Schedule added for {task.task_name}')
+            else:
+                logger.info(f'Task {task.task_name} already in DB')
+    except Exception as e:
+        logger.error(f'Failed to setup schedules: {e}', exc_info=True)
+
+
+async def main() -> None:
+    """Main function to setup and run scheduler."""
+    logger.info('Starting scheduler setup...')
+    await setup_scheduler()
+    logger.info('Scheduler setup completed. Starting scheduler loop...')
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

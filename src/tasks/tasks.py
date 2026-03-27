@@ -268,8 +268,8 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=poll_stepik_courses.task_name,
         schedule_id=_schedule_id(task_name=poll_stepik_courses.task_name),
-        # TODO: replace polling frequency on 120s
-        interval=120,
+        # TODO: use cron!!
+        cron='*/1 * * * *',
     ),
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,

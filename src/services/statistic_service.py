@@ -199,7 +199,7 @@ class StatisticService:
         """
         logger.debug('Generating advanced report.')
         if not rows:
-            return '📭 Нет архивных данных за прошедший месяц.'
+            return '📭 Нет архивных данных.'
 
         msg = [header, '=== Статистика по курсам ===']
         current_course = ''

@@ -19,6 +19,7 @@ async def send_current_month(
     statistic_service: FromDishka[StatisticService],
     bot: FromDishka[Bot],
 ) -> None:
+    # TODO: use clbk.message, methods on the stack must return str | None
     logger.debug('Entry')
 
     report = await statistic_service.get_monthly_report_text(prev_month=False)

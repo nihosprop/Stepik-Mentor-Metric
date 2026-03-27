@@ -37,7 +37,8 @@ async def setup_schedules() -> None:
         if "already exists" in str(e):
             logger.info('Scheduler table already exists, continuing...')
         else:
-            logger.error(f'Failed to startup scheduler source: {e}', exc_info=True)
+            logger.error(f'Failed to startup scheduler source: {e}',
+                         exc_info=True)
             return
     
     try:

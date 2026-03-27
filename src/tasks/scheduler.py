@@ -33,7 +33,14 @@ async def setup_schedules() -> None:
     try:
         await scheduler_source.startup()
         logger.info('Scheduler source started successfully')
-        
+    except Exception as e:
+        if "already exists" in str(e):
+            logger.info('Scheduler table already exists, continuing...')
+        else:
+            logger.error(f'Failed to startup scheduler source: {e}', exc_info=True)
+            return
+    
+    try:
         existing_schedules = await scheduler_source.get_schedules()
         existing_ids = {s.schedule_id for s in existing_schedules}
         logger.info(f'Existing schedules: {existing_ids}')

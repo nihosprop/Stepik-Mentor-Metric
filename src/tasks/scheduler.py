@@ -6,6 +6,7 @@ from taskiq_pg.psycopg import PsycopgScheduleSource
 from core.main_config import main_config
 
 from .broker import broker
+from .tasks import STATIC_TASKS
 
 logger = logging.getLogger(__name__)
 dsn = (
@@ -19,3 +20,6 @@ scheduler_source = PsycopgScheduleSource(
     broker=broker,
 )
 scheduler = TaskiqScheduler(broker=broker, sources=[scheduler_source])
+
+logger.info('TaskIQ scheduler initialized')
+logger.info(f'Found {len(STATIC_TASKS)} static tasks')

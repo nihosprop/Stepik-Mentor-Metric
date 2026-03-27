@@ -106,7 +106,7 @@ services:
   scheduler:
     image: niwibonihs/metrik-bot:${APP_TAG}
     container_name: Metrik-Scheduler
-    command: python -m taskiq scheduler tasks.scheduler:scheduler
+    command: python -m taskiq scheduler tasks.scheduler:scheduler --fs-discover
     environment:
       - PYTHONPATH=/app/src
     env_file:

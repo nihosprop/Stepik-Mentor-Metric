@@ -42,14 +42,15 @@ async def poll_stepik_courses(
 
     try:
         courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
-        logger.info(f'Courses IDs from cache: {courses_ids_cache}')
+        logger.debug(f'Courses IDs from cache: {courses_ids_cache}')
     except Exception as e:
         logger.error(f'Redis connection error: {e}')
         return
     
     if not courses_ids_cache:
+        logger.info('No active courses in cache')
         active_ids = set(map(str, await course_repo.get_ids_active_courses()))
-        logger.info(f'Active courses from DB: {active_ids}')
+        logger.info(f'Getting active courses from DB: {active_ids}')
         if not active_ids:
             logger.warning('No active courses in DB - task will exit')
             return
@@ -270,13 +271,12 @@ async def sends_month_stats(
 def _schedule_id(task_name: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, task_name))
 
-
+# TODO: move settings
 STATIC_TASKS = [
     MyScheduledTask(
         task_name=poll_stepik_courses.task_name,
         schedule_id=_schedule_id(task_name=poll_stepik_courses.task_name),
-        # TODO: use cron!!
-        cron='*/1 * * * *',
+        interval=180,
     ),
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,

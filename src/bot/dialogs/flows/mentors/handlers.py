@@ -75,7 +75,7 @@ async def add_mentor_to_db(
     await redis_cache.delete('users_ids')
     logger.info(f'Cleared mentors cache after adding mentor {stepik_user_id}')
     await clbk.answer(
-        f'✅ Ментор {mentor_name} успешно добавлен!\nМожете продолжить.',
+        f'✅ Ментор {mentor_name} добавлен!\nМожете продолжить.',
         show_alert=True,
     )
     logger.debug('Exit')

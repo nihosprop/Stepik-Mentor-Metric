@@ -102,10 +102,9 @@ async def add_course_to_db(
             course_id=course_id, title=course_title
         )
         await redis_cache.delete('courses_ids')
-        logger.info(
-            f'Cleared courses cache after adding course {course_id}')
+        logger.info(f'Cleared courses cache after adding course {course_id}')
         await clbk.answer(
-            f'Курс {course_title} успешно добавлен! ✅\nМожете продолжить.',
+            f'✅ Курс {course_title}r добавлен!\nМожете продолжить.',
             show_alert=True,
         )
     except Exception:

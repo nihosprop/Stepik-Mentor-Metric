@@ -6,11 +6,12 @@ A Telegram bot for tracking mentor activity metrics on the Stepik platform. Auto
 
 - **Mentor Management**: Add/remove mentors via Stepik profile links
 - **Course Tracking**: Monitor multiple Stepik courses for new comments
-- **Automatic Polling**: Fetches comments every 120 seconds with intelligent 
+- **Automatic Polling**: Fetches comments every 180 seconds with intelligent 
   caching
 - **Statistics Aggregation**: Daily and monthly reports with efficiency metrics
-- **Smart Cold Start**: Configurable historical data polling (2 days dev / 15 days prod)
-- **Admin Reports**: Automated daily/monthly statistics sent to admins
+- **Smart Cold Start**: Configurable historical data polling (2 days dev / 30 
+  days prod)
+- **Admin Reports**: Automated and manual daily/monthly statistics sent to admins
 
 ## Technology Stack
 
@@ -33,34 +34,69 @@ A Telegram bot for tracking mentor activity metrics on the Stepik platform. Auto
 
 ```text
 .
+.
 ├── src/
-│ ├── bot/             # Telegram bot handlers & dialogs
-│ │ ├── dialogs/
-│ │ │ ├── flows/
-│ │ │ │ ├── courses/   # Course management dialog
-│ │ │ │ ├── mentors/   # Mentor management dialog
-│ │ │ │ ├── start/     # Main menu
-│ │ │ │ └── statistic/ # Statistics reports
-│ │ └── middlewares/   # ACL & other middlewares
-│ ├── core/            # Application core (config, logging)
-│ ├── db/
-│ │ ├── models/        # SQLAlchemy models
-│ │ └── repository/    # Data access layer
-│ ├── infrastructure/
-│ │ ├── di/providers/  # Dishka dependency providers
-│ │ └── stepik/        # Stepik API client
-│ ├── services/        # Business logic layer
-│ ├── tasks/           # Background tasks (Taskiq)
-│ ├── alembic/         # Database migrations
-│ └── main.py          # Application entry point
-├── tests/
-├── docker-compose.dev.yml
-├── docker-compose.prod.yml
-├── Dockerfile
-├── migrate.sh         # Migration automation script
-├── pyproject.toml
-├── settings.toml
-└── .env.example
+│   ├── alembic/                  # Database migrations
+│   │   ├── versions/             # Migration version files
+│   │   └── env.py                # Environment for running migrations
+│   ├── bot/                      # Telegram bot logic
+│   │   ├── commands.py           # Managing bot commands
+│   │   ├── dialogs/              # Dialogs aiogram-dialog
+│   │   │   ├── common/           # Common Dialog Components
+│   │   │   │   ├── filters.py    # Filters
+│   │   │   │   ├── getters.py    # Common data getters
+│   │   │   │   ├── handlers.py   # Common handlers
+│   │   │   │   ├── validators.py # Link validators
+│   │   │   │   └── widgets.py    # Repeating buttons
+│   │   │   ├── flows/            # Specific dialogue threads
+│   │   │   │   ├── courses/      # Course management 
+│   │   │   │   ├── mentors/      # Mentor management 
+│   │   │   │   ├── start/        # Main menu 
+│   │   │   │   └── statistic/    # Statistics reports 
+│   │   │   └── __init__.py       # Registering ROUTERS for Dispatcher
+│   │   └── middlewares/
+│   │       └── acl.py            # Middleware for access control
+│   ├── core/                     # Application core
+│   │   ├── logger.py             # Setting up logging
+│   │   └── main_config.py        # Configuration via Dynaconf and Pydantic
+│   ├── db/                       # Database Layer
+│   │   ├── models/               # Models SQLAlchemy
+│   │   │   ├── author_reply.py
+│   │   │   ├── base.py
+│   │   │   ├── course.py
+│   │   │   ├── mentor_statistic.py
+│   │   │   ├── mixins.py         # TimestampMixin for models
+│   │   │   ├── stepik_user.py
+│   │   │   └── telegram_user.py
+│   │   └── repository/           # Repositories (Data Access Layer)
+│   │       ├── course_repo.py
+│   │       ├── reply_repo.py
+│   │       ├── statistic_repo.py
+│   │       ├── stepik_user_repo.py
+│   │       └── tg_user_repo.py
+│   ├── infrastructure/           # External integrations
+│   │   ├── di/                   # Dependency Injection (Dishka)
+│   │   │   └── providers/        # Dependency Providers
+│   │   └── stepik/
+│   │       └── client.py         # Client for Stepik API
+│   ├── services/                 # Business logic
+│   │   └── statistic_service.py  # Metric calculation and aggregation 
+│   ├── tasks/                    # Background tasks
+│   │   ├── broker.py             # Initialization RedisStreamBroker 
+│   │   ├── mixins.py             # Mixins
+│   │   ├── scheduler.py          # Scheduler logic and CLIENT_STARTUP
+│   │   ├── setup.py              # Setting up a worker 
+│   │   └── tasks.py              # Definitions of the tasks 
+│   └── main.py                   # Application entry point
+├── tests/                        # Tests
+├── .env.example                  # Example environment variables
+├── alembic.ini                   # Alembic config
+├── docker-compose.dev.yml        # Docker for development
+├── docker-compose.prod.yml       # Docker for production
+├── Dockerfile                    # Multi-stage assembly
+├── migrate.sh                    # Migration automation script
+├── pyproject.toml                # Dependencies and Settings
+└── settings.toml                 # Settings
 ```
 
 ## Quick Start
@@ -168,6 +204,7 @@ uv run ty src/
 ```
 ## API Integration
 ### Stepik OAuth2
+- expires_in=36000 seconds (10 hours)
 1. The bot automatically:
 2. Requests OAuth2 token from Stepik
 3. Caches token in Redis (TTL: expires_in - 300 seconds)

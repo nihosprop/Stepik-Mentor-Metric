@@ -224,6 +224,13 @@ uv run ty src/
 * PostgreSQL and Redis not exposed externally (internal network only)
 * Passwords validated (min 7 characters) via Pydantic
 
+##  Operating bot instructions after first start 
+### For the “cold start” to work correctly, it is important to follow the sequence actions in the bot:
+1. First add Mentors: The bot must know the IDs of mentors in order to correctly 
+flag their responses during the initial history scan.
+2. Then add Courses: Once the course is added, the system will start aggregation 
+   statistics for the past month.
+
 # Dependency Injection Graph
 
 ```mermaid

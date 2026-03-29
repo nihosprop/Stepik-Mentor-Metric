@@ -144,7 +144,6 @@ class StatisticRepo:
              of the mentor,the title of the course, and the number of
              replies made by the mentor in the course during the period.
         """
-        # Фильтруем ответы только на комментарии студентов (не менторов)
         stmt = (
             select(
                 StepikUser.full_name,

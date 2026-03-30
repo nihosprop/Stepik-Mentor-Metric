@@ -262,7 +262,7 @@ async def sends_month_stats(
     for admin_id in config.bot.admins:
         try:
             await bot.send_message(chat_id=admin_id, text=report_text)
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
         except Exception as e:
             logging.error(f'Failed to send report to {admin_id}: {e}')
 

@@ -46,7 +46,7 @@ async def poll_stepik_courses(
     except Exception as e:
         logger.error(f'Redis connection error: {e}')
         return
-    
+
     if not courses_ids_cache:
         logger.info('No active courses in cache')
         active_ids = set(map(str, await course_repo.get_ids_active_courses()))

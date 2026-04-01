@@ -129,11 +129,9 @@ async def poll_stepik_courses(
                         logger.debug(
                             f'Auto-registered student'
                             f' {author_id}:{author_username}')
-                        is_question = await ai_client.is_meaningful_question(
+                        await ai_client.is_meaningful_question(
                             comment['text'].strip()
                         )
-                        logger.debug(f'{comment['text']=}\n'
-                                     f'{is_question=}')
                         await asyncio.sleep(4.5)
 
                     # TODO: transfer to service `await reply_repo.upsert_reply`

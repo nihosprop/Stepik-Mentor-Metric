@@ -99,9 +99,13 @@ class GeminiCommentEvaluator:
                 ]
                 data = json.loads(content_text)
                 reasoning = data.get('reasoning', 'No reasoning provided')
-                logger.debug(f'{reasoning=}')
 
-                return data.get('is_question', True)
+                logger.debug(f'{clean_text=}')
+                logger.debug(f'{reasoning=}')
+                result = data.get('is_question', True)
+                logger.debug(f'{result=}')
+
+                return result
 
         except Exception as e:
             logger.error(f'Error evaluating with Gemini 3.1: {e}')

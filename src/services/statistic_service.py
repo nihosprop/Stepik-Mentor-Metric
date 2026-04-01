@@ -74,7 +74,9 @@ class StatisticService:
         rows = await self.stats_repo.get_general_stats(start_date, end_date)
         return self._format_general_report(rows, header)
 
-    async def get_monthly_detailed_report_text(self, prev_month: bool = True) -> str:
+    async def get_monthly_detailed_report_text(
+        self, prev_month: bool = True
+    ) -> str:
         """
         Args:
             prev_month (bool, optional): Flag for previous month

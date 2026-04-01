@@ -22,7 +22,9 @@ async def send_current_month_detailed_stats(
     # TODO: use clbk.message, methods on the stack must return str | None
     logger.debug('Entry')
 
-    report = await statistic_service.get_monthly_detailed_report_text(prev_month=False)
+    report = await statistic_service.get_monthly_detailed_report_text(
+        prev_month=False
+    )
 
     await bot.send_message(chat_id=clbk.from_user.id, text=report)
     logger.debug('Exit')

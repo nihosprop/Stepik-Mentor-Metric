@@ -29,7 +29,7 @@ async def send_current_month(
 
 
 @inject
-async def send_general_stats(
+async def send_current_month_general_stats(
     clbk: CallbackQuery,
     _button: Button,
     _dialog_manager: DialogManager,

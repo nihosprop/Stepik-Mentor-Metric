@@ -12,6 +12,7 @@ from db.repository.course_repo import CourseRepo
 from db.repository.reply_repo import ReplyRepo
 from db.repository.statistic_repo import StatisticRepo
 from db.repository.stepik_user_repo import StepikUserRepo
+from infrastructure.ai.ai_client import GeminiCommentEvaluator
 from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
 from services.statistic_service import StatisticService
@@ -37,6 +38,7 @@ async def poll_stepik_courses(
     reply_repo: FromDishka[ReplyRepo],
     redis_cache: FromDishka[RedisCache],
     config: FromDishka[Config],
+    ai_client: FromDishka[GeminiCommentEvaluator],
 ) -> None:
     logger.info('Polling Stepik courses ON')
 
@@ -104,7 +106,8 @@ async def poll_stepik_courses(
 
                 if comment_time > last_time:
                     logger.debug(
-                        f'NEW_COMMENT: {comment["id"]=}, {comment["parent"]=}')
+                        f'NEW_COMMENT: {comment["id"]=}, {comment["parent"]=}'
+                    )
 
                     author_id = comment['user']
                     author_username = await stepik_client.get_username(
@@ -125,8 +128,13 @@ async def poll_stepik_courses(
                         )
                         logger.debug(
                             f'Auto-registered student'
-                            f' {author_id}: {author_username}'
+                            f' {author_id}:{author_username}')
+                        is_question = await ai_client.is_meaningful_question(
+                            comment['text'].strip()
                         )
+                        logger.debug(f'{comment['text']=}\n'
+                                     f'{is_question=}')
+                        await asyncio.sleep(4.5)
 
                     # TODO: transfer to service `await reply_repo.upsert_reply`
                     await reply_repo.upsert_reply(
@@ -281,7 +289,7 @@ STATIC_TASKS = [
     MyScheduledTask(
         task_name=aggregate_daily_stats.task_name,
         schedule_id=_schedule_id(aggregate_daily_stats.task_name),
-        cron='2 0 * * *',
+        cron='5 0 * * *',
     ),
     MyScheduledTask(
         task_name=sends_daily_stats.task_name,

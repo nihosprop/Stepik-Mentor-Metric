@@ -6,6 +6,7 @@ parse_mode = 'HTML'
 # Tasks
 [default.tasks]
 initial_poll_days = 3
+polling_interval_sec = 60
 
 # Logs
 [default.logs.dict_config]
@@ -61,7 +62,8 @@ port = 5432
 # === PRODUCTION ===
 # Tasks
 [production.tasks]
-initial_poll_days = 26
+initial_poll_days = 30
+polling_interval_sec = 180
 
 
 # Logs

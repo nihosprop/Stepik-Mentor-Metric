@@ -32,7 +32,7 @@ async def send_current_month(
 async def send_general_stats(
     clbk: CallbackQuery,
     _button: Button,
-    dialog_manager: DialogManager,
+    _dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
 ) -> None:
     logger.debug('Entry')
@@ -48,7 +48,7 @@ async def send_general_stats(
 
 
 @inject
-async def send_last_month_stats(
+async def send_last_month_general_stats(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,
@@ -59,10 +59,10 @@ async def send_last_month_stats(
 
     report = await statistic_service.get_general_report_text(prev_month=True)
     if report:
-        await bot.send_message(chat_id=clbk.from_user.id, text=report)
+        if clbk.message:
+            await clbk.message.answer(text=report)
         return
     await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
-
     logger.debug('Exit')
 
 

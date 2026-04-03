@@ -80,7 +80,7 @@ services:
       resources:
         limits:
           cpus: '0.3'
-          memory: 64M
+          memory: 32M
   worker:
     image: niwibonihs/metrik-bot:${APP_TAG}
     container_name: Metrik-Worker

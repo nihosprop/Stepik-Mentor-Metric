@@ -129,18 +129,22 @@ async def poll_stepik_courses(
                         )
                         logger.debug(
                             f'Auto-registered student'
-                            f' {author_id}:{author_username}')
+                            f' {author_id}:{author_username}'
+                        )
                         # await ai_client.is_meaningful_question(
                         #     comment['text'].strip()
                         # )
                         # await asyncio.sleep(4.5)
-                    logger.debug(f'{author_username} replied on'
-                                 f' {comment['parent']=}')
-                    logger.debug(f'link_to_comment: {
-                    await stepik_client.get_comment_url_context(
-                        comment_id=comment['id']
-                        )
-                    }')
+                    logger.debug(
+                        f'{author_username} replied on {comment['parent']=}'
+                    )
+                    logger.debug(
+                        f'link_to_comment: {
+                            await stepik_client.get_comment_url(
+                                comment_id=comment["id"]
+                            )
+                        }'
+                    )
 
                     # TODO: transfer to service `await reply_repo.upsert_reply`
                     await reply_repo.upsert_reply(
@@ -284,6 +288,7 @@ async def sends_month_stats(
 # TODO: move _schedule_id
 def _schedule_id(task_name: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, task_name))
+
 
 # TODO: move settings
 STATIC_TASKS = [

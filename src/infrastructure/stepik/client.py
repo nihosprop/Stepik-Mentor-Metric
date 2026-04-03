@@ -225,3 +225,59 @@ class StepikAPIClient:
             f'https://stepik.org/lesson/{lesson_id}/step/'
             f'{step_pos}?discussion={comment_id}'
         )
+
+    async def get_comment_url(self, comment_id: int) -> str:
+        try:
+            comment_data = await self.get_comment_data(comment_id)
+            if not comment_data or not comment_data.get('comments'):
+                return f'https://stepik.org/discussion/comments/{comment_id}/'
+
+            comment = comment_data['comments'][0]
+            parent_id = comment.get('parent')
+            thread_type = comment.get('thread', 'discussion')
+
+            target_id = comment.get('target')
+            if not target_id:
+                return f'https://stepik.org/discussion/comments/{comment_id}/'
+
+            step_data = await self.get_step_data(target_id)
+            if not step_data or not step_data.get('steps'):
+                return f'https://stepik.org/discussion/comments/{comment_id}/'
+
+            step = step_data['steps'][0]
+            lesson_id = step.get('lesson')
+            step_position = step.get('position', 1)
+            unit_id = step.get('unit')
+
+            base_url = (
+                f'https://stepik.org/lesson/{lesson_id}/step/{step_position}?'
+            )
+
+            params = []
+
+            if thread_type == 'solutions':
+                if parent_id:
+                    params.append(f'discussion={parent_id}')
+                    params.append(f'reply={comment_id}')
+                else:
+                    params.append(f'discussion={comment_id}')
+                params.append('thread=solutions')
+
+            else:
+                discussion_param = parent_id if parent_id else comment_id
+                params.append(f'discussion={discussion_param}')
+                if parent_id:
+                    params.append(f'reply={comment_id}')
+
+            if unit_id:
+                params.append(f'unit={unit_id}')
+
+            query_string = '&'.join(params)
+            return f'{base_url}{query_string}'
+
+        except Exception as e:
+            logging.error(
+                f'Error generating URL for comment {comment_id}: {str(e)}',
+                exc_info=True,
+            )
+            return f'https://stepik.org/discussion/comments/{comment_id}/'

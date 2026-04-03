@@ -67,10 +67,9 @@ async def add_mentor_to_db(
     stepik_user_id = dialog_manager.dialog_data['mentor_id']
     mentor_name = dialog_manager.dialog_data['stepik_username']
     try:
-        await stepik_user_repo.upsert_user(
+        await stepik_user_repo.promote_to_mentor(
             stepik_user_id=stepik_user_id,
             full_name=mentor_name,
-            is_mentor=True,
         )
     except Exception:
         logger.error(f'Error adding mentor {stepik_user_id}', exc_info=True)

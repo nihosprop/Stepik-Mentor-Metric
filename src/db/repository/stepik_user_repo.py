@@ -20,6 +20,24 @@ class StepikUserRepo:
         stmt = select(exists().where(StepikUser.user_id == stepik_user_id))
         return await self.session.scalar(stmt)
 
+    async def promote_to_mentor(
+        self, stepik_user_id: int, full_name: str
+    ) -> None:
+        stmt = (
+            insert(StepikUser)
+            .values(
+                user_id=stepik_user_id, full_name=full_name, is_mentor=True
+            )
+            .on_conflict_do_update(
+                index_elements=['user_id'],
+                set_={
+                    'is_mentor': True,
+                    'full_name': full_name,
+                },
+            )
+        )
+        await self.session.execute(stmt)
+
     async def upsert_user(
         self, stepik_user_id: int, full_name: str, is_mentor: bool = False
     ) -> None:

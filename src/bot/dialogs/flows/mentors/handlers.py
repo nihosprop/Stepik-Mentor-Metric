@@ -97,7 +97,7 @@ async def on_mentor_selected(
 
 
 @inject
-async def on_delete_mentor(
+async def on_remove_mentor_status(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,

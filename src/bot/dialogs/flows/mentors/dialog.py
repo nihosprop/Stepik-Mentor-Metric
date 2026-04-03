@@ -25,7 +25,7 @@ from bot.dialogs.flows.mentors.handlers import (
     add_mentor_to_db,
     correct_link_to_mentor,
     error_link_to_mentor,
-    on_delete_mentor,
+    on_remove_mentor_status,
     on_mentor_selected,
 )
 from bot.dialogs.flows.mentors.states import MentorSG
@@ -118,7 +118,7 @@ mentors_dialog = Dialog(
         SwitchTo(
             text=Const(text='✅ Подтвердить'),
             id='conf_del_mentor',
-            on_click=on_delete_mentor,  # ty:ignore[invalid-argument-type]
+            on_click=on_remove_mentor_status,  # ty:ignore[invalid-argument-type]
             state=MentorSG.selection_mentors,
         ),
         MAIN_MENU_BUTTON,

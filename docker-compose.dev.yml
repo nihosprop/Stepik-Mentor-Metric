@@ -10,6 +10,7 @@ services:
     volumes:
       - .:/app
       - /app/.venv
+      - ./logs:/app/logs
     env_file:
       - .env
     depends_on:

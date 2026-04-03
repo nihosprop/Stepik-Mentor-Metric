@@ -66,14 +66,18 @@ async def add_mentor_to_db(
 
     stepik_user_id = dialog_manager.dialog_data['mentor_id']
     mentor_name = dialog_manager.dialog_data['stepik_username']
-
-    await stepik_user_repo.upsert_user(
-        stepik_user_id=stepik_user_id,
-        full_name=mentor_name,
-        is_mentor=True,
-    )
+    try:
+        await stepik_user_repo.upsert_user(
+            stepik_user_id=stepik_user_id,
+            full_name=mentor_name,
+            is_mentor=True,
+        )
+    except Exception:
+        logger.error(f'Error adding mentor {stepik_user_id}', exc_info=True)
     await redis_cache.delete('users_ids')
+
     logger.info(f'Cleared mentors cache after adding mentor {stepik_user_id}')
+
     await clbk.answer(
         f'✅ Ментор {mentor_name} добавлен!\nМожете продолжить.',
         show_alert=True,

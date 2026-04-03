@@ -74,7 +74,7 @@ async def add_mentor_to_db(
     except Exception:
         logger.error(f'Error adding mentor {stepik_user_id}', exc_info=True)
     await redis_cache.delete('users_ids')
-
+    logger.info(f'Admin {clbk.from_user.id} added mentor {stepik_user_id}')
     logger.info(f'Cleared mentors cache after adding mentor {stepik_user_id}')
 
     await clbk.answer(
@@ -109,9 +109,13 @@ async def on_remove_mentor_status(
 ) -> None:
     logger.debug('Entry')
 
-    await stepik_user_repo.delete_user(dialog_manager.dialog_data['mentor_id'])
+    stepik_user_id = dialog_manager.dialog_data['mentor_id']
+    
+    await stepik_user_repo.delete_user(stepik_user_id)
     await redis_cache.delete('users_ids')
     await clbk.answer(
         '✅ Ментор успешно удален!\nМожете продолжить.', show_alert=True
     )
+    logger.info(f'Admin {clbk.from_user.id} remove mentor {stepik_user_id}')
+
     logger.debug('Exit')

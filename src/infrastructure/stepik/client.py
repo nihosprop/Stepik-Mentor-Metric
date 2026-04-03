@@ -225,10 +225,3 @@ class StepikAPIClient:
             f'https://stepik.org/lesson/{lesson_id}/step/'
             f'{step_pos}?discussion={comment_id}'
         )
-
-    # TODO: complete and test the receipt of course teachers (instructors)
-    async def get_course_instructors(self, course_id: int):
-        """
-        Returns a list of IDs of all course administrators/teachers.
-        """
-        response = await self.make_api_request('GET', f'courses/{course_id}')

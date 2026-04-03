@@ -66,9 +66,10 @@ async def poll_stepik_courses(
         if mentors_ids:
             await redis_cache.sadd('users_ids', *mentors_ids)  # type: ignore
             await redis_cache.expire('users_ids', 3600)
+            mentors_ids_cache = mentors_ids
         else:
             logger.info('No active mentor IDs found in DB')
-
+    logger.debug(f'{mentors_ids_cache=}')
     for course_id in courses_ids_cache:
         time_key = f'time:course:{course_id}'
         last_time_str: str = await redis_cache.get(time_key)
@@ -131,8 +132,13 @@ async def poll_stepik_courses(
                             f' {author_id}:{author_username}')
                         await ai_client.is_meaningful_question(
                             comment['text'].strip()
+                    logger.debug(f'{author_username} replied on'
+                                 f' {comment['parent']=}')
+                    logger.debug(f'link_to_comment: {
+                    await stepik_client.get_comment_url_context(
+                        comment_id=comment['id']
                         )
-                        await asyncio.sleep(4.5)
+                    }')
 
                     # TODO: transfer to service `await reply_repo.upsert_reply`
                     await reply_repo.upsert_reply(

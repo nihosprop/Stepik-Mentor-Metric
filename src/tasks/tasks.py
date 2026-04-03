@@ -40,9 +40,9 @@ async def poll_stepik_courses(
     config: FromDishka[Config],
     ai_client: FromDishka[GeminiCommentEvaluator],
 ) -> None:
-
     lock_key = 'task:poll_stepik_courses:lock'
-    lock_acquired = await redis_cache.set(lock_key, '1', nx=True, ex=300)
+    lock_ttl = 600
+    lock_acquired = await redis_cache.set(lock_key, '1', nx=True, ex=lock_ttl)
 
     if not lock_acquired:
         logger.warning(
@@ -53,7 +53,6 @@ async def poll_stepik_courses(
     try:
         logger.info('Polling Stepik courses ON')
 
-
         try:
             courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
             logger.debug(f'Courses IDs from cache: {courses_ids_cache}')
@@ -63,7 +62,9 @@ async def poll_stepik_courses(
 
         if not courses_ids_cache:
             logger.info('No active courses in cache')
-            active_ids = set(map(str, await course_repo.get_ids_active_courses()))
+            active_ids = set(
+                map(str, await course_repo.get_ids_active_courses())
+            )
             logger.info(f'Getting active courses from DB: {active_ids}')
             if not active_ids:
                 logger.warning('No active courses in DB - task will exit')
@@ -74,13 +75,17 @@ async def poll_stepik_courses(
         mentors_ids_cache = await redis_cache.smembers('users_ids')  # type: ignore
         if not mentors_ids_cache:
             logger.info('No mentors_ids in Redis, fetching from DB')
-            mentors_ids = set(map(str, await stepik_user_repo.get_ids_mentors()))
+            mentors_ids = set(
+                map(str, await stepik_user_repo.get_ids_mentors())
+            )
             if mentors_ids:
                 await redis_cache.sadd('users_ids', *mentors_ids)  # type: ignore
                 await redis_cache.expire('users_ids', 3600)
                 mentors_ids_cache = mentors_ids
             else:
-                logger.info('No active mentor IDs found in DB')
+                logger.info(
+                    'No active mentor IDs found in DB - task will exit'
+                )
                 return
 
         logger.debug(f'{mentors_ids_cache=}')
@@ -92,10 +97,14 @@ async def poll_stepik_courses(
             logger.debug(f'Last Time from cache:{last_time_str=}')
 
             if last_time_str:
-                last_time = datetime.fromisoformat(last_time_str).astimezone(UTC)
+                last_time = datetime.fromisoformat(last_time_str).astimezone(
+                    UTC
+                )
             else:
                 days_back = config.tasks.initial_poll_days
-                last_time: datetime = datetime.now(UTC) - timedelta(days=days_back)
+                last_time: datetime = datetime.now(UTC) - timedelta(
+                    days=days_back
+                )
                 logger.info(
                     f'Cold start for course {course_id}. '
                     f'Parsing from: {last_time} ({days_back} days back)'
@@ -107,15 +116,16 @@ async def poll_stepik_courses(
             pages_processed = 0
 
             while True:
+                await redis_cache.expire(lock_key, lock_ttl)
                 if pages_processed >= max_pages_per_run:
                     logger.info(
                         f'Reached page limit ({max_pages_per_run}),'
                         f' continuing on next run.'
                     )
                     break
-                response = await stepik_client.get_comments(course_id,
-                                                            page=page)
-
+                response = await stepik_client.get_comments(
+                    course_id, page=page
+                )
                 if (
                     not response
                     or 'comments' not in response
@@ -132,7 +142,8 @@ async def poll_stepik_courses(
 
                     if comment_time > last_time:
                         logger.debug(
-                            f'NEW_COMMENT: {comment["id"]=}, {comment["parent"]=}'
+                            f'NEW_COMMENT: {comment["id"]=},'
+                            f' {comment["parent"]=}'
                         )
 
                         author_id = comment['user']
@@ -161,7 +172,8 @@ async def poll_stepik_courses(
                             # )
                             # await asyncio.sleep(4.5)
                         logger.debug(
-                            f'{author_username} replied on {comment['parent']=}'
+                            f'{author_username}'
+                            f' replied on {comment['parent']=}'
                         )
                         logger.debug(
                             f'link_to_comment: {
@@ -190,9 +202,12 @@ async def poll_stepik_courses(
                     break
                 page += 1
                 pages_processed += 1
-
-            await redis_cache.set(time_key, new_last_time.isoformat())
-
+            try:
+                await redis_cache.set(time_key, new_last_time.isoformat())
+            except Exception as e:
+                logger.error(
+                    f'Failed to save last_time for course {course_id}: {e}'
+                )
             if not last_time_str:
                 aggregation_flag = f'initial_aggregation_flag:{course_id}'
 
@@ -220,10 +235,14 @@ async def poll_stepik_courses(
                     await redis_cache.set(aggregation_flag, 'true')
                     logger.info(f'Aggregation flag set for course:{course_id}')
     except Exception as e:
-        logger.error(f'Failed to aggregate stats: {e}', exc_info=True)
+        logger.error(
+            f'❌ Error during course polling: {type(e).__name__}: {e}',
+            exc_info=True,
+        )
     finally:
         await redis_cache.delete(lock_key)
         logger.debug('Task lock released')
+
 
 @broker.task
 @inject(patch_module=True)

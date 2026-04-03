@@ -14,7 +14,7 @@ class ReplyRepo:
     async def upsert_reply(
         self,
         course_id: int,
-        comment_id: str,
+        comment_id: int,
         author_id: int,
         parent_comment_id: int | None,
         comment_created_at: datetime,

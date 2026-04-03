@@ -40,164 +40,190 @@ async def poll_stepik_courses(
     config: FromDishka[Config],
     ai_client: FromDishka[GeminiCommentEvaluator],
 ) -> None:
-    logger.info('Polling Stepik courses ON')
 
-    try:
-        courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
-        logger.debug(f'Courses IDs from cache: {courses_ids_cache}')
-    except Exception as e:
-        logger.error(f'Redis connection error: {e}')
+    lock_key = 'task:poll_stepik_courses:lock'
+    lock_acquired = await redis_cache.set(lock_key, '1', nx=True, ex=300)
+
+    if not lock_acquired:
+        logger.warning(
+            '⚠️ Previous poll_task still running, skipping this execution'
+        )
         return
 
-    if not courses_ids_cache:
-        logger.info('No active courses in cache')
-        active_ids = set(map(str, await course_repo.get_ids_active_courses()))
-        logger.info(f'Getting active courses from DB: {active_ids}')
-        if not active_ids:
-            logger.warning('No active courses in DB - task will exit')
-            return
-        await redis_cache.sadd('courses_ids', *active_ids)  # type: ignore
-        await redis_cache.expire('courses_ids', 3600)
+    try:
+        logger.info('Polling Stepik courses ON')
 
-    mentors_ids_cache = await redis_cache.smembers('users_ids')  # type: ignore
-    if not mentors_ids_cache:
-        logger.info('No mentors_ids in Redis, fetching from DB')
-        mentors_ids = set(map(str, await stepik_user_repo.get_ids_mentors()))
-        if mentors_ids:
-            await redis_cache.sadd('users_ids', *mentors_ids)  # type: ignore
-            await redis_cache.expire('users_ids', 3600)
-            mentors_ids_cache = mentors_ids
-        else:
-            logger.info('No active mentor IDs found in DB')
+
+        try:
+            courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
+            logger.debug(f'Courses IDs from cache: {courses_ids_cache}')
+        except Exception as e:
+            logger.error(f'Redis connection error: {e}')
             return
 
-    logger.debug(f'{mentors_ids_cache=}')
+        if not courses_ids_cache:
+            logger.info('No active courses in cache')
+            active_ids = set(map(str, await course_repo.get_ids_active_courses()))
+            logger.info(f'Getting active courses from DB: {active_ids}')
+            if not active_ids:
+                logger.warning('No active courses in DB - task will exit')
+                return
+            await redis_cache.sadd('courses_ids', *active_ids)  # type: ignore
+            await redis_cache.expire('courses_ids', 3600)
 
-    for course_id_str in courses_ids_cache:
-        course_id = int(course_id_str)
-        time_key = f'time:course:{course_id}'
-        last_time_str: str = await redis_cache.get(time_key)
-        logger.debug(f'Last Time from cache:{last_time_str=}')
+        mentors_ids_cache = await redis_cache.smembers('users_ids')  # type: ignore
+        if not mentors_ids_cache:
+            logger.info('No mentors_ids in Redis, fetching from DB')
+            mentors_ids = set(map(str, await stepik_user_repo.get_ids_mentors()))
+            if mentors_ids:
+                await redis_cache.sadd('users_ids', *mentors_ids)  # type: ignore
+                await redis_cache.expire('users_ids', 3600)
+                mentors_ids_cache = mentors_ids
+            else:
+                logger.info('No active mentor IDs found in DB')
+                return
 
-        if last_time_str:
-            last_time = datetime.fromisoformat(last_time_str).astimezone(UTC)
-        else:
-            days_back = config.tasks.initial_poll_days
-            last_time: datetime = datetime.now(UTC) - timedelta(days=days_back)
-            logger.info(
-                f'Cold start for course {course_id}. '
-                f'Parsing from: {last_time} ({days_back} days back)'
-            )
+        logger.debug(f'{mentors_ids_cache=}')
 
-        new_last_time = last_time
-        page = 1
+        for course_id_str in courses_ids_cache:
+            course_id = int(course_id_str)
+            time_key = f'time:course:{course_id}'
+            last_time_str: str = await redis_cache.get(time_key)
+            logger.debug(f'Last Time from cache:{last_time_str=}')
 
-        while True:
-            response = await stepik_client.get_comments(course_id, page=page)
-
-            if (
-                not response
-                or 'comments' not in response
-                or not response['comments']
-            ):
-                break
-
-            found_old_on_this_page = False
-
-            for comment in response['comments']:
-                comment_time: datetime = datetime.fromisoformat(
-                    comment['time'].replace('Z', '+00:00')
+            if last_time_str:
+                last_time = datetime.fromisoformat(last_time_str).astimezone(UTC)
+            else:
+                days_back = config.tasks.initial_poll_days
+                last_time: datetime = datetime.now(UTC) - timedelta(days=days_back)
+                logger.info(
+                    f'Cold start for course {course_id}. '
+                    f'Parsing from: {last_time} ({days_back} days back)'
                 )
 
-                if comment_time > last_time:
-                    logger.debug(
-                        f'NEW_COMMENT: {comment["id"]=}, {comment["parent"]=}'
+            new_last_time = last_time
+            page = 1
+            max_pages_per_run = 5
+            pages_processed = 0
+
+            while True:
+                if pages_processed >= max_pages_per_run:
+                    logger.info(
+                        f'Reached page limit ({max_pages_per_run}),'
+                        f' continuing on next run.'
+                    )
+                    break
+                response = await stepik_client.get_comments(course_id,
+                                                            page=page)
+
+                if (
+                    not response
+                    or 'comments' not in response
+                    or not response['comments']
+                ):
+                    break
+
+                found_old_on_this_page = False
+
+                for comment in response['comments']:
+                    comment_time: datetime = datetime.fromisoformat(
+                        comment['time'].replace('Z', '+00:00')
                     )
 
-                    author_id = comment['user']
-                    author_username = await stepik_client.get_username(
-                        author_id
-                    )
+                    if comment_time > last_time:
+                        logger.debug(
+                            f'NEW_COMMENT: {comment["id"]=}, {comment["parent"]=}'
+                        )
 
-                    if not author_username:
-                        author_username = f'User_{author_id}'
+                        author_id = comment['user']
+                        author_username = await stepik_client.get_username(
+                            author_id
+                        )
 
-                    author_id_str = str(comment['user'])
-                    is_mentor = author_id_str in mentors_ids_cache
+                        if not author_username:
+                            author_username = f'User_{author_id}'
 
-                    if not is_mentor:
-                        await stepik_user_repo.upsert_user(
-                            stepik_user_id=author_id,
-                            full_name=author_username,
-                            is_mentor=False,
+                        author_id_str = str(comment['user'])
+                        is_mentor = author_id_str in mentors_ids_cache
+
+                        if not is_mentor:
+                            await stepik_user_repo.upsert_user(
+                                stepik_user_id=author_id,
+                                full_name=author_username,
+                                is_mentor=False,
+                            )
+                            logger.debug(
+                                f'Auto-registered student'
+                                f' {author_id}:{author_username}'
+                            )
+                            # await ai_client.is_meaningful_question(
+                            #     comment['text'].strip()
+                            # )
+                            # await asyncio.sleep(4.5)
+                        logger.debug(
+                            f'{author_username} replied on {comment['parent']=}'
                         )
                         logger.debug(
-                            f'Auto-registered student'
-                            f' {author_id}:{author_username}'
+                            f'link_to_comment: {
+                                await stepik_client.get_comment_url(
+                                    comment_id=comment["id"]
+                                )
+                            }'
                         )
-                        # await ai_client.is_meaningful_question(
-                        #     comment['text'].strip()
-                        # )
-                        # await asyncio.sleep(4.5)
-                    logger.debug(
-                        f'{author_username} replied on {comment['parent']=}'
-                    )
-                    logger.debug(
-                        f'link_to_comment: {
-                            await stepik_client.get_comment_url(
-                                comment_id=comment["id"]
-                            )
-                        }'
-                    )
 
-                    # TODO: transfer to service `await reply_repo.upsert_reply`
-                    await reply_repo.upsert_reply(
-                        course_id=course_id,
-                        comment_id=comment['id'],
-                        author_id=author_id,
-                        parent_comment_id=comment['parent'],
-                        comment_created_at=comment_time,
-                        is_mentor_reply=is_mentor,
-                    )
-                    new_last_time = max(new_last_time, comment_time)
-                else:
-                    found_old_on_this_page = True
+                        # TODO: transfer to service `await reply_repo.upsert_reply`
+                        await reply_repo.upsert_reply(
+                            course_id=course_id,
+                            comment_id=int(comment['id']),
+                            author_id=author_id,
+                            parent_comment_id=comment['parent'],
+                            comment_created_at=comment_time,
+                            is_mentor_reply=is_mentor,
+                        )
+                        new_last_time = max(new_last_time, comment_time)
+                    else:
+                        found_old_on_this_page = True
 
-            if found_old_on_this_page or not response.get('meta', {}).get(
-                'has_next'
-            ):
-                break
-            page += 1
+                if found_old_on_this_page or not response.get('meta', {}).get(
+                    'has_next'
+                ):
+                    break
+                page += 1
+                pages_processed += 1
 
-        await redis_cache.set(time_key, new_last_time.isoformat())
+            await redis_cache.set(time_key, new_last_time.isoformat())
 
-        if not last_time_str:
-            aggregation_flag = f'initial_aggregation_flag:{course_id}'
+            if not last_time_str:
+                aggregation_flag = f'initial_aggregation_flag:{course_id}'
 
-            if not await redis_cache.get(aggregation_flag):
-                logger.info(
-                    f'Cold start for course {course_id}.'
-                    f' Running aggregation...'
-                )
-
-                start_date = (
-                    datetime.now(UTC)
-                    - timedelta(days=config.tasks.initial_poll_days)
-                ).date()
-                end_date = datetime.now(UTC).date() - timedelta(days=1)
-
-                if start_date <= end_date:
-                    await stats_service.aggregate_stats_period(
-                        start_date=start_date, end_date=end_date
-                    )
+                if not await redis_cache.get(aggregation_flag):
                     logger.info(
-                        f'Init aggregation completed for'
-                        f' {start_date} - {end_date}'
+                        f'Cold start for course {course_id}.'
+                        f' Running aggregation...'
                     )
 
-                await redis_cache.set(aggregation_flag, 'true')
-                logger.info(f'Aggregation flag set for course:{course_id}')
+                    start_date = (
+                        datetime.now(UTC)
+                        - timedelta(days=config.tasks.initial_poll_days)
+                    ).date()
+                    end_date = datetime.now(UTC).date() - timedelta(days=1)
 
+                    if start_date <= end_date:
+                        await stats_service.aggregate_stats_period(
+                            start_date=start_date, end_date=end_date
+                        )
+                        logger.info(
+                            f'Init aggregation completed for'
+                            f' {start_date} - {end_date}'
+                        )
+
+                    await redis_cache.set(aggregation_flag, 'true')
+                    logger.info(f'Aggregation flag set for course:{course_id}')
+    except Exception as e:
+        logger.error(f'Failed to aggregate stats: {e}', exc_info=True)
+    finally:
+        await redis_cache.delete(lock_key)
+        logger.debug('Task lock released')
 
 @broker.task
 @inject(patch_module=True)

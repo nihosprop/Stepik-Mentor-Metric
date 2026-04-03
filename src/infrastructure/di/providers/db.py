@@ -17,11 +17,14 @@ logger = logging.getLogger(__name__)
 class PostgresProvider(Provider):
     @provide(scope=Scope.APP)
     def engine(self, config: Config) -> AsyncEngine:
-        engine = create_async_engine(config.postgres.get_dsn(),
-                                     pool_size=5,
-                                     max_overflow=10,
-                                     pool_pre_ping=True,
-                                     pool_recycle=3600)
+        engine = create_async_engine(
+            config.postgres.get_dsn(),
+            pool_size=10,
+            max_overflow=20,
+            pool_pre_ping=True,
+            pool_recycle=1800,
+            pool_timeout=60,
+        )
         return engine
 
     @provide(scope=Scope.APP)

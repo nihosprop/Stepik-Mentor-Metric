@@ -4,7 +4,7 @@ services:
   bot:
     build: .
     image: metrik-bot:dev
-    container_name: Metrik-Bot-Dev
+    container_name: Metric-Bot-Dev
     environment:
       - PYTHONPATH=/app/src
     volumes:
@@ -38,7 +38,7 @@ services:
 
   migrations:
     image: metrik-bot:dev
-    container_name: Metrik-Migrations-Dev
+    container_name: Metric-Migrations-Dev
     environment:
       - PYTHONPATH=/app/src
     command: /app/.venv/bin/alembic upgrade head
@@ -54,7 +54,7 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: Metrik-Redis-Dev
+    container_name: Metric-Redis-Dev
     command: redis-server --appendonly yes --appendfsync everysec
     env_file:
       - .env
@@ -71,7 +71,7 @@ services:
 
   worker:
     image: metrik-bot:dev
-    container_name: Metrik-Worker-Dev
+    container_name: Metric-Worker-Dev
     command: python -m taskiq worker tasks.setup:broker --fs-discover
     environment:
       - PYTHONPATH=/app/src
@@ -88,7 +88,7 @@ services:
 
   scheduler:
     image: metrik-bot:dev
-    container_name: Metrik-Scheduler-Dev
+    container_name: Metric-Scheduler-Dev
     command: python -m taskiq scheduler tasks.scheduler:scheduler
     environment:
       - PYTHONPATH=/app/src

@@ -1,8 +1,8 @@
-"""init
+"""init_mirgate
 
-Revision ID: eb1aa5ffa66e
+Revision ID: 3d45540754b6
 Revises: 
-Create Date: 2026-03-26 15:52:08.756499
+Create Date: 2026-04-03 15:34:56.363051
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'eb1aa5ffa66e'
+revision: str = '3d45540754b6'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

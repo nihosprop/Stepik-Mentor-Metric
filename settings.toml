@@ -62,7 +62,7 @@ port = 5432
 # === PRODUCTION ===
 # Tasks
 [production.tasks]
-initial_poll_days = 30
+initial_poll_days = 36
 polling_interval_sec = 180
 
 

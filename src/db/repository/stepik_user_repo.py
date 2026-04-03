@@ -28,10 +28,7 @@ class StepikUserRepo:
         )
         upsert_stmt = insert_stmt.on_conflict_do_update(
             index_elements=['user_id'],
-            set_={
-                'full_name': full_name,
-                'is_mentor': is_mentor,
-            },
+            set_={'full_name': full_name},
         )
         await self.session.execute(upsert_stmt)
         logger.debug(f'Upserted Stepik user {stepik_user_id}')

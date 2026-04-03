@@ -69,14 +69,18 @@ async def poll_stepik_courses(
             mentors_ids_cache = mentors_ids
         else:
             logger.info('No active mentor IDs found in DB')
+            return
+
     logger.debug(f'{mentors_ids_cache=}')
-    for course_id in courses_ids_cache:
+
+    for course_id_str in courses_ids_cache:
+        course_id = int(course_id_str)
         time_key = f'time:course:{course_id}'
         last_time_str: str = await redis_cache.get(time_key)
         logger.debug(f'Last Time from cache:{last_time_str=}')
 
         if last_time_str:
-            last_time = datetime.fromisoformat(last_time_str)
+            last_time = datetime.fromisoformat(last_time_str).astimezone(UTC)
         else:
             days_back = config.tasks.initial_poll_days
             last_time: datetime = datetime.now(UTC) - timedelta(days=days_back)

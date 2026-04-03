@@ -3,7 +3,7 @@ import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from sqlalchemy import delete, exists, select
+from sqlalchemy import exists, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,7 +34,11 @@ class StepikUserRepo:
         logger.debug(f'Upserted Stepik user {stepik_user_id}')
 
     async def delete_user(self, stepik_user_id: int) -> None:
-        stmt = delete(StepikUser).where(StepikUser.user_id == stepik_user_id)
+        stmt = (
+            update(StepikUser)
+            .where(StepikUser.user_id == stepik_user_id)
+            .values(is_mentor=False)
+        )
         await self.session.execute(stmt)
         logger.debug(f'Deleted Stepik user {stepik_user_id}')
 

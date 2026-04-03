@@ -1,4 +1,5 @@
 import logging
+import os
 
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -15,6 +16,22 @@ class StatisticService:
     stats_repo: StatisticRepo
     config: Config
 
+    @staticmethod
+    async def save_report_to_file(report_text: str, report_type: str
+    ) -> str:
+
+        base_dir = '/app/logs'
+        date_str = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'{report_type}_{date_str}.md'
+        file_path = os.path.join(base_dir, filename)
+        report_for_file = report_text.replace('<b>', '').replace(
+            '</b>', ''
+        )
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(report_for_file)
+
+        return file_path
+
     async def get_daily_report_text(self) -> str:
         """Final report for yesterday - with efficiency and
          speed (from the archive).
@@ -29,10 +46,12 @@ class StatisticService:
         header = f'🏆 <b>Итоги дня: {yesterday.strftime("%d.%m.%Y")}</b>'
         return self._format_advanced_report(rows, header)
 
-    async def get_report_by_date_text(self, year: int, month: int) -> str:
+    async def get_report_by_date_text(self,
+                                      perf: str,
+                                      year: int, month: int) -> str:
         """Final report for the month."""
         rows = await self.stats_repo.get_monthly_stats(year, month)
-        header = f'📈 <b>Текущий месяц: {month:02d}.{year}</b>'
+        header = f'📈 {perf}: {month:02d}.{year}'
 
         return self._format_advanced_report(rows, header, is_monthly=True)
 
@@ -84,8 +103,9 @@ class StatisticService:
             str: text.
         """
         now = datetime.now(UTC)
-
+        perf = 'Текущий месяц'
         if prev_month:
+            perf = 'Прошедший месяц'
             first_day_this_month = now.replace(day=1)
             last_day_prev_month = first_day_this_month - timedelta(days=1)
 
@@ -103,7 +123,8 @@ class StatisticService:
 
         await self.aggregate_stats_period(start_date, end_date)
 
-        return await self.get_report_by_date_text(year=year, month=month)
+        return await self.get_report_by_date_text(perf=perf,
+            year=year, month=month)
 
     async def aggregate_stats_period(
         self,

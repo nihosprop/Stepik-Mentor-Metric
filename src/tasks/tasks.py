@@ -130,8 +130,10 @@ async def poll_stepik_courses(
                         logger.debug(
                             f'Auto-registered student'
                             f' {author_id}:{author_username}')
-                        await ai_client.is_meaningful_question(
-                            comment['text'].strip()
+                        # await ai_client.is_meaningful_question(
+                        #     comment['text'].strip()
+                        # )
+                        # await asyncio.sleep(4.5)
                     logger.debug(f'{author_username} replied on'
                                  f' {comment['parent']=}')
                     logger.debug(f'link_to_comment: {

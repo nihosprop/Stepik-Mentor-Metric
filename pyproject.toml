@@ -5,6 +5,7 @@ description = ""
 requires-python = ">=3.14"
 dependencies = [
     "aiogram>=3.26.0",
+    "aiohttp>=3.13.5",
     "aiogram-dialog>=2.6.0",
     "alembic>=1.18.4",
     "dishka>=1.9.1",
@@ -20,8 +21,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.8",
-    "ty>=0.0.26"
+    "ruff>=0.15.9",
+    "ty>=0.0.28"
 ]
 
 # === TY ===

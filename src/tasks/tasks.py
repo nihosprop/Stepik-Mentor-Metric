@@ -264,7 +264,7 @@ async def sends_daily_stats(
             await bot.send_message(chat_id=admin_id, text=report_text)
             await asyncio.sleep(1)
         except Exception as e:
-            logging.error(f'Failed to send report to {admin_id}: {e}')
+            logger.error(f'Failed to send report to {admin_id}: {e}')
 
 
 @broker.task
@@ -282,7 +282,7 @@ async def sends_month_stats(
             await bot.send_message(chat_id=admin_id, text=report_text)
             await asyncio.sleep(2)
         except Exception as e:
-            logging.error(f'Failed to send report to {admin_id}: {e}')
+            logger.error(f'Failed to send report to {admin_id}: {e}')
 
 
 # TODO: move _schedule_id

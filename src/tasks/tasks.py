@@ -112,17 +112,9 @@ async def poll_stepik_courses(
 
             new_last_time = last_time
             page = 1
-            max_pages_per_run = 5
-            pages_processed = 0
 
             while True:
                 await redis_cache.expire(lock_key, lock_ttl)
-                if pages_processed >= max_pages_per_run:
-                    logger.info(
-                        f'Reached page limit ({max_pages_per_run}),'
-                        f' continuing on next run.'
-                    )
-                    break
                 response = await stepik_client.get_comments(
                     course_id, page=page
                 )
@@ -201,7 +193,6 @@ async def poll_stepik_courses(
                 ):
                     break
                 page += 1
-                pages_processed += 1
             try:
                 await redis_cache.set(time_key, new_last_time.isoformat())
             except Exception as e:

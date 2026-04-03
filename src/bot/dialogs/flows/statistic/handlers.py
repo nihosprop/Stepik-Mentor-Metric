@@ -22,6 +22,7 @@ async def send_current_month_detailed_stats(
     # TODO: use clbk.message, methods on the stack must return str | None
     logger.debug('Entry')
 
+    logger.info(f'The user {clbk.from_user.id} requested statistics')
     report = await statistic_service.get_monthly_detailed_report_text(
         prev_month=False
     )
@@ -39,6 +40,7 @@ async def send_last_month_detailed_stats(
 ) -> None:
     logger.debug('Entry')
 
+    logger.info(f'The user {clbk.from_user.id} requested statistics')
     report = await statistic_service.get_monthly_detailed_report_text()
 
     await clbk.answer(report)
@@ -55,6 +57,7 @@ async def send_current_month_general_stats(
 ) -> None:
     logger.debug('Entry')
 
+    logger.info(f'The user {clbk.from_user.id} requested statistics')
     report = await statistic_service.get_general_report_text(prev_month=False)
     if report:
         if clbk.message:
@@ -74,6 +77,8 @@ async def send_last_month_general_stats(
 ) -> None:
     logger.debug('Entry')
 
+
+    logger.info(f'The user {clbk.from_user.id} requested statistics')
     report = await statistic_service.get_general_report_text(prev_month=True)
     if report:
         if clbk.message:

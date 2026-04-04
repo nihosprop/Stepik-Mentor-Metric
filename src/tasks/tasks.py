@@ -72,21 +72,15 @@ async def poll_stepik_courses(
             await redis_cache.sadd('courses_ids', *active_ids)  # type: ignore
             await redis_cache.expire('courses_ids', 3600)
 
-        mentors_ids_cache = await redis_cache.smembers('users_ids')  # type: ignore
+        mentor_ids_from_db = await stepik_user_repo.get_ids_mentors()
+        mentors_ids_cache = set(map(str, mentor_ids_from_db))
+        logger.info(
+            f'Loaded {len(mentors_ids_cache)} mentors directly from DB'
+        )
+
         if not mentors_ids_cache:
-            logger.info('No mentors_ids in Redis, fetching from DB')
-            mentors_ids = set(
-                map(str, await stepik_user_repo.get_ids_mentors())
-            )
-            if mentors_ids:
-                await redis_cache.sadd('users_ids', *mentors_ids)  # type: ignore
-                await redis_cache.expire('users_ids', 3600)
-                mentors_ids_cache = mentors_ids
-            else:
-                logger.info(
-                    'No active mentor IDs found in DB - task will exit'
-                )
-                return
+            logger.warning('No active mentor IDs found in DB - task will exit')
+            return
 
         logger.debug(f'{mentors_ids_cache=}')
 

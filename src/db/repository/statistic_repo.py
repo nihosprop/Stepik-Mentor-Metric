@@ -179,7 +179,7 @@ class StatisticRepo:
             None
         """
         start_dt = datetime.combine(target_date, datetime.min.time())
-        
+
         # For current day, use current time instead of end of day
         # This ensures today's responses are included in statistics
         if target_date == datetime.now(UTC).date():
@@ -189,8 +189,9 @@ class StatisticRepo:
 
         active_mentors_stmt = (
             select(AuthorReply.author_id, AuthorReply.course_id)
+            .join(StepikUser, AuthorReply.author_id == StepikUser.user_id)
             .where(
-                AuthorReply.is_mentor_reply.is_(True),
+                StepikUser.is_mentor.is_(True),
                 AuthorReply.comment_created_at.between(start_dt, end_date),
             )
             .distinct()

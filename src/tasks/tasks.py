@@ -217,7 +217,7 @@ async def poll_stepik_courses(
                         datetime.now(UTC)
                         - timedelta(days=config.tasks.initial_poll_days)
                     ).date()
-                    end_date = datetime.now(UTC).date() - timedelta(days=1)
+                    end_date = datetime.now(UTC).date()
 
                     if start_date <= end_date:
                         await stats_service.aggregate_stats_period(

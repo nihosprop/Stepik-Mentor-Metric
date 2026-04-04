@@ -99,3 +99,4 @@ desktop.ini
 docker-compose.prod.yml
 docker-compose.dev.yml
 migrate.sh
+settings.prod-debug.toml

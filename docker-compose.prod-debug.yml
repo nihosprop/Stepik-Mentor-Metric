@@ -1,0 +1,116 @@
+# === PRODUCTION DEBUG VERSION ===
+# Using: docker-compose -f docker-compose.prod-debug.yml up
+
+services:
+  bot:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Bot-Debug
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - ENV_FOR_DYNACONF=production
+    volumes:
+      - ./logs:/app/logs
+      - ./settings.prod-debug.toml:/app/settings.toml:ro  # ← DEBUG settings
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    networks:
+      - metric-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  postgres_db:
+    extends:
+      file: docker-compose.prod.yml
+      service: postgres_db
+
+  migrations:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Migrations-Debug
+    environment:
+      - PYTHONPATH=/app/src
+      - ENV_FOR_DYNACONF=production
+    command: /app/.venv/bin/alembic upgrade head
+    env_file:
+      - .env
+    volumes:
+      - ./settings.prod-debug.toml:/app/settings.toml:ro
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - metric-net
+    restart: "no"
+
+  redis:
+    extends:
+      file: docker-compose.prod.yml
+      service: redis
+
+  worker:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Worker-Debug
+    command: python -m taskiq worker tasks.setup:broker --fs-discover
+    environment:
+      - PYTHONPATH=/app/src
+      - ENV_FOR_DYNACONF=production
+    env_file:
+      - .env
+    volumes:
+      - ./settings.prod-debug.toml:/app/settings.toml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres_db:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+    networks:
+      - metric-net
+
+  scheduler:
+    image: niwibonihs/metrik-bot:${APP_TAG}
+    container_name: Metrik-Scheduler-Debug
+    command: python -m taskiq scheduler tasks.scheduler:scheduler --fs-discover
+    environment:
+      - PYTHONPATH=/app/src
+      - ENV_FOR_DYNACONF=production
+    env_file:
+      - .env
+    volumes:
+      - ./settings.prod-debug.toml:/app/settings.toml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      worker:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    networks:
+      - metric-net
+
+networks:
+  metric-net:
+    name: Metrik-Net-Debug
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

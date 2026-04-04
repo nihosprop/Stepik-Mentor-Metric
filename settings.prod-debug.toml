@@ -1,0 +1,68 @@
+# === PRODUCTION WITH DEBUG LOGS ===
+
+# Bot
+[default.bot]
+parse_mode = 'HTML'
+
+# Tasks
+[default.tasks]
+initial_poll_days = 36
+polling_interval_sec = 180
+
+# Logs
+[default.logs.dict_config]
+version = 1
+disable_existing_loggers = false
+
+[default.logs.dict_config.formatters.formatter]
+format = '[{asctime}] #{levelname:<8} {filename:<17}:{lineno:4} - <{funcName}> - {message}'
+datefmt = '%Y.%m.%d %H:%M:%S'
+style = '{'
+
+[default.logs.dict_config.handlers.stdout]
+class = 'logging.StreamHandler'
+formatter = 'formatter'
+stream = 'ext://sys.stdout'
+
+[default.logs.dict_config.handlers.file]
+class = 'logging.handlers.RotatingFileHandler'
+formatter = 'formatter'
+filename = '/app/logs/app.log'
+maxBytes = 10485760
+backupCount = 3
+mode = 'a'
+
+[default.logs.dict_config.root]
+handlers = ['stdout', 'file']
+level = 'DEBUG'  # ← Using DEBUG level
+
+[default.logs.dict_config.loggers.'aiogram.dispatcher']
+level = 'WARNING'
+handlers = ['stdout', 'file']
+
+[default.logs.dict_config.loggers.'aiogram.event']
+level = 'WARNING'
+handlers = ['stdout', 'file']
+
+[default.logs.dict_config.loggers.'aiogram_dialog']
+level = 'WARNING'
+handlers = ['stdout', 'file']
+
+[default.logs.dict_config.loggers.'taskiq.worker']
+level = 'INFO'
+handlers = ['stdout', 'file']
+
+[default.logs.dict_config.loggers.'taskiq.redis_broker']
+level = 'INFO'
+handlers = ['stdout', 'file']
+
+# Redis
+[default.redis]
+port = 6379
+decode_responses = true
+
+# Postgres
+[default.postgres]
+driver = 'postgresql+psycopg'
+name = 'mentor_db'
+port = 5432

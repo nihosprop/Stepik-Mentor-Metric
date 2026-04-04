@@ -79,6 +79,10 @@ mode = 'a'
 handlers = ['stdout', 'file']
 level = 'INFO'
 
+[default.logs.dict_config.loggers.'taskiq.worker']
+level = 'INFO'
+handlers = ['stdout', 'file']
+
 [production.logs.dict_config.loggers.'aiogram.dispatcher']
 level = 'WARNING'
 handlers = ['stdout', 'file']

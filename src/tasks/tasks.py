@@ -154,34 +154,29 @@ async def poll_stepik_courses(
 
                         author_id_str = str(comment['user'])
                         is_mentor = author_id_str in mentors_ids_cache
-
+                        
                         if not is_mentor:
                             await stepik_user_repo.upsert_user(
                                 stepik_user_id=author_id,
                                 full_name=author_username,
                                 is_mentor=False,
                             )
-                            # logger.debug(
-                            #     f'Auto-registered student'
-                            #     f' {author_id}:{author_username}'
-                            # )
                             # await ai_client.is_meaningful_question(
                             #     comment['text'].strip()
                             # )
-                            # await asyncio.sleep(4.5)
-                        # logger.debug(
-                        #     f'{author_username}'
-                        #     f' replied on {comment['parent']=}'
-                        # )
-                        # logger.debug(
-                        #     f'link_to_comment: {
-                        #         await stepik_client.get_comment_url(
-                        #             comment_id=comment["id"]
-                        #         )
-                        #     }'
-                        # )
 
                         # TODO: transfer to service `await reply_repo.upsert_reply`
+                        if is_mentor:
+
+                            logger.debug(f'{comment['parent']=}')
+                            logger.debug(
+                                    f'link_to_comment: {
+                                        await stepik_client.get_comment_url(
+                                            comment_id=comment["id"]
+                                        )
+                                    }'
+                                )
+
                         await reply_repo.upsert_reply_with_mentor_check(
                             course_id=course_id,
                             comment_id=int(comment['id']),

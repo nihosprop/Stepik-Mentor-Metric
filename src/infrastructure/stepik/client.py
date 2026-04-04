@@ -77,7 +77,7 @@ class StepikAPIClient:
         params: dict[str, Any] | None = None,
         json_data: dict[str, Any] | None = None,
         expected_status_codes: list[int] | None = None,
-        attempts: int = 2,
+        attempts: int = 3,
     ) -> dict[str, Any] | None:
         if expected_status_codes is None:
             expected_status_codes = [200, 201]
@@ -124,6 +124,26 @@ class StepikAPIClient:
                         json_data=json_data,
                         expected_status_codes=expected_status_codes,
                         attempts=attempts,
+                    )
+
+                if response.status in (502, 503, 504) and attempts > 1:
+                    retry_after = int(
+                        response.headers.get(
+                            'Retry-After', 2 ** (3 - attempts)
+                        )
+                    )
+                    logger.warning(
+                        f'Server error {response.status}. '
+                        f'Retrying in {retry_after}s (attempts left: {attempts - 1})'
+                    )
+                    await asyncio.sleep(retry_after)
+                    return await self.make_api_request(
+                        method=method,
+                        endpoint=endpoint,
+                        params=params,
+                        json_data=json_data,
+                        expected_status_codes=expected_status_codes,
+                        attempts=attempts - 1,
                     )
 
                 if response.status not in expected_status_codes:

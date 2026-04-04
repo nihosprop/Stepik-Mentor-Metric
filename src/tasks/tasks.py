@@ -114,6 +114,8 @@ async def poll_stepik_courses(
             page = 1
 
             while True:
+                logger.debug(f'Polling start in page {page} for course'
+                             f' {course_id}')
                 await redis_cache.expire(lock_key, lock_ttl)
                 response = await stepik_client.get_comments(
                     course_id, page=page
@@ -193,6 +195,8 @@ async def poll_stepik_courses(
                 ):
                     break
                 page += 1
+                logger.debug(f'Polling end in page {page} for course'
+                             f' {course_id}')
             try:
                 await redis_cache.set(time_key, new_last_time.isoformat())
             except Exception as e:
@@ -206,7 +210,6 @@ async def poll_stepik_courses(
                     logger.info(
                         f'Cold Running aggregation for course {course_id}...'
                     )
-
                     start_date = (
                         datetime.now(UTC)
                         - timedelta(days=config.tasks.initial_poll_days)

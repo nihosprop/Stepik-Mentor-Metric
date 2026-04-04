@@ -179,13 +179,19 @@ class StatisticRepo:
             None
         """
         start_dt = datetime.combine(target_date, datetime.min.time())
-        end_dt = datetime.combine(target_date, datetime.max.time())
+        
+        # For current day, use current time instead of end of day
+        # This ensures today's responses are included in statistics
+        if target_date == datetime.now(UTC).date():
+            end_date = datetime.now(UTC)
+        else:
+            end_date = datetime.combine(target_date, datetime.max.time())
 
         active_mentors_stmt = (
             select(AuthorReply.author_id, AuthorReply.course_id)
             .where(
                 AuthorReply.is_mentor_reply.is_(True),
-                AuthorReply.comment_created_at.between(start_dt, end_dt),
+                AuthorReply.comment_created_at.between(start_dt, end_date),
             )
             .distinct()
         )
@@ -197,7 +203,7 @@ class StatisticRepo:
             replies_stmt = select(AuthorReply).where(
                 AuthorReply.author_id == mentor_id,
                 AuthorReply.course_id == course_id,
-                AuthorReply.comment_created_at.between(start_dt, end_dt),
+                AuthorReply.comment_created_at.between(start_dt, end_date),
             )
             mentor_replies = (
                 (await self.session.execute(replies_stmt)).scalars().all()

@@ -204,8 +204,7 @@ async def poll_stepik_courses(
 
                 if not await redis_cache.get(aggregation_flag):
                     logger.info(
-                        f'Cold start for course {course_id}.'
-                        f' Running aggregation...'
+                        f'Cold Running aggregation for course {course_id}...'
                     )
 
                     start_date = (

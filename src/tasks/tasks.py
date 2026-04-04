@@ -96,6 +96,7 @@ async def poll_stepik_courses(
             last_time_str: str = await redis_cache.get(time_key)
             logger.debug(f'Last Time from cache:{last_time_str=}')
 
+            now = datetime.now(UTC)
             if last_time_str:
                 last_time = datetime.fromisoformat(last_time_str).astimezone(
                     UTC
@@ -109,6 +110,15 @@ async def poll_stepik_courses(
                     f'Cold start for course {course_id}. '
                     f'Parsing from: {last_time} ({days_back} days back)'
                 )
+            if last_time > now + timedelta(hours=1):
+                logger.warning(
+                    f'Future last_time detected for course {course_id}:'
+                    f' {last_time}. Resetting to initial_poll_days.'
+                )
+                last_time = now - timedelta(
+                    days=config.tasks.initial_poll_days
+                )
+                await redis_cache.set(time_key, last_time.isoformat(), ex=3600)
 
             new_last_time = last_time
             page = 1
@@ -135,10 +145,10 @@ async def poll_stepik_courses(
                     )
 
                     if comment_time > last_time:
-                        logger.debug(
-                            f'NEW_COMMENT: {comment["id"]=},'
-                            f' {comment["parent"]=}'
-                        )
+                        # logger.debug(
+                        #     f'NEW_COMMENT: {comment["id"]=},'
+                        #     f' {comment["parent"]=}'
+                        # )
 
                         author_id = comment['user']
                         author_username = await stepik_client.get_username(
@@ -157,34 +167,33 @@ async def poll_stepik_courses(
                                 full_name=author_username,
                                 is_mentor=False,
                             )
-                            logger.debug(
-                                f'Auto-registered student'
-                                f' {author_id}:{author_username}'
-                            )
+                            # logger.debug(
+                            #     f'Auto-registered student'
+                            #     f' {author_id}:{author_username}'
+                            # )
                             # await ai_client.is_meaningful_question(
                             #     comment['text'].strip()
                             # )
                             # await asyncio.sleep(4.5)
-                        logger.debug(
-                            f'{author_username}'
-                            f' replied on {comment['parent']=}'
-                        )
-                        logger.debug(
-                            f'link_to_comment: {
-                                await stepik_client.get_comment_url(
-                                    comment_id=comment["id"]
-                                )
-                            }'
-                        )
+                        # logger.debug(
+                        #     f'{author_username}'
+                        #     f' replied on {comment['parent']=}'
+                        # )
+                        # logger.debug(
+                        #     f'link_to_comment: {
+                        #         await stepik_client.get_comment_url(
+                        #             comment_id=comment["id"]
+                        #         )
+                        #     }'
+                        # )
 
                         # TODO: transfer to service `await reply_repo.upsert_reply`
-                        await reply_repo.upsert_reply(
+                        await reply_repo.upsert_reply_with_mentor_check(
                             course_id=course_id,
                             comment_id=int(comment['id']),
                             author_id=author_id,
                             parent_comment_id=comment['parent'],
                             comment_created_at=comment_time,
-                            is_mentor_reply=is_mentor,
                         )
                         new_last_time = max(new_last_time, comment_time)
                     else:

@@ -19,12 +19,16 @@ class PostgresProvider(Provider):
     def engine(self, config: Config) -> AsyncEngine:
         engine = create_async_engine(
             config.postgres.get_dsn(),
-            pool_size=10,
-            max_overflow=20,
+            pool_size=5,
+            max_overflow=3,
             pool_pre_ping=True,
             pool_recycle=1800,
-            pool_timeout=60,
+            pool_timeout=10,
+            echo=False,
+            pool_use_lifo=True,
         )
+        logger.info(f'🗄️DB Pool initialized: {engine.pool.status()}')
+
         return engine
 
     @provide(scope=Scope.APP)

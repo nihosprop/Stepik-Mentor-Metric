@@ -134,7 +134,8 @@ class StepikAPIClient:
                     )
                     logger.warning(
                         f'Server error {response.status}. '
-                        f'Retrying in {retry_after}s (attempts left: {attempts - 1})'
+                        f'Retrying in'
+                        f' {retry_after}s (attempts left: {attempts - 1})'
                     )
                     await asyncio.sleep(retry_after)
                     return await self.make_api_request(

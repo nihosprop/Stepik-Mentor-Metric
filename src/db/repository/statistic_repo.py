@@ -178,7 +178,7 @@ class StatisticRepo:
         Returns:
             None
         """
-        start_dt = datetime.combine(target_date, datetime.min.time())
+        start_date = datetime.combine(target_date, datetime.min.time())
 
         # For current day, use current time instead of end of day
         # This ensures today's responses are included in statistics
@@ -192,7 +192,8 @@ class StatisticRepo:
             .join(StepikUser, AuthorReply.author_id == StepikUser.user_id)
             .where(
                 StepikUser.is_mentor.is_(True),
-                AuthorReply.comment_created_at.between(start_dt, end_date),
+                AuthorReply.comment_created_at >= start_date,
+                AuthorReply.comment_created_at <= end_date,
             )
             .distinct()
         )
@@ -204,7 +205,7 @@ class StatisticRepo:
             replies_stmt = select(AuthorReply).where(
                 AuthorReply.author_id == mentor_id,
                 AuthorReply.course_id == course_id,
-                AuthorReply.comment_created_at.between(start_dt, end_date),
+                AuthorReply.comment_created_at.between(start_date, end_date),
             )
             mentor_replies = (
                 (await self.session.execute(replies_stmt)).scalars().all()

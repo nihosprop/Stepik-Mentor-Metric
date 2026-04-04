@@ -79,7 +79,7 @@ mode = 'a'
 handlers = ['stdout', 'file']
 level = 'INFO'
 
-[default.logs.dict_config.loggers.'taskiq.worker']
+[production.logs.dict_config.loggers.'taskiq.worker']
 level = 'INFO'
 handlers = ['stdout', 'file']
 

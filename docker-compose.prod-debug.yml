@@ -4,7 +4,7 @@
 services:
   bot:
     image: niwibonihs/metrik-bot:${APP_TAG}
-    container_name: Metrik-Bot-Debug
+    container_name: Metric-Bot-Debug
     restart: unless-stopped
     env_file:
       - .env
@@ -35,7 +35,7 @@ services:
 
   migrations:
     image: niwibonihs/metrik-bot:${APP_TAG}
-    container_name: Metrik-Migrations-Debug
+    container_name: Metric-Migrations-Debug
     environment:
       - PYTHONPATH=/app/src
       - ENV_FOR_DYNACONF=production
@@ -58,7 +58,7 @@ services:
 
   worker:
     image: niwibonihs/metrik-bot:${APP_TAG}
-    container_name: Metrik-Worker-Debug
+    container_name: Metric-Worker-Debug
     command: python -m taskiq worker tasks.setup:broker --fs-discover
     environment:
       - PYTHONPATH=/app/src
@@ -83,7 +83,7 @@ services:
 
   scheduler:
     image: niwibonihs/metrik-bot:${APP_TAG}
-    container_name: Metrik-Scheduler-Debug
+    container_name: Metric-Scheduler-Debug
     command: python -m taskiq scheduler tasks.scheduler:scheduler --fs-discover
     environment:
       - PYTHONPATH=/app/src
@@ -108,7 +108,7 @@ services:
 
 networks:
   metric-net:
-    name: Metrik-Net-Debug
+    name: Metric-Net-Debug
     driver: bridge
 
 volumes:

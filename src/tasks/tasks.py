@@ -1,10 +1,12 @@
 import asyncio
 import logging
+import os
 import uuid
 
 from datetime import UTC, date, datetime, timedelta
 
 from aiogram import Bot
+from aiogram.types import FSInputFile
 from dishka.integrations.taskiq import FromDishka, inject
 
 from core.main_config import Config
@@ -118,8 +120,9 @@ async def poll_stepik_courses(
             page = 1
 
             while True:
-                logger.debug(f'Polling start in page {page} for course'
-                             f' {course_id}')
+                logger.debug(
+                    f'Polling start in page {page} for course {course_id}'
+                )
                 await redis_cache.expire(lock_key, lock_ttl)
                 response = await stepik_client.get_comments(
                     course_id, page=page
@@ -154,7 +157,7 @@ async def poll_stepik_courses(
 
                         author_id_str = str(comment['user'])
                         is_mentor = author_id_str in mentors_ids_cache
-                        
+
                         if not is_mentor:
                             await stepik_user_repo.upsert_user(
                                 stepik_user_id=author_id,
@@ -167,15 +170,14 @@ async def poll_stepik_courses(
 
                         # TODO: transfer to service `await reply_repo.upsert_reply`
                         if is_mentor:
-
                             logger.debug(f'{comment['parent']=}')
                             logger.debug(
-                                    f'link_to_comment: {
-                                        await stepik_client.get_comment_url(
-                                            comment_id=comment["id"]
-                                        )
-                                    }'
-                                )
+                                f'link_to_comment: {
+                                    await stepik_client.get_comment_url(
+                                        comment_id=comment["id"]
+                                    )
+                                }'
+                            )
 
                         await reply_repo.upsert_reply_with_mentor_check(
                             course_id=course_id,
@@ -193,8 +195,9 @@ async def poll_stepik_courses(
                 ):
                     break
                 page += 1
-                logger.debug(f'Polling end in page {page} for course'
-                             f' {course_id}')
+                logger.debug(
+                    f'Polling end in page {page} for course {course_id}'
+                )
             try:
                 await redis_cache.set(time_key, new_last_time.isoformat())
             except Exception as e:
@@ -294,9 +297,9 @@ async def aggregate_daily_stats(
 async def sends_daily_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
-    stat_service: FromDishka[StatisticService],
+    statisitc_service: FromDishka[StatisticService],
 ) -> None:
-    report_text = await stat_service.get_daily_report_text()
+    report_text = await statisitc_service.get_daily_report_text()
 
     # TODO: remove duplicate code 2
     for admin_id in config.bot.admins:
@@ -309,20 +312,50 @@ async def sends_daily_stats(
 
 @broker.task
 @inject(patch_module=True)
-async def sends_month_stats(
+async def sends_last_month_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
-    stat_service: FromDishka[StatisticService],
+    statistic_service: FromDishka[StatisticService],
 ) -> None:
-    report_text = await stat_service.get_monthly_detailed_report_text()
+    logger.debug('Entry')
 
-    # TODO: remove duplicate code 3
-    for admin_id in config.bot.admins:
-        try:
-            await bot.send_message(chat_id=admin_id, text=report_text)
-            await asyncio.sleep(2)
-        except Exception as e:
-            logger.error(f'Failed to send report to {admin_id}: {e}')
+    report_text = await statistic_service.get_global_report_text(
+        prev_month=True
+        )
+    file_path = await statistic_service.save_report_to_file(
+        report_text=report_text, report_type='last_month'
+    )
+
+    now = datetime.now(UTC)
+    last_day_prev_month = now.replace(day=1) - timedelta(days=1)
+    prev_month_str = last_day_prev_month.strftime('%m.%Y')
+
+    try:
+        document = FSInputFile(file_path, filename=os.path.basename(file_path))
+
+        for admin_id in config.bot.admins:
+            try:
+                await bot.send_document(
+                    chat_id=admin_id,
+                    document=document,
+                    caption=f'📊 Подробная за {prev_month_str}',
+                )
+                await asyncio.sleep(1)
+            except Exception as e:
+                logger.error(
+                    f'Failed to send report to {admin_id}: {e}', exc_info=True
+                )
+
+    except Exception as e:
+        logger.error(
+            f'Failed to send stats to admins: {e}',
+            exc_info=True,
+        )
+
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            logger.info(f'Temporary file {file_path} deleted successfully')
 
 
 # TODO: move _schedule_id
@@ -348,8 +381,8 @@ STATIC_TASKS = [
         cron='10 0 * * *',
     ),
     MyScheduledTask(
-        task_name=sends_month_stats.task_name,
-        schedule_id=_schedule_id(task_name=sends_month_stats.task_name),
+        task_name=sends_last_month_stats.task_name,
+        schedule_id=_schedule_id(task_name=sends_last_month_stats.task_name),
         cron='15 0 1 * *',
     ),
 ]

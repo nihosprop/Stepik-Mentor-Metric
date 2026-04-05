@@ -17,16 +17,12 @@ class StatisticService:
     config: Config
 
     @staticmethod
-    async def save_report_to_file(report_text: str, report_type: str
-    ) -> str:
-
+    async def save_report_to_file(report_text: str, report_type: str) -> str:
         base_dir = '/app/logs'
         date_str = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f'{report_type}_{date_str}.md'
         file_path = os.path.join(base_dir, filename)
-        report_for_file = report_text.replace('<b>', '').replace(
-            '</b>', ''
-        )
+        report_for_file = report_text.replace('<b>', '').replace('</b>', '')
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(report_for_file)
 
@@ -46,9 +42,9 @@ class StatisticService:
         header = f'🏆 <b>Итоги дня: {yesterday.strftime("%d.%m.%Y")}</b>'
         return self._format_advanced_report(rows, header)
 
-    async def get_report_by_date_text(self,
-                                      perf: str,
-                                      year: int, month: int) -> str:
+    async def get_report_by_date_text(
+        self, perf: str, year: int, month: int
+    ) -> str:
         """Final report for the month."""
         rows = await self.stats_repo.get_monthly_stats(year, month)
         header = f'📈 {perf}: {month:02d}.{year}'
@@ -123,8 +119,18 @@ class StatisticService:
 
         await self.aggregate_stats_period(start_date, end_date)
 
-        return await self.get_report_by_date_text(perf=perf,
-            year=year, month=month)
+        return await self.get_report_by_date_text(
+            perf=perf, year=year, month=month
+        )
+
+    async def get_global_report_text(self, prev_month: bool = True) -> str:
+        general_report_text = await self.get_general_report_text(
+            prev_month=prev_month
+        )
+        monthly_report_text = await self.get_monthly_detailed_report_text(
+            prev_month=prev_month
+        )
+        return f'{general_report_text}\n\n{monthly_report_text}'
 
     async def aggregate_stats_period(
         self,

@@ -1,7 +1,7 @@
 import logging
 import os
 
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 
 from aiogram import Bot
 from aiogram.types import CallbackQuery, FSInputFile
@@ -40,7 +40,7 @@ async def send_current_month_detailed_stats(
         await bot.send_document(
             chat_id=clbk.from_user.id,
             document=document,
-            caption=f'📊 Подробная(Текущий месяц)-{datetime.now().date()}',
+            caption=f'📊 Подробная(Текущий месяц)-{datetime.now(UTC).date()}',
         )
     except Exception as e:
         logger.error(
@@ -62,14 +62,18 @@ async def send_last_month_detailed_stats(
     _button: Button,
     _dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
-    bot: FromDishka[Bot]
+    bot: FromDishka[Bot],
 ) -> None:
     logger.debug('Entry')
+
+    now = datetime.now(UTC)
+    last_day_prev_month = now.replace(day=1) - timedelta(days=1)
+    prev_month_str = last_day_prev_month.strftime('%m.%Y')
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
     report = await statistic_service.get_monthly_detailed_report_text(
         prev_month=True
-        )
+    )
 
     file_path = await statistic_service.save_report_to_file(
         report, 'last_month'
@@ -81,7 +85,7 @@ async def send_last_month_detailed_stats(
         await bot.send_document(
             chat_id=clbk.from_user.id,
             document=document,
-            caption=f'📊 Подробная(Прошедший месяц)-{datetime.now().date()}',
+            caption=f'📊 Подробная статистика за {prev_month_str}',
         )
     except Exception as e:
         logger.error(
@@ -127,7 +131,12 @@ async def send_last_month_general_stats(
     logger.debug('Entry')
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
-    report = await statistic_service.get_general_report_text(prev_month=True)
+    # report = await statistic_service.get_general_report_text(prev_month=True)
+
+    # TODO: remove temp global report
+    report = await statistic_service.get_global_report_text(
+        prev_month=True
+        )
     if report:
         if clbk.message:
             await clbk.message.answer(text=report)

@@ -131,12 +131,8 @@ async def send_last_month_general_stats(
     logger.debug('Entry')
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
-    # report = await statistic_service.get_general_report_text(prev_month=True)
 
-    # TODO: remove temp global report
-    report = await statistic_service.get_global_report_text(
-        prev_month=True
-        )
+    report = await statistic_service.get_general_report_text(prev_month=True)
     if report:
         if clbk.message:
             await clbk.message.answer(text=report)

@@ -67,7 +67,7 @@ async def poll_stepik_courses(
             active_ids = set(
                 map(str, await course_repo.get_ids_active_courses())
             )
-            logger.info(f'Getting active courses from DB: {active_ids}')
+            logger.debug(f'Getting active courses from DB: {active_ids}')
             if not active_ids:
                 logger.warning('No active courses in DB - task will exit')
                 return
@@ -321,7 +321,7 @@ async def sends_last_month_stats(
 
     report_text = await statistic_service.get_global_report_text(
         prev_month=True
-        )
+    )
     file_path = await statistic_service.save_report_to_file(
         report_text=report_text, report_type='last_month'
     )
@@ -351,7 +351,6 @@ async def sends_last_month_stats(
             f'Failed to send stats to admins: {e}',
             exc_info=True,
         )
-
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)

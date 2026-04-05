@@ -159,40 +159,58 @@ class StatisticService:
         logger.info(f'Aggregated {days_processed} days of statistics')
 
     @staticmethod
-    def _format_simple_report(rows: Sequence, header: str) -> str:
+    def _calculate_percentile_indices(rows: Sequence) -> list[int | None]:
         """
-        Format statistics report based on the given rows and header.
-
-        Args:
-            rows (Sequence): A sequence of tuples containing
-                the full name of the mentor, the title of the course,
-                and the number of replies made by the mentor.
-            header (str): Report header.
-
-        Returns:
-            str: Formatted report.
+        Calculates a composite index (0–100) based on percentiles
+        speed and activity.
+        Formula: Index = (Score_speed + Score_activity) / 2
         """
-        logger.debug('Generating simple report.')
-        if not rows:
-            return f'{header}\n\nАктивности менторов не зафиксировано. 📭'
 
-        msg = [header, '']
-        current_course = ''
-        total_replies = 0
+        valid_data = []
+        for i, row in enumerate(rows):
 
-        for row in rows:
-            if row.course_title != current_course:
-                current_course = row.course_title
-                msg.append(f'📘 Курс: {current_course}')
+            avg_delay = row.avg_delay
+            replies = row.total_h
 
-            msg.append(f'🔹{row.full_name}: {row.replies_count} отв.')
-            total_replies += row.replies_count
+            if replies is None:
+                replies = row.replies_count or 0
 
-        msg.append(f'\n📈 Всего ответов: {total_replies}')
-        return '\n'.join(msg)
+            if avg_delay is not None and replies > 0:
+                valid_data.append(
+                    {'idx': i, 'avg_delay': avg_delay, 'replies': replies}
+                )
 
-    @staticmethod
-    def _format_general_report(
+        n = len(valid_data)
+
+        if n == 0:
+            return [None] * len(rows)
+        if n == 1:
+            indices: list[int | None]  = [None] * len(rows)
+            indices[valid_data[0]['idx']] = 100
+            return indices
+
+        sorted_speed = sorted(valid_data, key=lambda x: x['avg_delay'])
+        speed_ranks = {
+            item['idx']: rank + 1 for rank, item in enumerate(sorted_speed)
+        }
+
+        sorted_activity = sorted(
+            valid_data, key=lambda x: x['replies'], reverse=True
+        )
+        activity_ranks = {
+            item['idx']: rank + 1 for rank, item in enumerate(sorted_activity)
+        }
+
+        indices: list[int | None] = [None] * len(rows)
+        for item in valid_data:
+            i = item['idx']
+            score_speed = (n - speed_ranks[i]) / (n - 1) * 100
+            score_activity = (n - activity_ranks[i]) / (n - 1) * 100
+            indices[i] = round((score_speed + score_activity) / 2)
+
+        return indices
+
+    def _format_general_report(self,
         rows: Sequence,
         header: str,
     ) -> str | None:
@@ -203,20 +221,19 @@ class StatisticService:
         if not rows:
             return None
 
+        indices = self._calculate_percentile_indices(rows)
         msg = [header, '=== Общая статистика по менторам ===']
 
-        for row in rows:
+        for row, idx in zip(rows, indices, strict=True):
             perf_idx = (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
             replies = row.total_h
 
-            speed = f'{int(row.avg_delay // 60)}м' if row.avg_delay else 'н/д'
-
+            speed_display = f'{idx}⚡' if idx is not None else 'н/д'
             msg.append(
                 f'👤 <b>{row.full_name}</b>\n'
                 f'  └ КПД:'
-                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
+                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed_display}'
             )
-
         return '\n'.join(msg)
 
     @staticmethod
@@ -230,16 +247,15 @@ class StatisticService:
         if not rows:
             return '📭 Нет архивных данных.'
 
+        indices = StatisticService._calculate_percentile_indices(rows)
+
         msg = [header, '=== Статистика по курсам ===']
         current_course = ''
-        for row in rows:
+        for row, idx in zip(rows, indices, strict=True):
             if row.course_title != current_course:
                 current_course = row.course_title
                 msg.append(f'\n📘 <b>Курс: {current_course}</b>')
 
-            # Index calc
-            # (for the month we calculate from the amounts,
-            # for the day we take the ready)
             if is_monthly:
                 perf_idx = (
                     (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
@@ -249,11 +265,10 @@ class StatisticService:
                 perf_idx = row.help_index
                 replies = row.replies_count
 
-            speed = f'{int(row.avg_delay // 60)}м' if row.avg_delay else 'н/д'
-
+            speed_display = f'{idx}⚡' if idx is not None else 'н/д'
             msg.append(
                 f' └👤 <b>{row.full_name}</b>\n'
                 f'    └ КПД:'
-                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed}'
+                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed_display}'
             )
         return '\n'.join(msg)

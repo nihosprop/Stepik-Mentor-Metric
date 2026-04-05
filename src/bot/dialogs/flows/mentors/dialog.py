@@ -25,8 +25,8 @@ from bot.dialogs.flows.mentors.handlers import (
     add_mentor_to_db,
     correct_link_to_mentor,
     error_link_to_mentor,
-    on_remove_mentor_status,
     on_mentor_selected,
+    on_remove_mentor_status,
 )
 from bot.dialogs.flows.mentors.states import MentorSG
 

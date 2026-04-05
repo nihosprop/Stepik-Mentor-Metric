@@ -22,7 +22,9 @@ class StatisticService:
         date_str = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f'{report_type}_{date_str}.md'
         file_path = os.path.join(base_dir, filename)
-        report_for_file = report_text.replace('<b>', '').replace('</b>', '')
+        report_for_file = report_text.replace('<code>', '').replace(
+            '</code>', ''
+        ).replace('<b>', '').replace('</b>', '')
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(report_for_file)
 
@@ -159,7 +161,7 @@ class StatisticService:
         logger.info(f'Aggregated {days_processed} days of statistics')
 
     @staticmethod
-    def _calculate_percentile_indices(rows: Sequence) -> list[int | None]:
+    def _calculate_percentile_indices(rows: Sequence) -> list[float | None]:
         """
         Calculates a composite index (0–100) based on percentiles
         speed and activity.
@@ -168,7 +170,6 @@ class StatisticService:
 
         valid_data = []
         for i, row in enumerate(rows):
-
             avg_delay = row.avg_delay
             replies = row.total_h
 
@@ -185,8 +186,8 @@ class StatisticService:
         if n == 0:
             return [None] * len(rows)
         if n == 1:
-            indices: list[int | None]  = [None] * len(rows)
-            indices[valid_data[0]['idx']] = 100
+            indices: list[float | None] = [None] * len(rows)
+            indices[valid_data[0]['idx']] = 100.0
             return indices
 
         sorted_speed = sorted(valid_data, key=lambda x: x['avg_delay'])
@@ -194,29 +195,17 @@ class StatisticService:
             item['idx']: rank + 1 for rank, item in enumerate(sorted_speed)
         }
 
-        sorted_activity = sorted(
-            valid_data, key=lambda x: x['replies'], reverse=True
-        )
-        activity_ranks = {
-            item['idx']: rank + 1 for rank, item in enumerate(sorted_activity)
-        }
-
-        indices: list[int | None] = [None] * len(rows)
+        indices: list[float | None] = [None] * len(rows)
         for item in valid_data:
             i = item['idx']
-            score_speed = (n - speed_ranks[i]) / (n - 1) * 100
-            score_activity = (n - activity_ranks[i]) / (n - 1) * 100
-            indices[i] = round((score_speed + score_activity) / 2)
+            score_speed = (n - speed_ranks[i] + 1) / n * 100
+            indices[i] = score_speed
 
         return indices
 
-    def _format_general_report(self,
-        rows: Sequence,
-        header: str,
+    def _format_general_report(
+        self, rows: Sequence, header: str
     ) -> str | None:
-        """
-        Format general statistics report (aggregated across all courses).
-        """
         logger.debug('Generating general report.')
         if not rows:
             return None
@@ -224,16 +213,34 @@ class StatisticService:
         indices = self._calculate_percentile_indices(rows)
         msg = [header, '=== Общая статистика по менторам ===']
 
+        max_name = max(len(row.full_name) for row in rows)
+        max_kpd = max(
+            len(f'{(r.total_h**2 / r.total_t) if r.total_t > 0 else 0:.1f}')
+            for r in rows
+        )
+        max_resp = max(len(str(r.total_h)) for r in rows)
+        max_spd = max(
+            len(f'{i:.1f}' if i is not None else 'н/д')
+            for _, i in zip(rows, indices, strict=True)
+        )
+
         for row, idx in zip(rows, indices, strict=True):
             perf_idx = (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
             replies = row.total_h
+            speed_display = f'{idx:.1f}' if idx is not None else 'н/д'
 
-            speed_display = f'{idx}⚡' if idx is not None else 'н/д'
-            msg.append(
-                f'👤 <b>{row.full_name}</b>\n'
-                f'  └ КПД:'
-                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed_display}'
-            )
+            # Align with spaces to the left
+            name = f'{row.full_name:<{max_name}}'
+            kpd = f'{perf_idx:<{max_kpd}.1f}'
+            resp = f'{replies:<{max_resp}}'
+            spd = f'{speed_display:<{max_spd}}'
+
+            if speed_display != 'н/д':
+                msg.append(
+                    f'👤 <b>{name}</b>\n'
+                    f'  └ <code>КПД: {kpd} | Отв: {resp} | ⚡️ {spd}</code>'
+                )
+
         return '\n'.join(msg)
 
     @staticmethod
@@ -249,13 +256,13 @@ class StatisticService:
 
         indices = StatisticService._calculate_percentile_indices(rows)
 
-        msg = [header, '=== Статистика по курсам ===']
-        current_course = ''
-        for row, idx in zip(rows, indices, strict=True):
-            if row.course_title != current_course:
-                current_course = row.course_title
-                msg.append(f'\n📘 <b>Курс: {current_course}</b>')
+        prepared = []
+        max_name = 0
+        max_kpd = 0
+        max_resp = 0
+        max_spd = 0
 
+        for row, idx in zip(rows, indices, strict=True):
             if is_monthly:
                 perf_idx = (
                     (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
@@ -265,10 +272,32 @@ class StatisticService:
                 perf_idx = row.help_index
                 replies = row.replies_count
 
-            speed_display = f'{idx}⚡' if idx is not None else 'н/д'
-            msg.append(
-                f' └👤 <b>{row.full_name}</b>\n'
-                f'    └ КПД:'
-                f' <b>{perf_idx:.1f}</b> | Отв: {replies} | ⚡️ {speed_display}'
-            )
+            speed = f'{idx:.1f}' if idx is not None else 'н/д'
+            prepared.append((row, perf_idx, replies, speed))
+
+            if speed != 'н/д':
+                max_name = max(max_name, len(row.full_name))
+                max_kpd = max(max_kpd, len(f'{perf_idx:.1f}'))
+                max_resp = max(max_resp, len(str(replies)))
+                max_spd = max(max_spd, len(speed))
+
+        msg = [header, '=== Статистика по курсам ===']
+        current_course = ''
+
+        for row, perf_idx, replies, speed in prepared:
+            if row.course_title != current_course:
+                current_course = row.course_title
+                msg.append(f'\n📘 <b>Курс: {current_course}</b>')
+
+            if speed != 'н/д':
+                name = f'{row.full_name:<{max_name}}'
+                kpd = f'{perf_idx:<{max_kpd}.1f}'
+                resp = f'{replies:<{max_resp}}'
+                spd = f'{speed:<{max_spd}}'
+
+                msg.append(
+                    f'  └👤 <b>{name}</b>\n'
+                    f'     └ <code>КПД: {kpd} | Отв: {resp} | ⚡️ {spd}</code>'
+                )
+
         return '\n'.join(msg)

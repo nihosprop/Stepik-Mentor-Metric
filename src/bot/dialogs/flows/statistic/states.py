@@ -6,4 +6,5 @@ class StatisticSG(StatesGroup):
     general = State()
     current_month = State()
     last_month = State()
+    report = State()
     individual = State()

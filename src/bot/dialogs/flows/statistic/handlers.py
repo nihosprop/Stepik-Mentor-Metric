@@ -102,26 +102,6 @@ async def send_last_month_detailed_stats(
 
 
 @inject
-async def send_current_month_general_stats(
-    clbk: CallbackQuery,
-    _button: Button,
-    _dialog_manager: DialogManager,
-    statistic_service: FromDishka[StatisticService],
-) -> None:
-    logger.debug('Entry')
-
-    logger.info(f'The user {clbk.from_user.id} requested statistics')
-    report = await statistic_service.get_general_report_text(prev_month=False)
-    if report:
-        if clbk.message:
-            await clbk.message.answer(text=report)
-        return
-    await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
-
-    logger.debug('Exit')
-
-
-@inject
 async def send_last_month_general_stats(
     clbk: CallbackQuery,
     _button: Button,
@@ -133,9 +113,30 @@ async def send_last_month_general_stats(
     logger.info(f'The user {clbk.from_user.id} requested statistics')
 
     report = await statistic_service.get_general_report_text(prev_month=True)
-    if report:
-        if clbk.message:
-            await clbk.message.answer(text=report)
+    if clbk.message and report:
+        await clbk.message.answer(text=report)
         return
     await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
+    logger.debug('Exit')
+
+
+@inject
+async def sent_current_month_general_report(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+    statistic_service: FromDishka[StatisticService],
+) -> None:
+    logger.debug('Entry')
+
+    logger.info(f'The user {clbk.from_user.id} requested statistics')
+
+    report = await statistic_service.get_general_report_text(prev_month=False)
+    if clbk.message and report:
+        await clbk.message.answer(text=report)
+    else:
+        await clbk.answer(
+            text='📭 Нет данных для статистики.', show_alert=True
+        )
+
     logger.debug('Exit')

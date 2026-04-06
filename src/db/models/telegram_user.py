@@ -12,9 +12,12 @@ class User(TimestampMixin, Base):
     first_name: Mapped[str] = mapped_column(String(128))
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     username: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    is_admin: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default='false'
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default='visitor',
+        server_default='visitor',
     )
-    is_visitor: Mapped[bool] = mapped_column(
+    is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default='false'
     )

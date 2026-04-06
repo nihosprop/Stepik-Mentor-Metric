@@ -22,9 +22,12 @@ class StatisticService:
         date_str = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f'{report_type}_{date_str}.md'
         file_path = os.path.join(base_dir, filename)
-        report_for_file = report_text.replace('<code>', '').replace(
-            '</code>', ''
-        ).replace('<b>', '').replace('</b>', '')
+        report_for_file = (
+            report_text.replace('<code>', '')
+            .replace('</code>', '')
+            .replace('<b>', '')
+            .replace('</b>', '')
+        )
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(report_for_file)
 
@@ -171,10 +174,16 @@ class StatisticService:
         valid_data = []
         for i, row in enumerate(rows):
             avg_delay = row.avg_delay
-            replies = row.total_h
+            # Handle both total_h and replies_count attributes
+            if hasattr(row, 'total_h'):
+                replies = row.total_h
+            else:
+                replies = row.replies_count
 
             if replies is None:
-                replies = row.replies_count or 0
+                replies = (
+                    row.replies_count if hasattr(row, 'replies_count') else 0
+                )
 
             if avg_delay is not None and replies > 0:
                 valid_data.append(

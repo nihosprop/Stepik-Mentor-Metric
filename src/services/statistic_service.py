@@ -220,7 +220,7 @@ class StatisticService:
             return None
 
         indices = self._calculate_percentile_indices(rows)
-        msg = [header, '=== Общая статистика по менторам ===']
+        msg = [header, '=== Общая статистика по менторам ===\n']
 
         max_name = max(len(row.full_name) for row in rows)
         max_kpd = max(

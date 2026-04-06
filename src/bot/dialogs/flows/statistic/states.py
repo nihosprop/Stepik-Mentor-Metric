@@ -8,3 +8,4 @@ class StatisticSG(StatesGroup):
     last_month = State()
     report = State()
     individual = State()
+    loading = State()

@@ -4,11 +4,12 @@ import os
 from datetime import UTC, datetime, timedelta
 
 from aiogram import Bot
-from aiogram.types import CallbackQuery, FSInputFile
-from aiogram_dialog import DialogManager
+from aiogram.types import CallbackQuery, FSInputFile, Message
+from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.kbd import Button
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
+from bot.dialogs.flows.statistic.states import StatisticSG
 from services.statistic_service import StatisticService
 
 logger = logging.getLogger(__name__)
@@ -105,18 +106,31 @@ async def send_last_month_detailed_stats(
 async def send_last_month_general_stats(
     clbk: CallbackQuery,
     _button: Button,
-    _dialog_manager: DialogManager,
+    dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
 ) -> None:
     logger.debug('Entry')
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
 
+    if isinstance(clbk.message, Message):
+        await clbk.message.edit_text('⏳ Формирую отчет...')
+    else:
+        return
+
     report = await statistic_service.get_general_report_text(prev_month=True)
     if clbk.message and report:
         await clbk.message.answer(text=report)
+    else:
+        await clbk.answer(
+            text='📭 Нет данных для статистики.', show_alert=True
+        )
         return
-    await clbk.answer(text='📭 Нет данных для статистики.', show_alert=True)
+
+    await dialog_manager.switch_to(
+        state=StatisticSG.general, show_mode=ShowMode.DELETE_AND_SEND
+    )
+
     logger.debug('Exit')
 
 
@@ -131,6 +145,11 @@ async def sent_current_month_general_report(
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
 
+    if isinstance(clbk.message, Message):
+        await clbk.message.edit_text('⏳ Формирую отчет...')
+    else:
+        return
+
     report = await statistic_service.get_general_report_text(prev_month=False)
     if clbk.message and report:
         await clbk.message.answer(text=report)
@@ -138,5 +157,10 @@ async def sent_current_month_general_report(
         await clbk.answer(
             text='📭 Нет данных для статистики.', show_alert=True
         )
+        return
+
+    await dialog_manager.switch_to(
+        state=StatisticSG.general, show_mode=ShowMode.DELETE_AND_SEND
+    )
 
     logger.debug('Exit')

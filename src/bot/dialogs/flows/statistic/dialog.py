@@ -31,19 +31,15 @@ statistic_dialog = Dialog(
     ),
     Window(
         Const('Выберите период ⤵️'),
-        SwitchTo(
+        Button(
             text=Const('Общая (Текущий месяц)'),
             id='general_stats_current',
             on_click=sent_current_month_general_report,  # ty:ignore[invalid-argument-type]
-            state=StatisticSG.general,
-            show_mode=ShowMode.DELETE_AND_SEND,
         ),
-        SwitchTo(
+        Button(
             text=Const('Общая (Прошедший месяц)'),
             id='general_stats_last',
             on_click=send_last_month_general_stats,  # ty:ignore[invalid-argument-type]
-            state=StatisticSG.general,
-            show_mode=ShowMode.DELETE_AND_SEND,
         ),
         Button(
             text=Const('Подробная (Текущий месяц)'),
@@ -63,5 +59,8 @@ statistic_dialog = Dialog(
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
         state=StatisticSG.individual,
+    ),
+    Window(
+        Const('⏳ Загрузка данных, подождите...'), state=StatisticSG.loading
     ),
 )

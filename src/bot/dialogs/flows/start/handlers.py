@@ -2,15 +2,12 @@ import logging
 
 from aiogram import Router
 from aiogram.filters import CommandStart
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import Message
 from aiogram_dialog import DialogManager, ShowMode, StartMode
-from aiogram_dialog.widgets.kbd import Button
 from dishka.integrations.aiogram import FromDishka
 
-from bot.dialogs.flows.courses.states import CoursesSG
 from db.repository.tg_user_repo import TGUserRepository
 
-from ..mentors.states import MentorSG
 from .states import StartSG
 
 start_router = Router()
@@ -54,28 +51,4 @@ async def start(
         return
 
     logger.warning('Failed to determine user')
-    logger.debug('Exit')
-
-
-async def switch_to_mentors(
-    _clbk: CallbackQuery,
-    _button: Button,
-    dialog_manager: DialogManager,
-) -> None:
-    logger.debug('Entry')
-
-    await dialog_manager.start(state=MentorSG.start)
-
-    logger.debug('Exit')
-
-
-async def switch_to_courses(
-    _clbk: CallbackQuery,
-    _button: Button,
-    dialog_manager: DialogManager,
-) -> None:
-    logger.debug('Entry')
-
-    await dialog_manager.start(state=CoursesSG.start)
-
     logger.debug('Exit')

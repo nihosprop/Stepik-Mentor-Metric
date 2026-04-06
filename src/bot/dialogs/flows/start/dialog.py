@@ -1,13 +1,11 @@
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.kbd import Button, Group, Row, Start
+from aiogram_dialog.widgets.kbd import Group, Row, Start
 from aiogram_dialog.widgets.text import Const
 
 from bot.dialogs.common.getters import get_tg_username
-from bot.dialogs.common.handlers import on_click_in_dev
-from bot.dialogs.flows.start.handlers import (
-    switch_to_courses,
-    switch_to_mentors,
-)
+from bot.dialogs.flows.courses.states import CoursesSG
+from bot.dialogs.flows.mentors.states import MentorSG
+from bot.dialogs.flows.settings.states import SettingsSG
 from bot.dialogs.flows.start.states import StartSG
 from bot.dialogs.flows.statistic.states import StatisticSG
 
@@ -17,15 +15,15 @@ start_dialog = Dialog(
         Const(text='===  Главное меню  ==='),
         Group(
             Row(
-                Button(
+                Start(
                     text=Const('Менторы'),
                     id='mentors',
-                    on_click=switch_to_mentors,
+                    state=MentorSG.start,
                 ),
-                Button(
+                Start(
                     text=Const('Курсы'),
                     id='courses',
-                    on_click=switch_to_courses,
+                    state=CoursesSG.start,
                 ),
             ),
             Start(
@@ -33,10 +31,10 @@ start_dialog = Dialog(
                 id='statistic',
                 state=StatisticSG.start,
             ),
-            Button(
+            Start(
                 text=Const('Настройки'),
                 id='settings',
-                on_click=on_click_in_dev,
+                state=SettingsSG.start,
             ),
         ),
         getter=get_tg_username,

@@ -31,7 +31,7 @@ from bot.dialogs.flows.mentors.states import MentorSG
 
 mentors_dialog = Dialog(
     Window(
-        Format(text='===  Меню Менторов  ==='),
+        Const(text='===  Меню Менторов  ==='),
         Group(
             Row(
                 SwitchTo(
@@ -52,7 +52,6 @@ mentors_dialog = Dialog(
             ),
             MAIN_MENU_BUTTON,
         ),
-        # TODO: delete getter
         state=MentorSG.start,
     ),
     Window(

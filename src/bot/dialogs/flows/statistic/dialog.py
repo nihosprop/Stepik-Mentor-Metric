@@ -1,19 +1,17 @@
-from sqlalchemy import custom_op
-from aiogram_dialog import Dialog, Window, ShowMode
+from aiogram_dialog import Dialog, ShowMode, Window
 from aiogram_dialog.widgets.kbd import (
     Button,
-    SwitchTo, Back,
+    SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const
 
 from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
-from bot.dialogs.flows.statistic.getters import get_current_month_general_stats
 from bot.dialogs.flows.statistic.handlers import (
-    sent_current_month_general_report,
     send_current_month_detailed_stats,
     send_last_month_detailed_stats,
     send_last_month_general_stats,
+    sent_current_month_general_report,
 )
 from bot.dialogs.flows.statistic.states import StatisticSG
 
@@ -38,14 +36,14 @@ statistic_dialog = Dialog(
             id='general_stats_current',
             on_click=sent_current_month_general_report,  # ty:ignore[invalid-argument-type]
             state=StatisticSG.general,
-            show_mode=ShowMode.DELETE_AND_SEND
+            show_mode=ShowMode.DELETE_AND_SEND,
         ),
         SwitchTo(
             text=Const('Общая (Прошедший месяц)'),
             id='general_stats_last',
             on_click=send_last_month_general_stats,  # ty:ignore[invalid-argument-type]
             state=StatisticSG.general,
-            show_mode=ShowMode.DELETE_AND_SEND
+            show_mode=ShowMode.DELETE_AND_SEND,
         ),
         Button(
             text=Const('Подробная (Текущий месяц)'),

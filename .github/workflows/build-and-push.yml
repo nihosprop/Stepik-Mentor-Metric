@@ -24,4 +24,4 @@ jobs:
           context: .
           push: true
           tags: |
-            niwibonihs/metrik-bot:${{ github.ref_name }}
+            niwibonihs/metric-bot:${{ github.ref_name }}

@@ -60,7 +60,4 @@ statistic_dialog = Dialog(
         BACK_BUTTON,
         state=StatisticSG.individual,
     ),
-    Window(
-        Const('⏳ Загрузка данных, подождите...'), state=StatisticSG.loading
-    ),
 )

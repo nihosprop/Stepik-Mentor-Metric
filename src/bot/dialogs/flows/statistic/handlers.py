@@ -19,14 +19,22 @@ logger = logging.getLogger(__name__)
 async def send_current_month_detailed_stats(
     clbk: CallbackQuery,
     _button: Button,
-    _dialog_manager: DialogManager,
+    dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
     bot: FromDishka[Bot],
 ) -> None:
     # TODO: use clbk.message, methods on the stack must return str | None
     logger.debug('Entry')
 
-    logger.info(f'The user {clbk.from_user.id} requested statistics')
+    user = clbk.from_user.id
+    logger.info(f'The user {user} requested statistics')
+
+    if not isinstance(clbk.message, Message):
+        logger.warning(f'Unexpected message type: {type(clbk.message)}')
+        return
+
+    await clbk.message.edit_text('⏳ Формирую отчет...')
+
     report = await statistic_service.get_monthly_detailed_report_text(
         prev_month=False
     )
@@ -34,25 +42,26 @@ async def send_current_month_detailed_stats(
     file_path = await statistic_service.save_report_to_file(
         report, 'current_month'
     )
-
     try:
         document = FSInputFile(file_path, filename=os.path.basename(file_path))
-
         await bot.send_document(
-            chat_id=clbk.from_user.id,
+            chat_id=user,
             document=document,
             caption=f'📊 Подробная(Текущий месяц)-{datetime.now(UTC).date()}',
         )
     except Exception as e:
         logger.error(
-            f'Failed to send stats to admin {clbk.from_user.id}: {e}',
+            f'Failed to send stats to admin {user}: {e}',
             exc_info=True,
         )
-
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
             logger.info(f'Temporary file {file_path} deleted successfully')
+
+    await dialog_manager.switch_to(
+        state=StatisticSG.general, show_mode=ShowMode.DELETE_AND_SEND
+    )
 
     logger.debug('Exit')
 
@@ -61,21 +70,27 @@ async def send_current_month_detailed_stats(
 async def send_last_month_detailed_stats(
     clbk: CallbackQuery,
     _button: Button,
-    _dialog_manager: DialogManager,
+    dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
     bot: FromDishka[Bot],
 ) -> None:
     logger.debug('Entry')
 
+    user = clbk.from_user.id
+    logger.info(f'The user {user} requested statistics')
+
+    if not isinstance(clbk.message, Message):
+        logger.warning(f'Unexpected message type: {type(clbk.message)}')
+        return
+
+    await clbk.message.edit_text('⏳ Формирую отчет...')
+
     now = datetime.now(UTC)
     last_day_prev_month = now.replace(day=1) - timedelta(days=1)
     prev_month_str = last_day_prev_month.strftime('%m.%Y')
-
-    logger.info(f'The user {clbk.from_user.id} requested statistics')
     report = await statistic_service.get_monthly_detailed_report_text(
         prev_month=True
     )
-
     file_path = await statistic_service.save_report_to_file(
         report, 'last_month'
     )
@@ -90,14 +105,17 @@ async def send_last_month_detailed_stats(
         )
     except Exception as e:
         logger.error(
-            f'Failed to send stats to admin {clbk.from_user.id}: {e}',
+            f'Failed to send stats to user {user}: {e}',
             exc_info=True,
         )
-
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
             logger.info(f'Temporary file {file_path} deleted successfully')
+
+    await dialog_manager.switch_to(
+        state=StatisticSG.general, show_mode=ShowMode.DELETE_AND_SEND
+    )
 
     logger.debug('Exit')
 
@@ -113,10 +131,11 @@ async def send_last_month_general_stats(
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
 
-    if isinstance(clbk.message, Message):
-        await clbk.message.edit_text('⏳ Формирую отчет...')
-    else:
+    if not isinstance(clbk.message, Message):
+        logger.warning(f'Unexpected message type: {type(clbk.message)}')
         return
+
+    await clbk.message.edit_text('⏳ Формирую отчет...')
 
     report = await statistic_service.get_general_report_text(prev_month=True)
     if clbk.message and report:
@@ -145,10 +164,11 @@ async def sent_current_month_general_report(
 
     logger.info(f'The user {clbk.from_user.id} requested statistics')
 
-    if isinstance(clbk.message, Message):
-        await clbk.message.edit_text('⏳ Формирую отчет...')
-    else:
+    if not isinstance(clbk.message, Message):
+        logger.warning(f'Unexpected message type: {type(clbk.message)}')
         return
+    
+    await clbk.message.edit_text('⏳ Формирую отчет...')
 
     report = await statistic_service.get_general_report_text(prev_month=False)
     if clbk.message and report:

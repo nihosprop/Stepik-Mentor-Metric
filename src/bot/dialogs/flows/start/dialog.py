@@ -39,5 +39,6 @@ start_dialog = Dialog(
         ),
         getter=get_tg_username,
         state=StartSG.start,
-    )
+    ),
+    name='start'
 )

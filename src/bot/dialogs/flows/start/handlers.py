@@ -68,6 +68,7 @@ async def switch_to_mentors(
 
     logger.debug('Exit')
 
+
 async def switch_to_courses(
     _clbk: CallbackQuery,
     _button: Button,

@@ -20,9 +20,9 @@ class AuthorReply(TimestampMixin, Base):
         ForeignKey('stepik_users.user_id'), index=True, nullable=False
     )
     parent_comment_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
-    is_mentor_reply: Mapped[bool] = mapped_column(default=True,
-                                                 server_default='true',
-                                                 nullable=False)
+    is_mentor_reply: Mapped[bool] = mapped_column(
+        default=True, server_default='true', nullable=False
+    )
     comment_created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )

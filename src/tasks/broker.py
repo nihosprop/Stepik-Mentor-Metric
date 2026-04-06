@@ -13,7 +13,7 @@ redis_password_str = f':{redis_password}@' if redis_password else ''
 
 broker = RedisStreamBroker(
     url=f'redis://{redis_password_str}{main_config.redis.host}'
-        f':{main_config.redis.port}'
+    f':{main_config.redis.port}'
 )
 
 container = make_async_container(*PROVIDERS)

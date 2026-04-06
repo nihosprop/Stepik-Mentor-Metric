@@ -9,8 +9,10 @@ class TaskConfig(BaseModel):
     initial_poll_days: int = Field(default=1, ge=0, le=365)
     polling_interval_sec: int = Field(default=3, ge=1, le=900)
 
+
 class AIConfig(BaseModel):
     gemini_api_key: SecretStr
+
 
 class BotConfig(BaseModel):
     token: str
@@ -110,13 +112,20 @@ def _get_config() -> Config:
         stepik_client_secret=_settings.stepik_client_secret,
     )
 
-    tasks = TaskConfig(initial_poll_days=_settings.tasks.initial_poll_days,
-                       polling_interval_sec=_settings.tasks.polling_interval_sec)
+    tasks = TaskConfig(
+        initial_poll_days=_settings.tasks.initial_poll_days,
+        polling_interval_sec=_settings.tasks.polling_interval_sec,
+    )
     ai = AIConfig(gemini_api_key=_settings.gemini_api_key)
 
     return Config(
-        bot=bot, logs=logs, redis=redis, postgres=postgres, stepik=stepik,
-        tasks=tasks, ai=ai
+        bot=bot,
+        logs=logs,
+        redis=redis,
+        postgres=postgres,
+        stepik=stepik,
+        tasks=tasks,
+        ai=ai,
     )
 
 

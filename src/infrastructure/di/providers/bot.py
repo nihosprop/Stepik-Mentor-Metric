@@ -10,5 +10,5 @@ class BotProvider(Provider):
     def bot(self, config: Config) -> Bot:
         return Bot(
             token=config.bot.token,
-            default=DefaultBotProperties(parse_mode=config.bot.parse_mode)
+            default=DefaultBotProperties(parse_mode=config.bot.parse_mode),
         )

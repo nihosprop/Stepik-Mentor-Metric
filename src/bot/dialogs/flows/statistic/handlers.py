@@ -167,7 +167,7 @@ async def sent_current_month_general_report(
     if not isinstance(clbk.message, Message):
         logger.warning(f'Unexpected message type: {type(clbk.message)}')
         return
-    
+
     await clbk.message.edit_text('⏳ Формирую отчет...')
 
     report = await statistic_service.get_general_report_text(prev_month=False)

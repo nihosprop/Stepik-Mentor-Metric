@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ACLMiddleware(BaseMiddleware):
     """Middleware to check access rights to the bot."""
+
     async def __call__(
         self,
         handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
@@ -35,8 +36,10 @@ class ACLMiddleware(BaseMiddleware):
 
         if isinstance(event, Message):
             if event.from_user:
-                logger.warning(f'Attempt to start without rights: '
-                               f'{event.from_user.full_name}:'
-                               f'{event.from_user.id}')
+                logger.warning(
+                    f'Attempt to start without rights: '
+                    f'{event.from_user.full_name}:'
+                    f'{event.from_user.id}'
+                )
             await event.answer('У вас нет доступа к этому боту. ⛔️')
         return None

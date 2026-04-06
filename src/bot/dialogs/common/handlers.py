@@ -17,10 +17,14 @@ async def switch_to_main_menu(
 ) -> None:
     logger.debug('Entry')
 
-    await dialog_manager.start(state=StartSG.start, mode=StartMode.RESET_STACK,
-                               show_mode=ShowMode.EDIT)
+    await dialog_manager.start(
+        state=StartSG.start,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.EDIT,
+    )
 
     logger.debug('Exit')
+
 
 async def on_click_in_dev(
     clbk: CallbackQuery,

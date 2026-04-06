@@ -18,6 +18,7 @@ class Course(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(128), nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    replies: Mapped[list[AuthorReply]] = relationship(back_populates="course")
+    replies: Mapped[list[AuthorReply]] = relationship(back_populates='course')
     statistics: Mapped[list[MentorStatistic]] = relationship(
-        back_populates="course")
+        back_populates='course'
+    )

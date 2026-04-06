@@ -14,6 +14,7 @@ from core.main_config import Config
 
 logger = logging.getLogger(__name__)
 
+
 class PostgresProvider(Provider):
     @provide(scope=Scope.APP)
     def engine(self, config: Config) -> AsyncEngine:

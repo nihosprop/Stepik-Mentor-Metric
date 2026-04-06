@@ -110,7 +110,7 @@ async def on_remove_mentor_status(
     logger.debug('Entry')
 
     stepik_user_id = dialog_manager.dialog_data['mentor_id']
-    
+
     await stepik_user_repo.delete_user(stepik_user_id)
     await redis_cache.delete('users_ids')
     await clbk.answer(

@@ -17,6 +17,7 @@ class TGUserRepository:
     """
     User Repository
     """
+
     session: AsyncSession
 
     async def _user_exists(self, telegram_id: int) -> bool | None:

@@ -1,4 +1,4 @@
-from aiogram_dialog import Dialog, ShowMode, Window
+from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import (
     Button,
     SwitchTo,

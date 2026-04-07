@@ -37,7 +37,7 @@ async def main() -> None:
     logger.info('Dishka setup complete')
 
     # Middlewares
-    dp.message.middleware(ACLMiddleware())
+    dp.update.middleware(ACLMiddleware())
 
     # Routers
     dp.include_routers(*ROUTERS)

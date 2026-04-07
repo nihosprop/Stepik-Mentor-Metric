@@ -23,46 +23,85 @@ class ACLMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
-        user: User | None = data.get('event_from_user')
-        if not user or not isinstance(user, User):
-            return await handler(event, data)
+        logger.debug('ACLMiddleware called')
 
-        container: AsyncContainer = data['dishka_container']
-        config: Config = await container.get(Config)
-        tg_user_repo: TGUserRepository = await container.get(TGUserRepository)
-        user_from_db = await tg_user_repo.get_user(user)
+        try:
+            user: User | None = data.get('event_from_user')
+            logger.debug(
+                f'ACLMiddleware:'
+                f'{type(event).__name__}, user_id={user.id if user else None}'
+            )
+            if not user or not isinstance(user, User):
+                logger.debug('User not found or not instance of User')
+                return await handler(event, data)
 
-        if not user_from_db:
+            container: AsyncContainer = data['dishka_container']
+            config: Config = await container.get(Config)
+            tg_user_repo: TGUserRepository = await container.get(
+                TGUserRepository
+            )
+
+            user_from_db = await tg_user_repo.get_user(user)
             is_super_admin = user.id in config.bot.admins
-            role: Role = Role.ADMIN if is_super_admin else Role.VISITOR
-            is_active = is_super_admin
+            logger.debug(f'{user.id=}:{is_super_admin=}')
 
-            user_from_db = await tg_user_repo.upsert_user(
-                telegram_user=user,
-                role=role,
-                is_active=is_active,
+            if not user_from_db:
+                role: Role = Role.ADMIN if is_super_admin else Role.VISITOR
+                is_active = is_super_admin
+                user_from_db = await tg_user_repo.upsert_user(
+                    telegram_user=user,
+                    role=role,
+                    is_active=is_active,
+                )
+                logger.info(
+                    f'New user created:'
+                    f' {user.id} (role={role.value}, active={is_active})'
+                )
+            elif user_from_db:
+                if is_super_admin:
+                    if (
+                        not user_from_db.is_active
+                        or user_from_db.role != Role.ADMIN
+                    ):
+                        await tg_user_repo.upsert_user(
+                            telegram_user=user,
+                            role=Role.ADMIN,
+                            is_active=True,
+                        )
+                        user_from_db.is_active = True
+                        user_from_db.role = Role.ADMIN.value
+                        logger.info(
+                            f'Super-admin {user.id} role updated to ADMIN'
+                        )
+            if not user_from_db.is_active:
+                if isinstance(event, Message):
+                    await event.answer(
+                        text='⛔️ Доступ к боту ограничен.'
+                        ' Обратитесь к администратору.',
+                    )
+                elif isinstance(event, CallbackQuery):
+                    await event.answer(
+                        text='⛔️ Доступ к боту ограничен.', show_alert=True
+                    )
+                logger.debug('User is not active')
+                return None
+
+            data['role'] = user_from_db.role
+            data['is_admin'] = user_from_db.role == Role.ADMIN
+            logger.debug(
+                f'Setting data[is_admin]={data["is_admin"]}'
+                f' (role={user_from_db.role})'
             )
 
-        if not user_from_db.is_active:
-            if isinstance(event, Message):
-                await event.answer(
-                    '⛔️ Доступ к боту ограничен. Обратитесь к администратору.'
+            if (
+                user_from_db.first_name != user.first_name
+                or user_from_db.username != user.username
+            ):
+                await tg_user_repo.update_user_profile(
+                    telegram_user=user,
                 )
-            elif isinstance(event, CallbackQuery):
-                await event.answer(
-                    text='⛔️ Доступ к боту ограничен.', show_alert=True
-                )
-            return None
-
-        data['role'] = user_from_db.role
-        data['is_admin'] = user_from_db.role == Role.ADMIN
-
-        if (
-            user_from_db.first_name != user.first_name
-            or user_from_db.username != user.username
-        ):
-            await tg_user_repo.update_user_profile(
-                telegram_user=user,
-            )
-
-        return await handler(event, data)
+            logger.debug(f'{user_from_db.is_active=}')
+            return await handler(event, data)
+        except Exception as e:
+            logger.exception(f'💥 ACLMiddleware crashed: {e}')
+            return await handler(event, data)

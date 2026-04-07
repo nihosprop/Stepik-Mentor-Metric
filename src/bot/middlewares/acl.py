@@ -60,7 +60,7 @@ class ACLMiddleware(BaseMiddleware):
             elif user_from_db:
                 if is_super_admin and (
                     not user_from_db.is_active
-                    or user_from_db.role != Role.ADMIN
+                    or user_from_db.role != Role.ADMIN.value
                 ):
                     await tg_user_repo.upsert_user(
                         telegram_user=user,
@@ -86,7 +86,7 @@ class ACLMiddleware(BaseMiddleware):
                 return None
 
             data['role'] = user_from_db.role
-            data['is_admin'] = user_from_db.role == Role.ADMIN
+            data['is_admin'] = user_from_db.role == Role.ADMIN.value
             logger.debug(
                 f'Setting data[is_admin]={data["is_admin"]}'
                 f' (role={user_from_db.role})'

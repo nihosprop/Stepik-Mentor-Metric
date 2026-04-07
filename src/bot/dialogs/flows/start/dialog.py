@@ -9,7 +9,6 @@ from bot.dialogs.flows.settings.states import SettingsSG
 from bot.dialogs.flows.start.states import StartSG
 from bot.dialogs.flows.statistic.states import StatisticSG
 
-# TODO: change to Start()
 start_dialog = Dialog(
     Window(
         Const(text='===  Главное меню  ==='),

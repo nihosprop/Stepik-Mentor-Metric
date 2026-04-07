@@ -82,7 +82,7 @@ class ACLMiddleware(BaseMiddleware):
                     await event.answer(
                         text='⛔️ Доступ к боту ограничен.', show_alert=True
                     )
-                logger.debug('User is not active')
+                logger.info(f'User {user.id} is not active')
                 return None
 
             data['role'] = user_from_db.role

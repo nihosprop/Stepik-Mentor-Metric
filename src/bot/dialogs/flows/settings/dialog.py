@@ -1,39 +1,19 @@
-from bot.dialogs.common.handlers import on_click_in_dev
-from bot.dialogs.flows.settings.states import SettingsSG
-from aiogram import F
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import (
-    Back,
-    Group,
-    NextPage,
-    PrevPage,
-    Row,
-    ScrollingGroup,
-    Select,
-    SwitchTo,
     Button,
+    Group,
+    Row,
+    SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format, List
+from aiogram_dialog.widgets.text import Const
 
-from bot.dialogs.common.validators import check_stepik_profile_link
+from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
-from bot.dialogs.flows.mentors.getters import (
-    get_list_mentors,
-    get_mentors,
-    get_stepik_username,
-)
-from bot.dialogs.flows.mentors.handlers import (
-    add_mentor_to_db,
-    correct_link_to_mentor,
-    error_link_to_mentor,
-    on_mentor_selected,
-    on_remove_mentor_status,
-)
+from bot.dialogs.flows.settings.states import SettingsSG
 
 settings_dialog = Dialog(
     Window(
-        Const(text='===  Меню Настроек  ==='),
+        Const(text='<b>===  Меню Настроек  ===</b>'),
         Group(
             Row(
                 Button(
@@ -52,7 +32,12 @@ settings_dialog = Dialog(
         state=SettingsSG.start,
     ),
     Window(
-        Const(text='===  Настройки Юзеров  ==='),
+        Const(
+            text='<b>===  Настройки Юзеров  ===</b>\n\n'
+            '<code>Юзеры бота могут только просматривать '
+            'статистику.\nДля более широких прав, сделайте '
+            'юзера администратором.</code>'
+        ),
         Group(
             Row(
                 SwitchTo(
@@ -66,6 +51,7 @@ settings_dialog = Dialog(
                     on_click=on_click_in_dev,
                 ),
             ),
+            BACK_BUTTON,
             MAIN_MENU_BUTTON,
         ),
         state=SettingsSG.users,

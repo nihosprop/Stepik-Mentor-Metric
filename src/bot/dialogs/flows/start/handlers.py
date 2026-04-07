@@ -41,6 +41,3 @@ async def start(
         show_mode=ShowMode.DELETE_AND_SEND,
     )
     logger.debug('Exit')
-
-    logger.warning('Failed to determine user')
-    logger.debug('Exit')

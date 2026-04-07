@@ -58,21 +58,20 @@ class ACLMiddleware(BaseMiddleware):
                     f' {user.id} (role={role.value}, active={is_active})'
                 )
             elif user_from_db:
-                if is_super_admin:
-                    if (
-                        not user_from_db.is_active
-                        or user_from_db.role != Role.ADMIN
-                    ):
-                        await tg_user_repo.upsert_user(
-                            telegram_user=user,
-                            role=Role.ADMIN,
-                            is_active=True,
-                        )
-                        user_from_db.is_active = True
-                        user_from_db.role = Role.ADMIN.value
-                        logger.info(
-                            f'Super-admin {user.id} role updated to ADMIN'
-                        )
+                if is_super_admin and (
+                    not user_from_db.is_active
+                    or user_from_db.role != Role.ADMIN
+                ):
+                    await tg_user_repo.upsert_user(
+                        telegram_user=user,
+                        role=Role.ADMIN,
+                        is_active=True,
+                    )
+                    user_from_db.is_active = True
+                    user_from_db.role = Role.ADMIN.value
+                    logger.info(
+                        f'Super-admin {user.id} role updated to ADMIN'
+                    )
             if not user_from_db.is_active:
                 if isinstance(event, Message):
                     await event.answer(

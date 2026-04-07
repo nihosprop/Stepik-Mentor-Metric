@@ -4,9 +4,6 @@ from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, ShowMode, StartMode
-from dishka.integrations.aiogram import FromDishka
-
-from db.repository.tg_user_repo import TGUserRepository
 
 from .states import StartSG
 
@@ -19,7 +16,6 @@ logger = logging.getLogger(__name__)
 async def start(
     msg: Message,
     dialog_manager: DialogManager,
-    user_repo: FromDishka[TGUserRepository],
 ) -> None:
     """
     Handle the /start command.
@@ -31,7 +27,6 @@ async def start(
     Args:
         msg (Message): Incoming Telegram message that triggered /start.
         dialog_manager (DialogManager): Dialog manager to control dialogs.
-        user_repo (FromDishka[UserRepository]): Repository wrapper
          for user operations.
 
     Returns:
@@ -40,15 +35,12 @@ async def start(
     logger.debug('Entry')
     await msg.delete()
 
-    if tg_user := msg.from_user:
-        await user_repo.upsert_user(telegram_user=tg_user)
-        await dialog_manager.start(
-            state=StartSG.start,
-            mode=StartMode.RESET_STACK,
-            show_mode=ShowMode.DELETE_AND_SEND,
-        )
-        logger.debug('Exit')
-        return
+    await dialog_manager.start(
+        state=StartSG.start,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.DELETE_AND_SEND,
+    )
+    logger.debug('Exit')
 
     logger.warning('Failed to determine user')
     logger.debug('Exit')

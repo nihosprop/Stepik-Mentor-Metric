@@ -11,6 +11,5 @@ MAIN_MENU_BUTTON = Button(
     on_click=switch_to_main_menu,
     style=Style(ButtonStyle.PRIMARY),
 )
-
 BACK_BUTTON = Back(Const('◀️ Назад'), id='back')
 CANCEL_BUTTON = Cancel(Const('Отмена'), id='cancel')

@@ -4,14 +4,11 @@ from typing import Any
 
 from aiogram.types import User
 from aiogram_dialog import DialogManager
-from dishka.integrations.aiogram_dialog import inject
 
 logger = logging.getLogger(__name__)
 
 
-@inject
-async def get_tg_username(
-    dialog_manager: DialogManager, event_from_user: User, **_kwargs
+async def get_tg_username(event_from_user: User, **_kwargs
 ) -> dict[str, Any]:
     username = 'Anonymous'
     if event_from_user.username and event_from_user.username.strip():
@@ -20,3 +17,11 @@ async def get_tg_username(
     elif event_from_user.first_name and event_from_user.first_name.strip():
         username = event_from_user.first_name.strip()
     return {'user_name': username}
+
+async def get_access_flags(dialog_manager: DialogManager, **_kwargs) -> dict:
+    """Passes permission flags from middleware to the window context."""
+    is_admin_middleware_data = dialog_manager.middleware_data.get(
+        'is_admin', False
+    )
+    logger.debug(f'{is_admin_middleware_data=}')
+    return {'is_admin': is_admin_middleware_data}

@@ -13,6 +13,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format, List
 
+from bot.dialogs.common.getters import get_access_flags
 from bot.dialogs.common.validators import check_stepik_profile_link
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.mentors.getters import (
@@ -43,6 +44,7 @@ mentors_dialog = Dialog(
                     text=Const('Удалить ментора'),
                     id='remove_mentor',
                     state=MentorSG.selection_mentors,
+                    when='is_admin',
                 ),
             ),
             SwitchTo(
@@ -135,4 +137,5 @@ mentors_dialog = Dialog(
         state=MentorSG.list_mentors,
         disable_web_page_preview=True,
     ),
+    getter=get_access_flags,
 )

@@ -1,3 +1,5 @@
+import logging
+
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import (
     Button,
@@ -10,6 +12,8 @@ from aiogram_dialog.widgets.text import Const
 from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import BACK_BUTTON, MAIN_MENU_BUTTON
 from bot.dialogs.flows.settings.states import SettingsSG
+
+logger = logging.getLogger(__name__)
 
 settings_dialog = Dialog(
     Window(

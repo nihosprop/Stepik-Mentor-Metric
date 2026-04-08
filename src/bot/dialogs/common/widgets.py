@@ -1,5 +1,5 @@
 from aiogram.enums import ButtonStyle
-from aiogram_dialog.widgets.kbd import Back, Button
+from aiogram_dialog.widgets.kbd import Back, Button, Cancel
 from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const
 
@@ -13,3 +13,4 @@ MAIN_MENU_BUTTON = Button(
 )
 
 BACK_BUTTON = Back(Const('◀️ Назад'), id='back')
+CANCEL_BUTTON = Cancel(Const('Отмена'), id='cancel')

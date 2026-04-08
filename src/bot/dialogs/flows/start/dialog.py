@@ -11,7 +11,7 @@ from bot.dialogs.flows.statistic.states import StatisticSG
 
 start_dialog = Dialog(
     Window(
-        Const(text='===  Главное меню  ==='),
+        Const(text='<b>===  Главное меню  ===</b>'),
         Group(
             Row(
                 Start(

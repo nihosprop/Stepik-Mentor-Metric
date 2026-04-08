@@ -3,7 +3,6 @@ import logging
 from collections.abc import Sequence
 from typing import Any
 
-from aiogram.types import User
 from aiogram_dialog import DialogManager
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
@@ -13,9 +12,8 @@ from db.repository.course_repo import CourseRepo
 logger = logging.getLogger(__name__)
 
 
-@inject
 async def get_course_title(
-    dialog_manager: DialogManager, event_from_user: User, **_kwargs
+    dialog_manager: DialogManager, **_kwargs
 ) -> dict[str, Any]:
     return {'course_title': dialog_manager.dialog_data.get('course_title')}
 
@@ -23,7 +21,6 @@ async def get_course_title(
 @inject
 async def get_courses(
     dialog_manager: DialogManager,
-    event_from_user: User,
     course_repo: FromDishka[CourseRepo],
     **_kwargs,
 ) -> dict[str, Sequence[Course] | int | str]:
@@ -49,8 +46,6 @@ async def get_courses(
 
 @inject
 async def get_list_courses(
-    dialog_manager: DialogManager,
-    event_from_user: User,
     course_repo: FromDishka[CourseRepo],
     **_kwargs,
 ) -> dict[str, list[str] | int]:

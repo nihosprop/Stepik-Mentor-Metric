@@ -4,8 +4,7 @@ from aiogram.types import CallbackQuery, Message, User as TelegramUser
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.kbd import Button
-from dishka import FromDishka
-from dishka.integrations.aiogram_dialog import inject
+from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from core.enum import Role
 from db.repository.tg_user_repo import TGUserRepository
@@ -54,12 +53,12 @@ async def add_visitor_rights(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,
-    tg_user_repo: FromDishka[TGUserRepository],
+    _tg_user_repo: FromDishka[TGUserRepository],
 ) -> None:
     logger.debug('Entry')
 
     user_tg_id = int(dialog_manager.dialog_data['user_tg_id'])
-    existing_user = await tg_user_repo.get_user_by_id(user_tg_id)
+    existing_user = await _tg_user_repo.get_user_by_id(user_tg_id)
 
     if existing_user:
         if (
@@ -70,7 +69,7 @@ async def add_visitor_rights(
                 '❌ Юзер уже имеет права `Визитёр`!', show_alert=True
             )
         else:
-            await tg_user_repo.update_user_role_and_status(
+            await _tg_user_repo.update_user_role_and_status(
                 telegram_id=user_tg_id, role=Role.VISITOR, is_active=True
             )
             await clbk.answer(
@@ -84,7 +83,7 @@ async def add_visitor_rights(
             first_name='Unknown',
         )
 
-        new_user = await tg_user_repo.upsert_user(
+        new_user = await _tg_user_repo.upsert_user(
             telegram_user=telegram_user, role=Role.VISITOR, is_active=True
         )
 
@@ -98,7 +97,5 @@ async def add_visitor_rights(
             await clbk.answer(
                 '❌ Ошибка при добавлении юзера в базу!', show_alert=True
             )
-
-    await dialog_manager.done()
 
     logger.debug('Exit')

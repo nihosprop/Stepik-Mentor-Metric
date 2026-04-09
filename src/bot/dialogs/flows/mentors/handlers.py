@@ -1,6 +1,5 @@
 import logging
 
-from aiogram import Router
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
@@ -10,8 +9,6 @@ from dishka.integrations.aiogram_dialog import FromDishka, inject
 from db.repository.stepik_user_repo import StepikUserRepo
 from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
-
-start_router = Router()
 
 logger = logging.getLogger(__name__)
 

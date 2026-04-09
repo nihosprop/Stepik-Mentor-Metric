@@ -1,9 +1,9 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-class UserSettingsSG(StatesGroup):
+class VisitorSettingsSG(StatesGroup):
     start = State()
-    add_user = State()
-    confirm_add_user = State()
-    remove_user = State()
-    list_mentors = State()
+    add_rights = State()
+    confirm_rights = State()
+    remove_rights = State()
+    list_visitors = State()

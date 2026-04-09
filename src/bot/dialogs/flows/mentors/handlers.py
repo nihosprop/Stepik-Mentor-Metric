@@ -100,14 +100,14 @@ async def on_remove_mentor_status(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,
-    stepik_user_repo: FromDishka[StepikUserRepo],
+    _stepik_user_repo: FromDishka[StepikUserRepo],
     redis_cache: FromDishka[RedisCache],
 ) -> None:
     logger.debug('Entry')
 
     stepik_user_id = dialog_manager.dialog_data['mentor_id']
 
-    await stepik_user_repo.delete_user(stepik_user_id)
+    await _stepik_user_repo.delete_user(stepik_user_id)
     await redis_cache.delete('users_ids')
     await clbk.answer(
         '✅ Ментор успешно удален!\nМожете продолжить.', show_alert=True

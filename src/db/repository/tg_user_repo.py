@@ -107,6 +107,24 @@ class TGUserRepository:
         )
         await self.session.execute(stmt)
 
+    async def update_user_role_and_status(
+        self, telegram_id: int, role: Role, is_active: bool
+    ) -> None:
+        """
+        Updates a user's role and active status in the database.
+
+        Args:
+            telegram_id (int): The Telegram ID of the user to update.
+            role (Role): The new role for the user.
+            is_active (bool): The new active status for the user.
+        """
+        stmt = (
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(role=role.value, is_active=is_active)
+        )
+        await self.session.execute(stmt)
+
     async def get_user_by_id(self, telegram_id: int) -> User | None:
         """
         Gets a user from the database by their Telegram ID.

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TGUserRepository:
     """
-    User Repository
+    Telegram User Repository
     """
 
     session: AsyncSession

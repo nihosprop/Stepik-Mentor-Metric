@@ -85,7 +85,7 @@ user_settings = Dialog(
         Back(
             text=Const(text='✅ Подтвердить'),
             id='conf_rights',
-            on_click=add_visitor_rights,
+            on_click=add_visitor_rights,  # ty: ignore[invalid-argument-type]
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,

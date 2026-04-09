@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery, Message, User as TelegramUser
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.kbd import Button
+from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 
 from core.enum import Role
@@ -12,7 +13,6 @@ from db.repository.tg_user_repo import TGUserRepository
 logger = logging.getLogger(__name__)
 
 
-@inject
 async def correct_tg_user_id(
     _msg: Message,
     _widget: ManagedTextInput,
@@ -54,7 +54,7 @@ async def add_visitor_rights(
     clbk: CallbackQuery,
     _button: Button,
     dialog_manager: DialogManager,
-    tg_user_repo: TGUserRepository,
+    tg_user_repo: FromDishka[TGUserRepository],
 ) -> None:
     logger.debug('Entry')
 

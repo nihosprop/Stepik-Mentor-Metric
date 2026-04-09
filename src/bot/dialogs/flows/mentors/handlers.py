@@ -81,7 +81,6 @@ async def add_mentor_to_db(
     logger.debug('Exit')
 
 
-@inject
 async def on_mentor_selected(
     _clbk: CallbackQuery,
     _widget: Select,

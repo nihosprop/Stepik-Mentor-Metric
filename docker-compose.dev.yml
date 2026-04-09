@@ -3,7 +3,7 @@
 services:
   bot:
     build: .
-    image: metrik-bot:dev
+    image: metric-bot:dev
     container_name: Metric-Bot-Dev
     environment:
       - PYTHONPATH=/app/src
@@ -37,7 +37,7 @@ services:
       - postgres_data_dev:/var/lib/postgresql
 
   migrations:
-    image: metrik-bot:dev
+    image: metric-bot:dev
     container_name: Metric-Migrations-Dev
     environment:
       - PYTHONPATH=/app/src
@@ -70,7 +70,7 @@ services:
       - redis_data_dev:/data
 
   worker:
-    image: metrik-bot:dev
+    image: metric-bot:dev
     container_name: Metric-Worker-Dev
     command: python -m taskiq worker tasks.setup:broker --fs-discover
     environment:
@@ -87,7 +87,7 @@ services:
         condition: service_healthy
 
   scheduler:
-    image: metrik-bot:dev
+    image: metric-bot:dev
     container_name: Metric-Scheduler-Dev
     command: python -m taskiq scheduler tasks.scheduler:scheduler
     environment:

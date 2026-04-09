@@ -1,6 +1,6 @@
 services:
   bot:
-    image: niwibonihs/metrik-bot:${APP_TAG}
+    image: niwibonihs/metric-bot:${APP_TAG}
     container_name: Metric-Bot
     restart: unless-stopped
     env_file:
@@ -46,7 +46,7 @@ services:
           memory: 256M
 
   migrations:
-    image: niwibonihs/metrik-bot:${APP_TAG}
+    image: niwibonihs/metric-bot:${APP_TAG}
     container_name: Metric-Migrations
     environment:
       - PYTHONPATH=/app/src
@@ -82,7 +82,7 @@ services:
           cpus: '0.3'
           memory: 32M
   worker:
-    image: niwibonihs/metrik-bot:${APP_TAG}
+    image: niwibonihs/metric-bot:${APP_TAG}
     container_name: Metric-Worker
     command: python -m taskiq worker tasks.setup:broker --fs-discover
     environment:
@@ -104,7 +104,7 @@ services:
       - metric-net
 
   scheduler:
-    image: niwibonihs/metrik-bot:${APP_TAG}
+    image: niwibonihs/metric-bot:${APP_TAG}
     container_name: Metric-Scheduler
     command: python -m taskiq scheduler tasks.scheduler:scheduler --fs-discover
     environment:

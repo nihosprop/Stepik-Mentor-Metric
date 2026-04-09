@@ -1,3 +1,5 @@
+import logging
+
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Group, Row, Start
 from aiogram_dialog.widgets.text import Const
@@ -8,6 +10,8 @@ from bot.dialogs.flows.mentors.states import MentorSG
 from bot.dialogs.flows.settings.states import SettingsSG
 from bot.dialogs.flows.start.states import StartSG
 from bot.dialogs.flows.statistic.states import StatisticSG
+
+logger = logging.getLogger(__name__)
 
 start_dialog = Dialog(
     Window(

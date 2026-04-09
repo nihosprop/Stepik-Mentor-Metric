@@ -1,13 +1,10 @@
 import logging
 
-from aiogram import Router
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Button
 
 from bot.dialogs.flows.start.states import StartSG
-
-mentor_router = Router()
 
 logger = logging.getLogger(__name__)
 

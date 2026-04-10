@@ -44,7 +44,7 @@ class ACLMiddleware(BaseMiddleware):
 
             if user.id in config.bot.admins:
                 data['role'] = Role.SUPER_ADMIN.value
-                logger.debug(f'Super-admin {user.id} granted immediate access')
+                logger.debug(f'Super-admin {user.id} granted access')
                 return await handler(event, data)
 
             user_from_db = await tg_user_repo.get_user(user)

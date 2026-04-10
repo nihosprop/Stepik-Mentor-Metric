@@ -5,6 +5,7 @@ from typing import Any
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User
+from aiogram_dialog.api.exceptions import UnknownState
 from dishka import AsyncContainer
 
 from core.enum import Role
@@ -24,8 +25,7 @@ class ACLMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
         logger.debug(f'Entry {self.__class__.__name__}')
-        logger.debug(f'{data=}\n\n')
-        logger.debug(f'{data['fsm_storage']}=')
+        # logger.debug(f'{data=}\n\n')
 
         try:
             user: User | None = data.get('event_from_user')
@@ -63,7 +63,11 @@ class ACLMiddleware(BaseMiddleware):
                     telegram_user=user,
                 )
             logger.debug(f'{user_from_db.is_active=}')
+            logger.debug(f'Exit {self.__class__.__name__}')
             return await handler(event, data)
+        except UnknownState as e:
+            logger.warning(f'ACLMiddleware caught exception: {e} and raised')
+            raise
         except Exception as e:
-            logger.error(f'💥 ACLMiddleware crashed: {e}', exc_info=True)
+            logger.error(f'ACLMiddleware caught exception: {e}', exc_info=True)
             return await handler(event, data)

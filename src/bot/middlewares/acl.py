@@ -4,7 +4,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from aiogram import BaseMiddleware
-from aiogram.types import CallbackQuery, Message, TelegramObject, User
+from aiogram.types import TelegramObject, User
 from dishka import AsyncContainer
 
 from core.enum import Role
@@ -40,7 +40,6 @@ class ACLMiddleware(BaseMiddleware):
             tg_user_repo: TGUserRepository = await container.get(
                 TGUserRepository
             )
-
 
             if user.id in config.bot.admins:
                 data['role'] = Role.SUPER_ADMIN.value

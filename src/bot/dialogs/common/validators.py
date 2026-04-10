@@ -20,6 +20,16 @@ def check_tg_user_id(text: str) -> str:
 
 
 def check_stepik_profile_link(link: str) -> str:
+    """
+    Retrieves the user ID from the Stepik profile link.
+
+    Args:
+        link (str): The link to a Stepik profile page.
+    Returns:
+        str: The user ID parsed from the link.
+    Raises:
+        ValueError: If the link does not match the expected format.
+    """
     match = re.search(
         r'\bhttps?://[^\s/]+/users/(\d+)(?:/profile)?/?\b',
         link,

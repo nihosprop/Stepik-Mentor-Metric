@@ -11,6 +11,19 @@ logger = logging.getLogger(__name__)
 async def on_unknown_state(
     event: ErrorEvent, dialog_manager: DialogManager
 ) -> None:
+    """
+    Handle an unknown state error in a dialog.
+
+    This function catches errors of type ErrorEvent and tries to reset the
+     dialog stack. If successful, it logs the reset and returns.
+      If unsuccessful, it logs the error and returns.
+
+    Args:
+        event (ErrorEvent): The event that triggered the error.
+        dialog_manager (DialogManager): The dialog manager to reset the stack.
+    Returns:
+        None
+    """
     logger.error(
         f'Caught error type: {type(event.exception)}: {event.exception}'
     )

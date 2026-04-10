@@ -16,6 +16,7 @@ async def on_unknown_state(
     )
     clbk = event.update.callback_query
     msg = event.update.message
+
     if not clbk and not msg:
         logger.debug('Exit: callback and message not found')
         return

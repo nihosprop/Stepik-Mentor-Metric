@@ -24,7 +24,8 @@ class ACLMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
         logger.debug(f'Entry {self.__class__.__name__}')
-        logger.debug(f'{data=}')
+        logger.debug(f'{data=}\n\n')
+        logger.debug(f'{data['fsm_storage']}=')
 
         try:
             user: User | None = data.get('event_from_user')
@@ -64,5 +65,5 @@ class ACLMiddleware(BaseMiddleware):
             logger.debug(f'{user_from_db.is_active=}')
             return await handler(event, data)
         except Exception as e:
-            logger.exception(f'💥 ACLMiddleware crashed: {e}')
+            logger.error(f'💥 ACLMiddleware crashed: {e}', exc_info=True)
             return await handler(event, data)

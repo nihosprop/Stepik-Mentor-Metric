@@ -6,8 +6,7 @@ from bot.dialogs.flows.start.dialog import start_dialog
 from bot.dialogs.flows.start.handlers import start_router
 from bot.dialogs.flows.statistic.dialog import statistic_dialog
 
-ROUTERS = [
-    start_router,
+DIALOGS = [
     start_dialog,
     mentors_dialog,
     courses_dialog,
@@ -16,7 +15,12 @@ ROUTERS = [
     user_settings,
 ]
 
+ROUTERS = [
+    start_router,
+]
+
 __all__ = [
+    'DIALOGS',
     'ROUTERS',
     'start_router',
     'start_dialog',

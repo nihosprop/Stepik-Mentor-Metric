@@ -27,8 +27,8 @@ settings_dialog = Dialog(
                     on_click=on_click_in_dev,
                 ),
                 Start(
-                    text=Const('Юзеры'),
-                    id='users',
+                    text=Const('Визитёры'),
+                    id='visitors',
                     state=VisitorSettingsSG.start,
                 ),
             ),

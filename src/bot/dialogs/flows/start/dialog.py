@@ -1,5 +1,6 @@
 import logging
 
+from aiogram import F
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Group, Row, Start
 from aiogram_dialog.widgets.text import Const
@@ -38,7 +39,7 @@ start_dialog = Dialog(
                 text=Const('Настройки'),
                 id='settings',
                 state=SettingsSG.start,
-                when='is_admin',
+                when=(F['role']).in_({'super_admin', 'admin'}),
             ),
         ),
         state=StartSG.start,

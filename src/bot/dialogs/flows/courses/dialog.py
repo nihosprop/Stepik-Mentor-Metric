@@ -39,11 +39,13 @@ courses_dialog = Dialog(
                     text=Const('Добавить курс'),
                     id='add_course',
                     state=CoursesSG.fill_link_to_course,
+                    when=(F['role']).in_({'super_admin', 'admin'}),
                 ),
                 SwitchTo(
                     text=Const('Удалить курс'),
                     id='remove_course',
                     state=CoursesSG.selection_courses,
+                    when=(F['role']).in_({'super_admin', 'admin'})
                 ),
             ),
             SwitchTo(

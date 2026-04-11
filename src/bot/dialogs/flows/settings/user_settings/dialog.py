@@ -32,27 +32,27 @@ logger = logging.getLogger(__name__)
 user_settings = Dialog(
     Window(
         Const(
-            text='<b>===  Настройки Юзеров  ===</b>\n\n'
-            '<code>Юзеры бота могут только просматривать '
+            text='<b>===  Настройки Визитёров  ===</b>\n\n'
+            '<code>Визитёры бота могут только просматривать '
             'статистику.\nДля более широких прав, сделайте '
             'юзера администратором.</code>'
         ),
         Group(
             Row(
                 SwitchTo(
-                    text=Const('Добавить юзера'),
+                    text=Const('Добавить визитёра'),
                     id='add_user',
                     state=VisitorSettingsSG.add_rights,
                 ),
                 SwitchTo(
-                    text=Const('Удалить юзера'),
+                    text=Const('Удалить визитёра'),
                     id='remove_user',
                     state=VisitorSettingsSG.remove_rights,
                     on_click=on_click_in_dev,
                 ),
             ),
             SwitchTo(
-                text=Const('Список юзеров'),
+                text=Const('Список визитёров'),
                 id='mentors_list',
                 state=VisitorSettingsSG.list_visitors,
                 on_click=on_click_in_dev,

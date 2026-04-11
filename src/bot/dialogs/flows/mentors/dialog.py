@@ -39,12 +39,13 @@ mentors_dialog = Dialog(
                     text=Const('Добавить ментора'),
                     id='add_mentor',
                     state=MentorSG.fill_link_to_mentor,
+                    when=(F['role']).in_({'super_admin', 'admin'})
                 ),
                 SwitchTo(
                     text=Const('Удалить ментора'),
                     id='remove_mentor',
                     state=MentorSG.selection_mentors,
-                    when='is_admin',
+                    when=(F['role']).in_({'super_admin', 'admin'}),
                 ),
             ),
             SwitchTo(

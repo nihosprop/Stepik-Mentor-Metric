@@ -11,7 +11,12 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.dialogs.common.handlers import on_click_in_dev
+from bot.dialogs.common.handlers import (
+    correct_tg_user_id,
+    error_tg_user_id,
+    no_text,
+    on_click_in_dev,
+)
 from bot.dialogs.common.validators import check_tg_user_id
 from bot.dialogs.common.widgets import (
     BACK_BUTTON,
@@ -21,9 +26,6 @@ from bot.dialogs.common.widgets import (
 from bot.dialogs.flows.settings.visitor_settings.getters import get_user_tg_id
 from bot.dialogs.flows.settings.visitor_settings.handlers import (
     add_visitor_rights,
-    correct_tg_user_id,
-    error_tg_user_id,
-    no_text,
 )
 from bot.dialogs.flows.settings.visitor_settings.states import (
     VisitorSettingsSG,

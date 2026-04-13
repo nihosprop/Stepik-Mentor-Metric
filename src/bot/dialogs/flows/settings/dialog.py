@@ -12,7 +12,9 @@ from aiogram_dialog.widgets.text import Const
 from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import MAIN_MENU_BUTTON
 from bot.dialogs.flows.settings.states import SettingsSG
-from bot.dialogs.flows.settings.user_settings.states import VisitorSettingsSG
+from bot.dialogs.flows.settings.visitor_settings.states import (
+    VisitorSettingsSG,
+)
 
 logger = logging.getLogger(__name__)
 

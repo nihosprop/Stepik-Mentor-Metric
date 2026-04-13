@@ -18,14 +18,16 @@ from bot.dialogs.common.widgets import (
     CANCEL_BUTTON,
     MAIN_MENU_BUTTON,
 )
-from bot.dialogs.flows.settings.user_settings.getters import get_user_tg_id
-from bot.dialogs.flows.settings.user_settings.handlers import (
+from bot.dialogs.flows.settings.visitor_settings.getters import get_user_tg_id
+from bot.dialogs.flows.settings.visitor_settings.handlers import (
     add_visitor_rights,
     correct_tg_user_id,
     error_tg_user_id,
     no_text,
 )
-from bot.dialogs.flows.settings.user_settings.states import VisitorSettingsSG
+from bot.dialogs.flows.settings.visitor_settings.states import (
+    VisitorSettingsSG,
+)
 
 logger = logging.getLogger(__name__)
 

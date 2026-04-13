@@ -147,3 +147,16 @@ class TGUserRepository:
         """
         stmt = delete(User).where(User.telegram_id == telegram_user.id)
         await self.session.execute(stmt)
+
+    async def get_all_admins(self) -> list[User]:
+        """
+        Gets all admin users from the database.
+
+        Returns:
+            list[User]: List of admin users.
+        """
+        stmt = select(User).where(
+            User.role == Role.ADMIN.value, User.is_active.is_(True)
+        )
+        result = await self.session.scalars(stmt)
+        return list(result.all())

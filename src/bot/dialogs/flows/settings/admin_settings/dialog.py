@@ -98,6 +98,5 @@ admin_settings = Dialog(
         BACK_BUTTON,
         state=AdminSettingsSG.confirm_rights,
     ),
-
     getter=[get_user_tg_id, get_access_flags],
 )

@@ -6,4 +6,5 @@ class AdminSettingsSG(StatesGroup):
     add_rights = State()
     confirm_rights = State()
     remove_rights = State()
+    confirm_remove_rights = State()
     list_admins = State()

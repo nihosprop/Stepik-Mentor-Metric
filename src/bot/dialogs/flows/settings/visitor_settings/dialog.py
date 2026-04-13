@@ -11,6 +11,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format
 
+from bot.dialogs.common.getters import get_user_tg_id
 from bot.dialogs.common.handlers import (
     correct_tg_user_id,
     error_tg_user_id,
@@ -23,7 +24,6 @@ from bot.dialogs.common.widgets import (
     CANCEL_BUTTON,
     MAIN_MENU_BUTTON,
 )
-from bot.dialogs.flows.settings.visitor_settings.getters import get_user_tg_id
 from bot.dialogs.flows.settings.visitor_settings.handlers import (
     add_visitor_rights,
 )

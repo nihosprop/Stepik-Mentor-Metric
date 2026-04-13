@@ -2,15 +2,14 @@ import logging
 
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import (
-    Button,
     Group,
     Row,
     Start,
 )
 from aiogram_dialog.widgets.text import Const
 
-from bot.dialogs.common.handlers import on_click_in_dev
 from bot.dialogs.common.widgets import MAIN_MENU_BUTTON
+from bot.dialogs.flows.settings.admin_settings.states import AdminSettingsSG
 from bot.dialogs.flows.settings.states import SettingsSG
 from bot.dialogs.flows.settings.visitor_settings.states import (
     VisitorSettingsSG,
@@ -23,10 +22,10 @@ settings_dialog = Dialog(
         Const(text='<b>===  Меню Настроек  ===</b>'),
         Group(
             Row(
-                Button(
+                Start(
                     text=Const('Админы'),
                     id='admins',
-                    on_click=on_click_in_dev,
+                    state=AdminSettingsSG.start,
                 ),
                 Start(
                     text=Const('Визитёры'),

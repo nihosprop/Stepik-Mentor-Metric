@@ -1,5 +1,6 @@
 import logging
 
+from aiogram import F
 from aiogram.enums import ContentType
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput, TextInput
@@ -11,6 +12,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format
 
+from bot.dialogs.common.getters import get_access_flags, get_user_tg_id
 from bot.dialogs.common.handlers import (
     correct_tg_user_id,
     error_tg_user_id,
@@ -23,19 +25,21 @@ from bot.dialogs.common.widgets import (
     CANCEL_BUTTON,
     MAIN_MENU_BUTTON,
 )
-from bot.dialogs.flows.settings.admin_settings.handlers import add_admin_rights
+from bot.dialogs.flows.settings.admin_settings.handlers import (
+    add_admin_rights,
+    del_admin_rights,
+)
 from bot.dialogs.flows.settings.admin_settings.states import AdminSettingsSG
-from bot.dialogs.flows.settings.visitor_settings.getters import get_user_tg_id
 
 logger = logging.getLogger(__name__)
+
 
 admin_settings = Dialog(
     Window(
         Const(
             text='<b>===  Настройки Админов  ===</b>\n\n'
-            '<code>Админы бота могут добавлять/удалять Визитёров,'
-            ' просматривать статистику.\n'
-            'Для более низких прав, сделайте юзера Визитёром.</code>'
+            '<code>Админ бота имеет все права Супер-Админа, '
+            'кроме добавления/удаления Админов.</code>'
         ),
         Group(
             Row(
@@ -43,12 +47,13 @@ admin_settings = Dialog(
                     text=Const('Добавить Админа'),
                     id='add_admin',
                     state=AdminSettingsSG.add_rights,
+                    when=F['role'] == 'super_admin',
                 ),
                 SwitchTo(
                     text=Const('Удалить Админа'),
                     id='remove_admin',
                     state=AdminSettingsSG.remove_rights,
-                    on_click=on_click_in_dev,
+                    when=F['role'] == 'super_admin',
                 ),
             ),
             SwitchTo(
@@ -91,7 +96,8 @@ admin_settings = Dialog(
         ),
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
-        getter=get_user_tg_id,
         state=AdminSettingsSG.confirm_rights,
     ),
+
+    getter=[get_user_tg_id, get_access_flags],
 )

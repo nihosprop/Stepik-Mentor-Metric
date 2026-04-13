@@ -1,5 +1,6 @@
 from bot.dialogs.flows.courses.dialog import courses_dialog
 from bot.dialogs.flows.mentors.dialog import mentors_dialog
+from bot.dialogs.flows.settings.admin_settings.dialog import admin_settings
 from bot.dialogs.flows.settings.dialog import settings_dialog
 from bot.dialogs.flows.settings.visitor_settings.dialog import visitor_settings
 from bot.dialogs.flows.start.dialog import start_dialog
@@ -13,6 +14,7 @@ DIALOGS = [
     statistic_dialog,
     settings_dialog,
     visitor_settings,
+    admin_settings,
 ]
 
 ROUTERS = [
@@ -29,4 +31,5 @@ __all__ = [
     'statistic_dialog',
     'settings_dialog',
     'visitor_settings',
+    'admin_settings',
 ]

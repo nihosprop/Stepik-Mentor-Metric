@@ -18,10 +18,7 @@ async def add_admin_rights(
     existing_user = await _tg_user_repo.get_user_by_id(user_tg_id)
 
     if existing_user:
-        if (
-            existing_user.role == Role.ADMIN.value
-            and existing_user.is_active
-        ):
+        if existing_user.role == Role.ADMIN.value and existing_user.is_active:
             await clbk.answer(
                 '❌ Юзер уже имеет права `Админ`!', show_alert=True
             )

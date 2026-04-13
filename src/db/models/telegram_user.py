@@ -21,3 +21,10 @@ class User(TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default='false'
     )
+
+    @property
+    def full_name(self) -> str:
+        """Returns the full name of the user."""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.first_name or "Unknown"

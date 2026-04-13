@@ -7,17 +7,20 @@ from aiogram_dialog.widgets.input import MessageInput, TextInput
 from aiogram_dialog.widgets.kbd import (
     Back,
     Group,
+    NextPage,
+    PrevPage,
     Row,
+    ScrollingGroup,
+    Select,
     SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const, Format, List
 
 from bot.dialogs.common.getters import get_access_flags, get_user_tg_id
 from bot.dialogs.common.handlers import (
     correct_tg_user_id,
     error_tg_user_id,
     no_text,
-    on_click_in_dev,
 )
 from bot.dialogs.common.validators import check_tg_user_id
 from bot.dialogs.common.widgets import (
@@ -25,9 +28,14 @@ from bot.dialogs.common.widgets import (
     CANCEL_BUTTON,
     MAIN_MENU_BUTTON,
 )
+from bot.dialogs.flows.settings.admin_settings.getters import (
+    get_admins,
+    get_list_admins,
+)
 from bot.dialogs.flows.settings.admin_settings.handlers import (
     add_admin_rights,
     del_admin_rights,
+    on_admin_selected,
 )
 from bot.dialogs.flows.settings.admin_settings.states import AdminSettingsSG
 
@@ -60,7 +68,6 @@ admin_settings = Dialog(
                 text=Const('Список Админов'),
                 id='admin_list',
                 state=AdminSettingsSG.list_admins,
-                on_click=on_click_in_dev,
             ),
             CANCEL_BUTTON,
             MAIN_MENU_BUTTON,
@@ -97,6 +104,65 @@ admin_settings = Dialog(
         MAIN_MENU_BUTTON,
         BACK_BUTTON,
         state=AdminSettingsSG.confirm_rights,
+    ),
+    Window(
+        Format('Найдено админов: {count}\nВыберите нужного для удаления:'),
+        ScrollingGroup(
+            Select(
+                Format(text='{item.full_name}'),
+                id='s_admins',
+                item_id_getter=lambda x: x.telegram_id,
+                items='admins',
+                on_click=on_admin_selected,
+            ),
+            id='admins_scroll',
+            width=1,
+            height=4,
+            hide_pager=True,
+        ),
+        Row(
+            PrevPage(
+                scroll='admins_scroll',
+                text=Format(text='{data[prev_page_button]}'),
+            ),
+            NextPage(
+                scroll='admins_scroll',
+                text=Format(text='{data[next_page_button]}'),
+            ),
+            when=F['count'] > 4,
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(
+            Const('◀️ Назад'), id='in_start_1', state=AdminSettingsSG.start
+        ),
+        state=AdminSettingsSG.remove_rights,
+        getter=get_admins,
+    ),
+    Window(
+        Format(text='Подтвердите удаление прав администратора!'),
+        SwitchTo(
+            text=Const(text='✅ Подтвердить'),
+            id='conf_del_admin',
+            on_click=del_admin_rights,  # ty:ignore[invalid-argument-type]
+            state=AdminSettingsSG.remove_rights,
+        ),
+        MAIN_MENU_BUTTON,
+        BACK_BUTTON,
+        state=AdminSettingsSG.confirm_remove_rights,
+    ),
+    Window(
+        Const(text='👥 Список Админов:\n'),
+        List(
+            Format(text='{item}'),
+            items='admins',
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(
+            Const('◀️ Назад'), id='in_start_2', state=AdminSettingsSG.start
+        ),
+        getter=get_list_admins,
+        state=AdminSettingsSG.list_admins,
+        disable_web_page_preview=True,
     ),
     getter=[get_user_tg_id, get_access_flags],
 )

@@ -65,7 +65,7 @@ async def del_admin_rights(
 
     if existing_user and existing_user.role == Role.ADMIN.value:
         await _tg_user_repo.update_user_role_and_status(
-            telegram_id=user_tg_id, role=Role.VISITOR, is_active=True
+            telegram_id=user_tg_id, role=Role.ADMIN, is_active=False
         )
         await clbk.answer(
             f'✅ Юзер {user_tg_id} успешно лишен прав `Админ`!',

@@ -1,51 +1,10 @@
-import logging
-
-from aiogram.types import CallbackQuery, Message, User as TelegramUser
+from aiogram.types import CallbackQuery, User as TelegramUser
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.input import ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.kbd import Button
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from core.enum import Role
 from db.repository.tg_user_repo import TGUserRepository
-
-logger = logging.getLogger(__name__)
-
-
-async def correct_tg_user_id(
-    _msg: Message,
-    _widget: ManagedTextInput,
-    dialog_manager: DialogManager,
-    text: str,
-) -> None:
-    logger.debug('Entry')
-
-    dialog_manager.dialog_data['user_tg_id'] = text
-    await dialog_manager.next()
-
-    logger.debug('Exit')
-
-
-async def error_tg_user_id(
-    msg: Message,
-    _widget: ManagedTextInput,
-    _dialog_manager: DialogManager,
-    _error: ValueError,
-) -> None:
-    logger.debug('Entry')
-
-    await msg.delete()
-    await msg.answer(
-        text='Вы ввели некорректный ID юзера! Попробуйте еще раз.'
-    )
-
-    logger.debug('Exit')
-
-
-async def no_text(
-    msg: Message, _widget: MessageInput, _dialog_manager: DialogManager
-) -> None:
-    await msg.answer(text='Вы ввели не текст!', show_alert=True)
 
 
 @inject
@@ -55,8 +14,6 @@ async def add_visitor_rights(
     dialog_manager: DialogManager,
     _tg_user_repo: FromDishka[TGUserRepository],
 ) -> None:
-    logger.debug('Entry')
-
     user_tg_id = int(dialog_manager.dialog_data['user_tg_id'])
     existing_user = await _tg_user_repo.get_user_by_id(user_tg_id)
 
@@ -97,5 +54,3 @@ async def add_visitor_rights(
             await clbk.answer(
                 '❌ Ошибка при добавлении юзера в базу!', show_alert=True
             )
-
-    logger.debug('Exit')

@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery, User as TelegramUser
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Select
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from core.enum import Role
@@ -79,3 +79,24 @@ async def del_admin_rights(
             '❌ Юзер не имеет прав `Админ` или не найден в базе!',
             show_alert=True,
         )
+
+
+async def on_admin_selected(
+    _clbk: CallbackQuery,
+    _widget: Select,
+    dialog_manager: DialogManager,
+    item_id: str,
+) -> None:
+    """
+    Callback function that is called when an admin is selected.
+
+    Args:
+        _clbk (CallbackQuery): The callback query object.
+        _widget (Select): The select widget object.
+        dialog_manager (DialogManager): The dialog manager object.
+        item_id (str): The ID of the selected admin.
+    Returns:
+        None
+    """
+    dialog_manager.dialog_data['user_tg_id'] = int(item_id)
+    await dialog_manager.next()

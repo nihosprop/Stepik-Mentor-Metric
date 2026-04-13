@@ -31,7 +31,7 @@ from bot.dialogs.flows.settings.visitor_settings.states import (
 
 logger = logging.getLogger(__name__)
 
-user_settings = Dialog(
+visitor_settings = Dialog(
     Window(
         Const(
             text='<b>===  Настройки Визитёров  ===</b>\n\n'

@@ -32,7 +32,9 @@ from bot.dialogs.flows.mentors.states import MentorSG
 
 mentors_dialog = Dialog(
     Window(
-        Const(text='===  Меню Менторов  ==='),
+        Const(text='===  Меню Менторов  ===\n\n'
+                   '<code>В этом меню вы можете добавлять(удалять) менторов'
+                   ' для сбора их статистки\n</code>'),
         Group(
             Row(
                 SwitchTo(

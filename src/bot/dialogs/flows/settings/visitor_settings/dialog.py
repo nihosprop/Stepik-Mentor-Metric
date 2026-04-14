@@ -105,11 +105,11 @@ visitor_settings = Dialog(
         state=VisitorSettingsSG.confirm_rights,
     ),
     Window(
-        Format('Найдено Визитёров: {count}\n'
-               'Выберите нужного для удаления:',
-               when=F['count'] > 0),
-        Const(text='Визитёров для удаления не найдено!',
-              when=F['count'] == 0),
+        Format(
+            'Найдено Визитёров: {count}\nВыберите нужного для удаления:',
+            when=F['count'] > 0,
+        ),
+        Const(text='Визитёров для удаления не найдено!', when=F['count'] == 0),
         ScrollingGroup(
             Select(
                 Format(text='{item.full_name}'),

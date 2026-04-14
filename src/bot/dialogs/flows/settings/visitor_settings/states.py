@@ -6,4 +6,5 @@ class VisitorSettingsSG(StatesGroup):
     add_rights = State()
     confirm_rights = State()
     remove_rights = State()
+    confirm_remove_rights = State()
     list_visitors = State()

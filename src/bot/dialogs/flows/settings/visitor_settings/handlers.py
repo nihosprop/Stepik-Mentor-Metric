@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery, User as TelegramUser
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Select
 from dishka.integrations.aiogram_dialog import FromDishka, inject
 
 from core.enum import Role
@@ -54,3 +54,47 @@ async def add_visitor_rights(
             await clbk.answer(
                 '❌ Ошибка при добавлении юзера в базу!', show_alert=True
             )
+
+@inject
+async def del_visitor_rights(
+    clbk: CallbackQuery,
+    _button: Button,
+    dialog_manager: DialogManager,
+    _tg_user_repo: FromDishka[TGUserRepository],
+) -> None:
+    user_tg_id = int(dialog_manager.dialog_data['user_tg_id'])
+    existing_user = await _tg_user_repo.get_user_by_id(user_tg_id)
+
+    if existing_user and existing_user.role == Role.VISITOR.value:
+        await _tg_user_repo.update_user_role_and_status(
+            telegram_id=user_tg_id, role=Role.VISITOR, is_active=False
+        )
+        await clbk.answer(
+            f'✅ Юзер {user_tg_id} успешно лишен прав `Визитёр`!',
+            show_alert=True,
+        )
+    else:
+        await clbk.answer(
+            '❌ Юзер не имеет прав `Визитер` или не найден в базе!',
+            show_alert=True,
+        )
+
+async def on_visitor_selected(
+    _clbk: CallbackQuery,
+    _widget: Select,
+    dialog_manager: DialogManager,
+    item_id: str,
+) -> None:
+    """
+    Callback function that is called when an admin is selected.
+
+    Args:
+        _clbk (CallbackQuery): The callback query object.
+        _widget (Select): The select widget object.
+        dialog_manager (DialogManager): The dialog manager object.
+        item_id (str): The ID of the selected admin.
+    Returns:
+        None
+    """
+    dialog_manager.dialog_data['user_tg_id'] = int(item_id)
+    await dialog_manager.next()

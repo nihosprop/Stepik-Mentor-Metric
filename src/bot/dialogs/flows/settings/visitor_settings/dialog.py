@@ -1,22 +1,26 @@
 import logging
 
+from aiogram import F
 from aiogram.enums import ContentType
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput, TextInput
 from aiogram_dialog.widgets.kbd import (
     Back,
     Group,
+    NextPage,
+    PrevPage,
     Row,
+    ScrollingGroup,
+    Select,
     SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const, Format, List
 
 from bot.dialogs.common.getters import get_user_tg_id
 from bot.dialogs.common.handlers import (
     correct_tg_user_id,
     error_tg_user_id,
     no_text,
-    on_click_in_dev,
 )
 from bot.dialogs.common.validators import check_tg_user_id
 from bot.dialogs.common.widgets import (
@@ -24,8 +28,14 @@ from bot.dialogs.common.widgets import (
     CANCEL_BUTTON,
     MAIN_MENU_BUTTON,
 )
+from bot.dialogs.flows.settings.visitor_settings.getters import (
+    get_list_visitors,
+    get_visitors,
+)
 from bot.dialogs.flows.settings.visitor_settings.handlers import (
     add_visitor_rights,
+    del_visitor_rights,
+    on_visitor_selected,
 )
 from bot.dialogs.flows.settings.visitor_settings.states import (
     VisitorSettingsSG,
@@ -52,14 +62,12 @@ visitor_settings = Dialog(
                     text=Const('Удалить визитёра'),
                     id='remove_user',
                     state=VisitorSettingsSG.remove_rights,
-                    on_click=on_click_in_dev,
                 ),
             ),
             SwitchTo(
                 text=Const('Список визитёров'),
                 id='mentors_list',
                 state=VisitorSettingsSG.list_visitors,
-                on_click=on_click_in_dev,
             ),
             CANCEL_BUTTON,
             MAIN_MENU_BUTTON,
@@ -96,4 +104,68 @@ visitor_settings = Dialog(
         getter=get_user_tg_id,
         state=VisitorSettingsSG.confirm_rights,
     ),
+    Window(
+        Format('Найдено Визитёров: {count}\n'
+               'Выберите нужного для удаления:',
+               when=F['count'] > 0),
+        Const(text='Визитёров для удаления не найдено!',
+              when=F['count'] == 0),
+        ScrollingGroup(
+            Select(
+                Format(text='{item.full_name}'),
+                id='s_visitor',
+                item_id_getter=lambda x: x.telegram_id,
+                items='visitors',
+                on_click=on_visitor_selected,
+            ),
+            id='visitors_scroll',
+            width=1,
+            height=4,
+            hide_pager=True,
+        ),
+        Row(
+            PrevPage(
+                scroll='visitors_scroll',
+                text=Format(text='{data[prev_page_button]}'),
+            ),
+            NextPage(
+                scroll='visitors_scroll',
+                text=Format(text='{data[next_page_button]}'),
+            ),
+            when=F['count'] > 4,
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(
+            Const('◀️ Назад'), id='in_start_1', state=VisitorSettingsSG.start
+        ),
+        state=VisitorSettingsSG.remove_rights,
+        getter=get_visitors,
+    ),
+    Window(
+        Format(text='Подтвердите удаление прав Визитёра!'),
+        SwitchTo(
+            text=Const(text='✅ Подтвердить'),
+            id='conf_del_visitor',
+            on_click=del_visitor_rights,  # ty:ignore[invalid-argument-type]
+            state=VisitorSettingsSG.remove_rights,
+        ),
+        MAIN_MENU_BUTTON,
+        BACK_BUTTON,
+        state=VisitorSettingsSG.confirm_remove_rights,
+    ),
+    Window(
+        Const(text='👥 Список Визитёров:\n'),
+        List(
+            Format(text='{item}'),
+            items='visitors',
+        ),
+        MAIN_MENU_BUTTON,
+        SwitchTo(
+            Const('◀️ Назад'), id='in_start_2', state=VisitorSettingsSG.start
+        ),
+        getter=get_list_visitors,
+        state=VisitorSettingsSG.list_visitors,
+        disable_web_page_preview=True,
+    ),
+    getter=get_user_tg_id,
 )

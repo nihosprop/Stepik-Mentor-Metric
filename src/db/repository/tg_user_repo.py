@@ -160,3 +160,16 @@ class TGUserRepository:
         )
         result = await self.session.scalars(stmt)
         return list(result.all())
+
+    async def get_all_visitors(self) -> list[User]:
+        """
+        Gets all visitor users from the database.
+
+        Returns:
+            list[User]: List of visitor users.
+        """
+        stmt = select(User).where(
+            User.role == Role.VISITOR.value, User.is_active.is_(True)
+        )
+        result = await self.session.scalars(stmt)
+        return list(result.all())

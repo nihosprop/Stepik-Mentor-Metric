@@ -32,16 +32,21 @@ from bot.dialogs.flows.mentors.states import MentorSG
 
 mentors_dialog = Dialog(
     Window(
-        Const(text='===  Меню Менторов  ===\n\n'
-                   '<code>В этом меню вы можете добавлять(удалять) менторов'
-                   ' для сбора их статистки\n</code>'),
+        Const(text='<b>===  Меню Менторов  ===</b>'),
+        Const(
+            text='\n<code>'
+            'В этом меню вы можете добавлять(удалять)'
+            ' менторов для сбора их статистки.'
+            '</code>',
+            when=(F['role']).in_({'super_admin', 'admin'}),
+        ),
         Group(
             Row(
                 SwitchTo(
                     text=Const('Добавить ментора'),
                     id='add_mentor',
                     state=MentorSG.fill_link_to_mentor,
-                    when=(F['role']).in_({'super_admin', 'admin'})
+                    when=(F['role']).in_({'super_admin', 'admin'}),
                 ),
                 SwitchTo(
                     text=Const('Удалить ментора'),
@@ -60,7 +65,9 @@ mentors_dialog = Dialog(
         state=MentorSG.start,
     ),
     Window(
-        Const(text='Отправьте ссылку на профиль ментора'),
+        Const(text='<b>Отправьте ссылку на профиль ментора.</b>\n\n'
+                   '<code>Ссылку можно получить на Stepik, в '
+                   'профиле юзера.</code>'),
         TextInput(
             id='fill_link_mentor',
             type_factory=check_stepik_profile_link,

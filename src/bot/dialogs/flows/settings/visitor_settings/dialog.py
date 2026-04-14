@@ -154,10 +154,8 @@ visitor_settings = Dialog(
         state=VisitorSettingsSG.confirm_remove_rights,
     ),
     Window(
-        Const(text='👥 <b>Список Визитёров:</b>',
-              when='visitors'),
-        Const(text='<b>Визитёров не обнаружено.</b>',
-              when=F['count'] < 1),
+        Const(text='👥 <b>Список Визитёров:</b>', when=F['count'] > 0),
+        Const(text='<b>Визитёров не обнаружено.</b>', when=F['count'] <= 0),
         List(
             Format(text='{item}'),
             items='visitors',

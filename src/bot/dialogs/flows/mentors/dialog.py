@@ -136,7 +136,7 @@ mentors_dialog = Dialog(
         state=MentorSG.confirm_delete_mentor,
     ),
     Window(
-        Const(text='👥 Список менторов:\n'),
+        Const(text='👥 Список менторов:'),
         List(
             Format(text='{item}'),
             items='mentors',

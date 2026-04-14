@@ -53,10 +53,11 @@ async def get_list_mentors(
     **_kwargs,
 ) -> dict[str, list[str] | int]:
     mentors = [
-        f'<a href="https://stepik.org/users/'
-        f'{item.user_id}/profile">{item.full_name}</a>'
-        f' ID: <code>{item.user_id}</code>'
-        for item in await stepik_user_repo.get_all_mentors()
+        f'\n<a href="https://stepik.org/users/'
+        f'{item.user_id}/profile">{i}. {item.full_name}</a>'
+        f'\nID: <code>{item.user_id}</code>'
+        for i, item in enumerate(await stepik_user_repo.get_all_mentors(),
+                                 start=1)
     ]
 
     return {'mentors': mentors, 'count': len(mentors)}

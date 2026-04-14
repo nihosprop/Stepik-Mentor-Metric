@@ -32,7 +32,7 @@ from bot.dialogs.flows.courses.states import CoursesSG
 
 courses_dialog = Dialog(
     Window(
-        Format(text='===  Меню Курсы  ==='),
+        Format(text='<b>===  Меню Курсы  ===</b>'),
         Group(
             Row(
                 SwitchTo(
@@ -127,7 +127,7 @@ courses_dialog = Dialog(
         state=CoursesSG.confirm_delete_course,
     ),
     Window(
-        Const(text='📚 Список отслеживаемых курсов:\n'),
+        Const(text='📚 <b>Список отслеживаемых курсов:</b>'),
         List(
             Format(text='{item}'),
             items='courses',

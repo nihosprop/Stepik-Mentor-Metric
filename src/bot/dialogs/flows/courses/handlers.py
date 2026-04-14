@@ -107,8 +107,8 @@ async def add_course_to_db(
             f'✅ Курс {course_title}r добавлен!\nМожете продолжить.',
             show_alert=True,
         )
-    except Exception:
-        logger.error(f'Error adding course {course_id}', exc_info=True)
+    except Exception as e:
+        logger.error(f'Error adding course {course_id}: {e}', exc_info=True)
         await clbk.answer(
             f'❌ Ошибка при добавлении курса {course_id}.\n'
             'Повторите или обратитесь к разработчику.',

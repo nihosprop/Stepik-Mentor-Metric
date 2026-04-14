@@ -99,7 +99,7 @@ mentors_dialog = Dialog(
                 id='s_mentors',
                 item_id_getter=lambda x: x.user_id,
                 items='mentors',
-                on_click=on_mentor_selected,  # ty:ignore[invalid-argument-type]
+                on_click=on_mentor_selected,
             ),
             id='mentors_scroll',
             width=1,

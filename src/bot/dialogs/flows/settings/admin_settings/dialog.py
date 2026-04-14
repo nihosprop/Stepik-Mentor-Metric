@@ -151,7 +151,7 @@ admin_settings = Dialog(
         state=AdminSettingsSG.confirm_remove_rights,
     ),
     Window(
-        Const(text='👥 Список Админов:\n'),
+        Const(text='👥 <b>Список Админов:</b>'),
         List(
             Format(text='{item}'),
             items='admins',

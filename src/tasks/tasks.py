@@ -297,9 +297,21 @@ async def aggregate_daily_stats(
 async def sends_daily_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
-    statisitc_service: FromDishka[StatisticService],
+    statistic_service: FromDishka[StatisticService],
 ) -> None:
-    report_text = await statisitc_service.get_daily_report_text()
+    """
+    Sends daily statistics report to bot admins.
+
+    Args:
+        bot (FromDishka[Bot]): Bot instance.
+        config (FromDishka[Config]): Config instance.
+        statistic_service (FromDishka[StatisticService]):
+         StatisticService instance.
+    Returns:
+        None
+    """
+
+    report_text = await statistic_service.get_daily_report_text()
 
     # TODO: remove duplicate code 2
     for admin_id in config.bot.admins:

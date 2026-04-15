@@ -82,7 +82,6 @@ courses_dialog = Dialog(
         state=CoursesSG.confirm_curse,
     ),
     Window(
-        # TODO: change the text based on the availability of mentors
         Format('Найдено курсов: {count}\nВыберите нужный для удаления:'),
         ScrollingGroup(
             Select(

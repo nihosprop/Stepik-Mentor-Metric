@@ -91,7 +91,6 @@ mentors_dialog = Dialog(
         state=MentorSG.confirm_mentor,
     ),
     Window(
-        # TODO: change the text based on the availability of mentors
         Format('Найдено менторов: {count}\nВыберите нужного для удаления:'),
         ScrollingGroup(
             Select(

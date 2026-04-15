@@ -16,7 +16,17 @@ logger = logging.getLogger(__name__)
 
 
 class ACLMiddleware(BaseMiddleware):
-    """Middleware to check access rights to the bot."""
+    """
+    Middleware to check access rights to the bot.
+
+    This middleware checks the user's access rights to the bot.
+    If the user is a super admin, he is granted access. Otherwise,
+    the middleware checks the user's role and active status in the
+    database. If the user is inactive or his role is not defined,
+    the middleware denies access. If the user's profile information
+    differs from the stored information, the middleware updates the
+    user's profile in the database.
+    """
 
     async def __call__(
         self,
@@ -24,6 +34,17 @@ class ACLMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
+        """
+        Args:
+            handler(
+                Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]]):
+                   The handler function to which the middleware is applied.
+            event(TelegramObject): The event object.
+            data(dict[str, Any]): The data dictionary.
+        Returns:
+            Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
+                The handler function or None if the user access is denied.
+        """
         logger.debug(f'Entry {self.__class__.__name__}')
 
         try:

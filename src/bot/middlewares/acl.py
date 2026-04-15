@@ -25,7 +25,6 @@ class ACLMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]] | None:
         logger.debug(f'Entry {self.__class__.__name__}')
-        # logger.debug(f'{data=}\n\n')
 
         try:
             user: User | None = data.get('event_from_user')

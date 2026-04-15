@@ -54,7 +54,7 @@ async def poll_stepik_courses(
         return
 
     try:
-        logger.info('Polling Stepik courses ON')
+        logger.debug('Polling Stepik courses ON')
 
         try:
             courses_ids_cache = await redis_cache.smembers('courses_ids')  # type: ignore
@@ -77,7 +77,7 @@ async def poll_stepik_courses(
 
         mentor_ids_from_db = await stepik_user_repo.get_ids_mentors()
         mentors_ids_cache = set(map(str, mentor_ids_from_db))
-        logger.info(
+        logger.debug(
             f'Loaded {len(mentors_ids_cache)} mentors directly from DB'
         )
 

@@ -14,6 +14,7 @@ from db.repository.course_repo import CourseRepo
 from db.repository.reply_repo import ReplyRepo
 from db.repository.statistic_repo import StatisticRepo
 from db.repository.stepik_user_repo import StepikUserRepo
+from db.repository.tg_user_repo import TGUserRepository
 from infrastructure.ai.ai_client import GeminiCommentEvaluator
 from infrastructure.di.providers.redis import RedisCache
 from infrastructure.stepik.client import StepikAPIClient
@@ -298,28 +299,37 @@ async def sends_daily_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
     statistic_service: FromDishka[StatisticService],
+    tg_user_repo: FromDishka[TGUserRepository],
 ) -> None:
     """
-    Sends daily statistics report to bot admins.
+    Sends daily statistics report to bot admins, admins, and visitors.
 
     Args:
         bot (FromDishka[Bot]): Bot instance.
         config (FromDishka[Config]): Config instance.
         statistic_service (FromDishka[StatisticService]):
          StatisticService instance.
+        tg_user_repo (FromDishka[TGUserRepository]): TG user repository.
     Returns:
         None
     """
 
     report_text = await statistic_service.get_daily_report_text()
 
-    # TODO: remove duplicate code 2
-    for admin_id in config.bot.admins:
+    recipients = set(config.bot.admins)
+    
+    admins = await tg_user_repo.get_all_admins()
+    recipients.update(admin.telegram_id for admin in admins)
+    
+    visitors = await tg_user_repo.get_all_visitors()
+    recipients.update(visitor.telegram_id for visitor in visitors)
+
+    for recipient_id in recipients:
         try:
-            await bot.send_message(chat_id=admin_id, text=report_text)
+            await bot.send_message(chat_id=recipient_id, text=report_text)
             await asyncio.sleep(1)
         except Exception as e:
-            logger.error(f'Failed to send report to {admin_id}: {e}')
+            logger.error(f'Failed to send report to {recipient_id}: {e}')
 
 
 @broker.task
@@ -328,6 +338,7 @@ async def sends_last_month_stats(
     bot: FromDishka[Bot],
     config: FromDishka[Config],
     statistic_service: FromDishka[StatisticService],
+    tg_user_repo: FromDishka[TGUserRepository],
 ) -> None:
     logger.debug('Entry')
 
@@ -345,22 +356,30 @@ async def sends_last_month_stats(
     try:
         document = FSInputFile(file_path, filename=os.path.basename(file_path))
 
-        for admin_id in config.bot.admins:
+        recipients = set(config.bot.admins)
+        
+        admins = await tg_user_repo.get_all_admins()
+        recipients.update(admin.telegram_id for admin in admins)
+        
+        visitors = await tg_user_repo.get_all_visitors()
+        recipients.update(visitor.telegram_id for visitor in visitors)
+
+        for recipient_id in recipients:
             try:
                 await bot.send_document(
-                    chat_id=admin_id,
+                    chat_id=recipient_id,
                     document=document,
                     caption=f'📊 Подробная за {prev_month_str}',
                 )
                 await asyncio.sleep(1)
             except Exception as e:
                 logger.error(
-                    f'Failed to send report to {admin_id}: {e}', exc_info=True
+                    f'Failed to send report to {recipient_id}: {e}', exc_info=True
                 )
 
     except Exception as e:
         logger.error(
-            f'Failed to send stats to admins: {e}',
+            f'Failed to send stats to recipients: {e}',
             exc_info=True,
         )
     finally:

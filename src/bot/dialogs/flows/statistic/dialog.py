@@ -30,9 +30,11 @@ statistic_dialog = Dialog(
         state=StatisticSG.start,
     ),
     Window(
-        Const('<b>Выберите период ⤵️</b>\n'
-              '<code>Общая статистика высылается в чат.\n'
-              'Подробная статистика высылается .md файлом</code>'),
+        Const(
+            '<b>Выберите период ⤵️</b>\n'
+            '<code>Общая статистика высылается в чат.\n'
+            'Подробная статистика высылается .md файлом</code>'
+        ),
         Button(
             text=Const('Общая (Текущий месяц)'),
             id='general_stats_current',

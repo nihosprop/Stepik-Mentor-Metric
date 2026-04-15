@@ -65,9 +65,11 @@ mentors_dialog = Dialog(
         state=MentorSG.start,
     ),
     Window(
-        Const(text='<b>Отправьте ссылку на профиль ментора.</b>\n'
-                   '<code>Ссылку можно получить на Stepik, в '
-                   'профиле юзера.</code>'),
+        Const(
+            text='<b>Отправьте ссылку на профиль ментора.</b>\n'
+            '<code>Ссылку можно получить на Stepik, в '
+            'профиле юзера.</code>'
+        ),
         TextInput(
             id='fill_link_mentor',
             type_factory=check_stepik_profile_link,

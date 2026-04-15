@@ -45,7 +45,7 @@ courses_dialog = Dialog(
                     text=Const('Удалить курс'),
                     id='remove_course',
                     state=CoursesSG.selection_courses,
-                    when=(F['role']).in_({'super_admin', 'admin'})
+                    when=(F['role']).in_({'super_admin', 'admin'}),
                 ),
             ),
             SwitchTo(

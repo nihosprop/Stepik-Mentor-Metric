@@ -9,13 +9,14 @@ from db.repository.tg_user_repo import TGUserRepository
 
 logger = logging.getLogger(__name__)
 
+
 @inject
 async def get_admins(
     tg_user_repo: FromDishka[TGUserRepository],
     **_kwargs,
 ) -> dict[str, Sequence[User] | int | str]:
     admins = await tg_user_repo.get_all_admins()
-    
+
     return {
         'admins': admins,
         'count': len(admins),

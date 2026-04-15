@@ -317,10 +317,10 @@ async def sends_daily_stats(
     report_text = await statistic_service.get_daily_report_text()
 
     recipients = set(config.bot.admins)
-    
+
     admins = await tg_user_repo.get_all_admins()
     recipients.update(admin.telegram_id for admin in admins)
-    
+
     visitors = await tg_user_repo.get_all_visitors()
     recipients.update(visitor.telegram_id for visitor in visitors)
 
@@ -357,10 +357,10 @@ async def sends_last_month_stats(
         document = FSInputFile(file_path, filename=os.path.basename(file_path))
 
         recipients = set(config.bot.admins)
-        
+
         admins = await tg_user_repo.get_all_admins()
         recipients.update(admin.telegram_id for admin in admins)
-        
+
         visitors = await tg_user_repo.get_all_visitors()
         recipients.update(visitor.telegram_id for visitor in visitors)
 
@@ -374,7 +374,8 @@ async def sends_last_month_stats(
                 await asyncio.sleep(1)
             except Exception as e:
                 logger.error(
-                    f'Failed to send report to {recipient_id}: {e}', exc_info=True
+                    f'Failed to send report to {recipient_id}: {e}',
+                    exc_info=True,
                 )
 
     except Exception as e:

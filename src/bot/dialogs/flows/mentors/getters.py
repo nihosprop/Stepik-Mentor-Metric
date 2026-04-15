@@ -56,8 +56,9 @@ async def get_list_mentors(
         f'\n<a href="https://stepik.org/users/'
         f'{item.user_id}/profile">{i}. {item.full_name}</a>'
         f'\nID: <code>{item.user_id}</code>'
-        for i, item in enumerate(await stepik_user_repo.get_all_mentors(),
-                                 start=1)
+        for i, item in enumerate(
+            await stepik_user_repo.get_all_mentors(), start=1
+        )
     ]
 
     return {'mentors': mentors, 'count': len(mentors)}

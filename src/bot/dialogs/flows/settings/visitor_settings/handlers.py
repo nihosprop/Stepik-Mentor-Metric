@@ -55,6 +55,7 @@ async def add_visitor_rights(
                 '❌ Ошибка при добавлении юзера в базу!', show_alert=True
             )
 
+
 @inject
 async def del_visitor_rights(
     clbk: CallbackQuery,
@@ -78,6 +79,7 @@ async def del_visitor_rights(
             '❌ Юзер не имеет прав `Визитер` или не найден в базе!',
             show_alert=True,
         )
+
 
 async def on_visitor_selected(
     _clbk: CallbackQuery,

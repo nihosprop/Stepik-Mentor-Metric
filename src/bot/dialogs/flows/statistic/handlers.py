@@ -21,13 +21,16 @@ async def send_current_month_detailed_stats(
     _button: Button,
     dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
-    bot: FromDishka[Bot],
 ) -> None:
-    # TODO: use clbk.message, methods on the stack must return str | None
     logger.debug('Entry')
 
     user = clbk.from_user.id
     logger.info(f'The user {user} requested statistics')
+
+    bot = clbk.bot
+    if not isinstance(bot, Bot):
+        logger.warning(f'Unexpected bot type: {type(bot)}')
+        return
 
     if not isinstance(clbk.message, Message):
         logger.warning(f'Unexpected message type: {type(clbk.message)}')
@@ -72,12 +75,16 @@ async def send_last_month_detailed_stats(
     _button: Button,
     dialog_manager: DialogManager,
     statistic_service: FromDishka[StatisticService],
-    bot: FromDishka[Bot],
 ) -> None:
     logger.debug('Entry')
 
     user = clbk.from_user.id
     logger.info(f'The user {user} requested statistics')
+
+    bot = clbk.bot
+    if not isinstance(bot, Bot):
+        logger.warning(f'Unexpected bot type: {type(bot)}')
+        return
 
     if not isinstance(clbk.message, Message):
         logger.warning(f'Unexpected message type: {type(clbk.message)}')
@@ -97,7 +104,6 @@ async def send_last_month_detailed_stats(
 
     try:
         document = FSInputFile(file_path, filename=os.path.basename(file_path))
-
         await bot.send_document(
             chat_id=clbk.from_user.id,
             document=document,

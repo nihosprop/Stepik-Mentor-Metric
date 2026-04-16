@@ -10,5 +10,8 @@ class HttpProvider(Provider):
     async def client_session(self) -> AsyncIterable[aiohttp.ClientSession]:
         # Connector for Stepik (you can increase the limits)
         connector = aiohttp.TCPConnector(limit=100, ttl_dns_cache=300)
-        async with aiohttp.ClientSession(connector=connector) as session:
+        timeout = aiohttp.ClientTimeout(total=30, sock_connect=10)
+
+        async with aiohttp.ClientSession(connector=connector,
+                                         timeout=timeout) as session:
             yield session

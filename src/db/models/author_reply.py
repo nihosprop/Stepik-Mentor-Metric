@@ -23,6 +23,9 @@ class AuthorReply(TimestampMixin, Base):
     is_mentor_reply: Mapped[bool] = mapped_column(
         default=True, server_default='true', nullable=False
     )
+    is_useful_comment: Mapped[bool] = mapped_column(
+        default=False, server_default='false', nullable=False
+    )
     comment_created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )

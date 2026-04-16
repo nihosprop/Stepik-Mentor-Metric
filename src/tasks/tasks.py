@@ -159,15 +159,18 @@ async def poll_stepik_courses(
                         author_id_str = str(comment['user'])
                         is_mentor = author_id_str in mentors_ids_cache
 
+                        is_useful_comment = False
                         if not is_mentor:
                             await stepik_user_repo.upsert_user(
                                 stepik_user_id=author_id,
                                 full_name=author_username,
                                 is_mentor=False,
                             )
-                            # await ai_client.is_meaningful_question(
-                            #     comment['text'].strip()
-                            # )
+                            is_useful_comment = (
+                                await ai_client.is_meaningful_question(
+                                    comment['text'].strip()
+                                )
+                            )
 
                         # TODO: transfer to service `await reply_repo.upsert_reply`
                         if is_mentor:
@@ -186,6 +189,7 @@ async def poll_stepik_courses(
                             author_id=author_id,
                             parent_comment_id=comment['parent'],
                             comment_created_at=comment_time,
+                            is_useful_comment=is_useful_comment,
                         )
                         new_last_time = max(new_last_time, comment_time)
                     else:

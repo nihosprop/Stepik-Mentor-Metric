@@ -212,6 +212,7 @@ class StatisticRepo:
 
             total_comments = len(mentor_replies)
             replies_count = 0
+            helpful_replies_count = 0
             total_delay = 0.0
             timed_replies = 0
 
@@ -227,6 +228,10 @@ class StatisticRepo:
                     ).scalar_one_or_none()
 
                     if parent_comment:
+                        # Считаем полезным ответ только на осмысленный вопрос
+                        if parent_comment.is_useful_comment:
+                            helpful_replies_count += 1
+
                         delay = (
                             reply.comment_created_at
                             - parent_comment.comment_created_at
@@ -237,9 +242,9 @@ class StatisticRepo:
             avg_delay = (
                 (total_delay / timed_replies) if timed_replies > 0 else None
             )
-            # h_idx: H^2 / T
+            # h_idx: helpful_replies_count^2 / total_comments
             perf_index = (
-                (replies_count**2 / total_comments)
+                (helpful_replies_count**2 / total_comments)
                 if total_comments > 0
                 else 0
             )
@@ -252,7 +257,7 @@ class StatisticRepo:
                     stat_date=target_date,
                     total_comments=total_comments,
                     replies_count=replies_count,
-                    helpful_replies_count=replies_count,
+                    helpful_replies_count=helpful_replies_count,
                     help_index=perf_index,
                     avg_response_time_seconds=avg_delay,
                 )
@@ -261,7 +266,7 @@ class StatisticRepo:
                     set_={
                         'total_comments': total_comments,
                         'replies_count': replies_count,
-                        'helpful_replies_count': replies_count,
+                        'helpful_replies_count': helpful_replies_count,
                         'help_index': perf_index,
                         'avg_response_time_seconds': avg_delay,
                         'created_at': func.now(),

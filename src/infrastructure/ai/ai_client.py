@@ -18,8 +18,8 @@ class GeminiCommentEvaluator:
         self._session = session
         self._url = (
             f'https://generativelanguage.googleapis.com/'
-            f'v1beta/models/'
-            f'gemini-3.1-flash-lite-preview:generateContent?key={self._api_key}'
+            f'v1/models/'
+            f'gemini-2.5-flash-lite-preview:generateContent?key={self._api_key}'
         )
 
     async def is_meaningful_question(self, text: str) -> bool:

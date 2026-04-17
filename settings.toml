@@ -57,12 +57,12 @@ handlers = ['stdout']
 
 [default.logs.dict_config.loggers.'infrastructure.ai.ai_client']
 level = 'DEBUG'
-handlers = ['ai_file']
+handlers = ['ai_file', 'stdout']
 propagate = false
 
 [default.logs.dict_config.loggers.'ai.mentor.replies']
 level = 'DEBUG'
-handlers = ['ai_file']
+handlers = ['ai_file', 'stdout']
 propagate = false
 
 # Redis
@@ -123,10 +123,10 @@ handlers = ['stdout', 'file']
 
 [production.logs.dict_config.loggers.'infrastructure.ai.ai_client']
 level = 'INFO'
-handlers = ['ai_file']
+handlers = ['stdout', 'ai_file']
 propagate = false
 
 [production.logs.dict_config.loggers.'ai.mentor.replies']
 level = 'INFO'
-handlers = ['ai_file']
+handlers = ['stdout', 'ai_file']
 propagate = false

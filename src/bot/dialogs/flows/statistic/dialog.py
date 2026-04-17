@@ -17,7 +17,13 @@ from bot.dialogs.flows.statistic.states import StatisticSG
 
 statistic_dialog = Dialog(
     Window(
-        Const(text='===  Меню Статистики  ==='),
+        Const(
+            text='===  Меню Статистики  ===\n\n'
+            '<b>КПД — эффективность ответов</b>\n'
+            '<code>(полезные² / все ответы)</code>\n\n'
+            '<b>⚡️ Скорость ответов — перцентиль 0–100</b>\n'
+            '<code>(Выше = отвечает быстрее)</code>'
+        ),
         SwitchTo(
             text=Const('Общая'), id='general_stat', state=StatisticSG.general
         ),

@@ -30,7 +30,7 @@ class GeminiCommentEvaluator:
             'благодарю',
             'отлично',
         ]:
-            logger.debug('Short or Non-Text comment.')
+            logger.info(f'Short or Non-Text comment: {clean_text}')
             return False
 
         payload = {
@@ -91,24 +91,40 @@ class GeminiCommentEvaluator:
                 result = await resp.json()
 
                 if 'candidates' not in result:
-                    logger.error(f'Gemini API Error: {result}')
+                    error_type = result.get('error', {}).get('code', 'unknown')
+                    error_msg = result.get('error', {}).get(
+                        'message', 'No error details'
+                    )
+                    logger.error(
+                        f'Gemini API Error [{error_type}]: {error_msg}.'
+                        f' Raw: {result}'
+                    )
                     return True
 
                 content_text = result['candidates'][0]['content']['parts'][0][
                     'text'
                 ]
                 data = json.loads(content_text)
-                reasoning = data.get('reasoning', 'No reasoning provided')
+                ai_reasoning = data.get('reasoning', 'No reasoning provided')
 
-                logger.debug(f'{clean_text=}')
-                logger.debug(f'{reasoning=}')
-                result = data.get('is_question', True)
-                logger.debug(f'{result=}')
+                usage = result.get('usageMetadata', {})
+                in_tok = usage.get('promptTokenCount', 0)
+                out_tok = usage.get('candidatesTokenCount', 0)
+                _sum_tok = in_tok + out_tok
+                logger.debug(
+                    f'{_sum_tok=}, {in_tok=}, {out_tok=}, {clean_text=},'
+                    f' {ai_reasoning=}'
+                )
+                ai_evaluation = data.get('is_question', True)
+                logger.debug(f'{ai_evaluation=}')
 
-                return result
+                return ai_evaluation
 
         except Exception as e:
-            logger.error(f'Error evaluating with Gemini 3.1: {e}')
+            logger.error(
+                f'Gemini evaluation failed for text="{clean_text[:50]}...":'
+                f' {type(e).__name__}: {e}'
+            )
             return True
 
     @staticmethod

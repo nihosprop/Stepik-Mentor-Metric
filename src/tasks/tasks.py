@@ -24,6 +24,7 @@ from .broker import broker
 from .mixins import MyScheduledTask
 
 logger = logging.getLogger(__name__)
+ai_logger = logging.getLogger('ai.mentor.replies')
 
 # TODO: remove `patch_module=True`
 
@@ -172,10 +173,7 @@ async def poll_stepik_courses(
                                 )
                             )
 
-                        # TODO: transfer to service `await reply_repo.upsert_reply`
-                        if is_mentor:
-                            logger.debug(f'{comment['parent']=}')
-                            logger.debug(
+                            ai_logger.info(
                                 f'link_to_comment: {
                                     await stepik_client.get_comment_url(
                                         comment_id=comment["id"]

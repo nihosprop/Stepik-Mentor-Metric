@@ -13,6 +13,46 @@ A Telegram bot for tracking mentor activity metrics on the Stepik platform. Auto
   days prod)
 - **Admin Reports**: Automated and manual daily/monthly statistics sent to admins
 
+## Metrics Calculation
+
+The bot calculates mentor performance using two key metrics:
+
+### EF (Efficiency Index)
+
+Measures the quality of mentor responses based on AI-classified usefulness:
+
+```
+EF = (useful_replies²) / total_replies
+```
+
+Where:
+- `useful_replies` — responses marked as meaningful by AI (`is_useful_comment=True`)
+- `total_replies` — total number of mentor responses
+
+**Examples:**
+- 10 useful / 10 total = (10² / 10) = **10.0**
+- 8 useful / 10 total = (8² / 10) = **6.4**
+- 10 useful / 20 total = (10² / 20) = **5.0**
+
+Higher is better. Maximum achieved when 100% of responses are useful.
+
+### Speed Index (⚡️)
+
+Percentile-based ranking of response speed (0–100 scale):
+
+```
+speed = (N - rank + 1) / N × 100
+```
+
+Where:
+- `N` — total number of active mentors
+- `rank` — position in sorted list by `avg_delay` (fastest = rank 1)
+- `avg_delay` — average time between student question and mentor reply
+
+**Interpretation:**
+- **100** — fastest responder
+- **0** — slowest responder
+
 ## Technology Stack
 
 | Component            | Technology                                        |

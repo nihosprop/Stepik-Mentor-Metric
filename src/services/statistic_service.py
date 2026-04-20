@@ -224,7 +224,9 @@ class StatisticService:
 
         max_name = max(len(row.full_name) for row in rows)
         max_kpd = max(
-            len(f'{(r.total_h**2 / r.total_t) if r.total_t > 0 else 0:.1f}')
+            len(
+                f'{((r.total_helpful**2 / r.total_t) if r.total_t > 0 else 0):.1f}'
+            )
             for r in rows
         )
         max_resp = max(len(str(r.total_h)) for r in rows)
@@ -234,7 +236,11 @@ class StatisticService:
         )
 
         for row, idx in zip(rows, indices, strict=True):
-            perf_idx = (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
+            perf_idx = (
+                (row.total_helpful**2 / row.total_t)
+                if row.total_t > 0
+                else 0
+            )
             replies = row.total_h
             speed_display = f'{idx:.1f}' if idx is not None else 'н/д'
 
@@ -274,7 +280,9 @@ class StatisticService:
         for row, idx in zip(rows, indices, strict=True):
             if is_monthly:
                 perf_idx = (
-                    (row.total_h**2 / row.total_t) if row.total_t > 0 else 0
+                    (row.total_helpful**2 / row.total_t)
+                    if row.total_t > 0
+                    else 0
                 )
                 replies = row.total_h
             else:

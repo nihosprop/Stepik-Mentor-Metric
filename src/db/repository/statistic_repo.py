@@ -30,6 +30,9 @@ class StatisticRepo:
                 Course.title.label('course_title'),
                 func.sum(MentorStatistic.total_comments).label('total_t'),
                 func.sum(MentorStatistic.replies_count).label('total_h'),
+                func.sum(MentorStatistic.helpful_replies_count).label(
+                    'total_helpful'
+                ),
                 func.avg(MentorStatistic.avg_response_time_seconds).label(
                     'avg_delay'
                 ),
@@ -41,7 +44,13 @@ class StatisticRepo:
             )
             .group_by(StepikUser.full_name, Course.title)
         ).order_by(
-            Course.title, desc('total_h'), asc('avg_delay').nulls_last()
+            Course.title,
+            desc(
+                func.sum(MentorStatistic.helpful_replies_count)
+                * func.sum(MentorStatistic.helpful_replies_count)
+                / func.sum(MentorStatistic.total_comments)
+            ),
+            asc('avg_delay').nulls_last(),
         )
 
         result = await self.session.execute(stmt)
@@ -67,6 +76,9 @@ class StatisticRepo:
             StepikUser.full_name,
             func.sum(MentorStatistic.total_comments).label('total_t'),
             func.sum(MentorStatistic.replies_count).label('total_h'),
+            func.sum(MentorStatistic.helpful_replies_count).label(
+                'total_helpful'
+            ),
             func.avg(MentorStatistic.avg_response_time_seconds).label(
                 'avg_delay'
             ),
@@ -84,7 +96,12 @@ class StatisticRepo:
             stmt = stmt.where(MentorStatistic.stat_date <= end_date)
 
         stmt = stmt.group_by(StepikUser.full_name).order_by(
-            desc('total_h'), asc('avg_delay').nulls_last()
+            desc(
+                func.sum(MentorStatistic.helpful_replies_count)
+                * func.sum(MentorStatistic.helpful_replies_count)
+                / func.sum(MentorStatistic.total_comments)
+            ),
+            asc('avg_delay').nulls_last(),
         )
 
         result = await self.session.execute(stmt)

@@ -225,7 +225,20 @@ class StatisticService:
         max_name = max(len(row.full_name) for row in rows)
         max_kpd = max(
             len(
-                f'{((r.total_helpful**2 / r.total_t) if r.total_t > 0 else 0):.1f}'
+                f'{
+                    (
+                        (
+                            (
+                                r.total_helpful
+                                if r.total_helpful > 0
+                                else r.total_h
+                            )
+                            ** 2
+                        )
+                        / r.total_t
+                        if r.total_t > 0
+                        else 0
+                    ):.1f}'
             )
             for r in rows
         )
@@ -236,11 +249,11 @@ class StatisticService:
         )
 
         for row, idx in zip(rows, indices, strict=True):
-            perf_idx = (
-                (row.total_helpful**2 / row.total_t)
-                if row.total_t > 0
-                else 0
+            # Fallback: если helpful_replies = 0, используем replies_count
+            helpful = (
+                row.total_helpful if row.total_helpful > 0 else row.total_h
             )
+            perf_idx = (helpful**2 / row.total_t) if row.total_t > 0 else 0
             replies = row.total_h
             speed_display = f'{idx:.1f}' if idx is not None else 'н/д'
 
@@ -279,11 +292,11 @@ class StatisticService:
 
         for row, idx in zip(rows, indices, strict=True):
             if is_monthly:
-                perf_idx = (
-                    (row.total_helpful**2 / row.total_t)
-                    if row.total_t > 0
-                    else 0
+                # Fallback: если helpful_replies = 0, используем replies_count
+                helpful = (
+                    row.total_helpful if row.total_helpful > 0 else row.total_h
                 )
+                perf_idx = (helpful**2 / row.total_t) if row.total_t > 0 else 0
                 replies = row.total_h
             else:
                 perf_idx = row.help_index

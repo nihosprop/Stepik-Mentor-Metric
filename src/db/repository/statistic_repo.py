@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 
-from sqlalchemy import asc, cast, desc, func, not_, select
+from sqlalchemy import asc, case, cast, desc, func, not_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.sqltypes import Text
@@ -23,6 +23,21 @@ class StatisticRepo:
         _, last_day = calendar.monthrange(year, month)
         start_date = date(year, month, 1)
         end_date = date(year, month, last_day)
+
+        # Fallback КПД: если helpful_replies_count = 0, используем replies_count
+        kpd_expr = case(
+            (
+                func.sum(MentorStatistic.helpful_replies_count) > 0,
+                func.sum(MentorStatistic.helpful_replies_count)
+                * func.sum(MentorStatistic.helpful_replies_count)
+                / func.sum(MentorStatistic.total_comments),
+            ),
+            else_=(
+                func.sum(MentorStatistic.replies_count)
+                * func.sum(MentorStatistic.replies_count)
+                / func.sum(MentorStatistic.total_comments)
+            ),
+        )
 
         stmt = (
             select(
@@ -45,11 +60,8 @@ class StatisticRepo:
             .group_by(StepikUser.full_name, Course.title)
         ).order_by(
             Course.title,
-            desc(
-                func.sum(MentorStatistic.helpful_replies_count)
-                * func.sum(MentorStatistic.helpful_replies_count)
-                / func.sum(MentorStatistic.total_comments)
-            ),
+            desc(kpd_expr),
+            desc('total_h'),
             asc('avg_delay').nulls_last(),
         )
 
@@ -72,6 +84,21 @@ class StatisticRepo:
         Returns:
             Sequence: Aggregated statistics for each mentor across all courses.
         """
+        # Fallback КПД: если helpful_replies_count = 0, используем replies_count
+        kpd_expr = case(
+            (
+                func.sum(MentorStatistic.helpful_replies_count) > 0,
+                func.sum(MentorStatistic.helpful_replies_count)
+                * func.sum(MentorStatistic.helpful_replies_count)
+                / func.sum(MentorStatistic.total_comments),
+            ),
+            else_=(
+                func.sum(MentorStatistic.replies_count)
+                * func.sum(MentorStatistic.replies_count)
+                / func.sum(MentorStatistic.total_comments)
+            ),
+        )
+
         stmt = select(
             StepikUser.full_name,
             func.sum(MentorStatistic.total_comments).label('total_t'),
@@ -96,11 +123,8 @@ class StatisticRepo:
             stmt = stmt.where(MentorStatistic.stat_date <= end_date)
 
         stmt = stmt.group_by(StepikUser.full_name).order_by(
-            desc(
-                func.sum(MentorStatistic.helpful_replies_count)
-                * func.sum(MentorStatistic.helpful_replies_count)
-                / func.sum(MentorStatistic.total_comments)
-            ),
+            desc(kpd_expr),
+            desc('total_h'),
             asc('avg_delay').nulls_last(),
         )
 

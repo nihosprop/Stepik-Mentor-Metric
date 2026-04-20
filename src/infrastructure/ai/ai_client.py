@@ -126,12 +126,12 @@ class GeminiCommentEvaluator:
                     in_tok = usage.get('promptTokenCount', 0)
                     out_tok = usage.get('candidatesTokenCount', 0)
                     _sum_tok = in_tok + out_tok
-                    logger.debug(
+                    logger.info(
                         f'{_sum_tok=}, {in_tok=}, {out_tok=}, {clean_text=},'
                         f' {ai_reasoning=}'
                     )
                     ai_evaluation = bool(data.get('is_question', True))
-                    logger.debug(f'{ai_evaluation=}')
+                    logger.info(f'{ai_evaluation=}')
 
                     return ai_evaluation
 

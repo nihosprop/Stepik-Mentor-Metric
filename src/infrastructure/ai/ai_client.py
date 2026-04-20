@@ -1,3 +1,4 @@
+import asyncio
 import html
 import json
 import logging
@@ -5,6 +6,12 @@ import re
 
 import aiohttp
 
+from aiohttp import (
+    ClientOSError,
+    ClientPayloadError,
+    ClientTimeout,
+    ServerTimeoutError,
+)
 from pydantic import SecretStr
 
 logger = logging.getLogger(__name__)
@@ -18,8 +25,8 @@ class GeminiCommentEvaluator:
         self._session = session
         self._url = (
             f'https://generativelanguage.googleapis.com/'
-            f'v1/models/'
-            f'gemini-2.5-flash-lite-preview:generateContent?key={self._api_key}'
+            f'v1beta/models/'
+            f'gemini-2.5-flash-lite:generateContent?key={self._api_key}'
         )
 
     async def is_meaningful_question(self, text: str) -> bool:
@@ -30,16 +37,17 @@ class GeminiCommentEvaluator:
             'благодарю',
             'отлично',
         ]:
-            logger.info(f'Short or Non-Text comment: {clean_text}')
+            logger.warning(f'Short or Non-Text comment: {clean_text}')
             return False
 
         payload = {
-            'system_instruction': {
+            'systemInstruction': {
                 'parts': [
                     {
                         'text': (
-                            'Ты — эксперт-классификатор учебных комментариев'
-                            ' Stepik. '
+                            'Ты —'
+                            ' эксперт-классификатор комментариев на учебной'
+                            ' платформе Stepik. '
                             'Твоя задача — найти только те сообщения,'
                             ' которые требуют ответа наставника. '
                             'Верни is_question:'
@@ -48,6 +56,7 @@ class GeminiCommentEvaluator:
                             ' материалу или коду. '
                             '2. Просьба объяснить ошибку или помочь'
                             ' с решением. '
+                            '3. Другие просьбы о помощи. '
                             'Верни is_question: false (ШУМ), если это: '
                             "1. Благодарность ('спасибо', 'курс супер'). "
                             '2. Просто утверждение о прогрессе'
@@ -61,71 +70,101 @@ class GeminiCommentEvaluator:
                 ]
             },
             'contents': [{'parts': [{'text': clean_text}]}],
-            'generation_config': {
+            'generationConfig': {
                 'temperature': 0.0,
-                'max_output_tokens': 1000,
-                'response_mime_type': 'application/json',
-                'response_json_schema': {
-                    'type': 'object',
+                'maxOutputTokens': 180,
+                'responseMimeType': 'application/json',
+                'responseSchema': {
+                    'type': 'OBJECT',
                     'properties': {
                         'reasoning': {
-                            'type': 'string',
+                            'type': 'STRING',
                             'description': 'Краткое обоснование в одно'
                             ' предложение(максимум 10 слов)',
                         },
                         'is_question': {
-                            'type': 'boolean',
+                            'type': 'BOOLEAN',
                             'description': 'true, если нужен ответ ментора',
                         },
                     },
                     'required': ['reasoning', 'is_question'],
                 },
-                'thinking_config': {'thinking_level': 'high'},
             },
         }
 
-        try:
-            async with self._session.post(
-                self._url, json=payload, timeout=10
-            ) as resp:
-                result = await resp.json()
+        max_retries = 3
+        base_delay = 1.0
 
-                if 'candidates' not in result:
-                    error_type = result.get('error', {}).get('code', 'unknown')
-                    error_msg = result.get('error', {}).get(
-                        'message', 'No error details'
+        for attempt in range(max_retries):
+            try:
+                async with self._session.post(
+                    self._url, json=payload, timeout=ClientTimeout(total=20)
+                ) as resp:
+                    if resp.status != 200:
+                        error = await resp.json()
+                        logger.error(f'Gemini API {resp.status}: {error}')
+                        return True
+
+                    result = await resp.json()
+
+                    if 'candidates' not in result:
+                        logger.error(
+                            f'Gemini API Error, no candidates: {result}'
+                        )
+                        return True
+
+                    content_text = result['candidates'][0]['content']['parts'][
+                        0
+                    ]['text']
+                    data = json.loads(content_text)
+
+                    ai_reasoning = data.get(
+                        'reasoning', 'No reasoning provided'
                     )
+
+                    usage = result.get('usageMetadata', {})
+                    in_tok = usage.get('promptTokenCount', 0)
+                    out_tok = usage.get('candidatesTokenCount', 0)
+                    _sum_tok = in_tok + out_tok
+                    logger.debug(
+                        f'{_sum_tok=}, {in_tok=}, {out_tok=}, {clean_text=},'
+                        f' {ai_reasoning=}'
+                    )
+                    ai_evaluation = bool(data.get('is_question', True))
+                    logger.debug(f'{ai_evaluation=}')
+
+                    return ai_evaluation
+
+            except (
+                TimeoutError,
+                ServerTimeoutError,
+                ClientOSError,
+                ClientPayloadError,
+            ) as e:
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2**attempt)
+                    logger.warning(
+                        f'Gemini API timeout/connection error'
+                        f' (attempt {attempt + 1}/{max_retries}): '
+                        f'{type(e).__name__}. Retrying in {delay}s...'
+                    )
+                    await asyncio.sleep(delay)
+                else:
                     logger.error(
-                        f'Gemini API Error [{error_type}]: {error_msg}.'
-                        f' Raw: {result}'
+                        f'Gemini evaluation failed after {max_retries}'
+                        f' attempts for text="{clean_text[:50]}...":'
+                        f' {type(e).__name__}: {e}'
                     )
                     return True
 
-                content_text = result['candidates'][0]['content']['parts'][0][
-                    'text'
-                ]
-                data = json.loads(content_text)
-                ai_reasoning = data.get('reasoning', 'No reasoning provided')
-
-                usage = result.get('usageMetadata', {})
-                in_tok = usage.get('promptTokenCount', 0)
-                out_tok = usage.get('candidatesTokenCount', 0)
-                _sum_tok = in_tok + out_tok
-                logger.debug(
-                    f'{_sum_tok=}, {in_tok=}, {out_tok=}, {clean_text=},'
-                    f' {ai_reasoning=}'
+            except Exception as e:
+                logger.error(
+                    f'Gemini evaluation failed for'
+                    f' text="{clean_text[:50]}...": {type(e).__name__}: {e}'
                 )
-                ai_evaluation = data.get('is_question', True)
-                logger.debug(f'{ai_evaluation=}')
+                return True
 
-                return ai_evaluation
-
-        except Exception as e:
-            logger.error(
-                f'Gemini evaluation failed for text="{clean_text[:50]}...":'
-                f' {type(e).__name__}: {e}'
-            )
-            return True
+        return True
 
     @staticmethod
     async def _clean_html_tags(raw_html: str) -> str:

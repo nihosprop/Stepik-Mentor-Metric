@@ -4,9 +4,14 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-import aiohttp
-
-from aiohttp import ClientResponseError, ClientSession
+from aiohttp import (
+    ClientOSError,
+    ClientPayloadError,
+    ClientResponseError,
+    ClientSession,
+    ClientTimeout,
+    ServerTimeoutError,
+)
 from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
@@ -92,81 +97,115 @@ class StepikAPIClient:
         token = await self._get_access_token()
         headers = {'Authorization': f'Bearer {token}'}
 
-        try:
-            async with self.session.request(
-                method, url, headers=headers, params=params, json=json_data
-            ) as response:
-                # Retry logic for expired token (401)
-                if response.status == 401 and attempts > 1:
-                    logger.warning(
-                        f'401 Unauthorized.'
-                        f' Repeat request for a new token.'
-                        f' Attempts left: {attempts - 1}'
-                    )
-                    return await self.make_api_request(
-                        method=method,
-                        endpoint=endpoint,
-                        params=params,
-                        json_data=json_data,
-                        expected_status_codes=expected_status_codes,
-                        attempts=attempts - 1,
-                    )
+        max_retries = 3
+        base_delay = 1.0
 
-                # Processing 429 (Rate Limit)
-                if response.status == 429:
-                    retry_after = int(response.headers.get('Retry-After', 5))
-                    logger.warning(f'Rate limited. Wait {retry_after} sec.')
-                    await asyncio.sleep(retry_after)
-                    return await self.make_api_request(
-                        method=method,
-                        endpoint=endpoint,
-                        params=params,
-                        json_data=json_data,
-                        expected_status_codes=expected_status_codes,
-                        attempts=attempts,
-                    )
-
-                if response.status in (502, 503, 504) and attempts > 1:
-                    retry_after = int(
-                        response.headers.get(
-                            'Retry-After', 2 ** (3 - attempts)
+        for attempt in range(max_retries):
+            try:
+                async with self.session.request(
+                    method,
+                    url,
+                    headers=headers,
+                    params=params,
+                    json=json_data,
+                    timeout=ClientTimeout(total=30),
+                ) as response:
+                    # Retry logic for expired token (401)
+                    if response.status == 401 and attempts > 1:
+                        logger.warning(
+                            f'401 Unauthorized.'
+                            f' Repeat request for a new token.'
+                            f' Attempts left: {attempts - 1}'
                         )
-                    )
-                    logger.warning(
-                        f'Server error {response.status}. '
-                        f'Retrying in'
-                        f' {retry_after}s (attempts left: {attempts - 1})'
-                    )
-                    await asyncio.sleep(retry_after)
-                    return await self.make_api_request(
-                        method=method,
-                        endpoint=endpoint,
-                        params=params,
-                        json_data=json_data,
-                        expected_status_codes=expected_status_codes,
-                        attempts=attempts - 1,
-                    )
+                        return await self.make_api_request(
+                            method=method,
+                            endpoint=endpoint,
+                            params=params,
+                            json_data=json_data,
+                            expected_status_codes=expected_status_codes,
+                            attempts=attempts - 1,
+                        )
 
-                if response.status not in expected_status_codes:
-                    body_text = await response.text()
-                    if response.status == 404:
-                        logger.info(f'Resource not found: {url}')
+                    # Processing 429 (Rate Limit)
+                    if response.status == 429:
+                        retry_after = int(
+                            response.headers.get('Retry-After', 5)
+                        )
+                        logger.warning(
+                            f'Rate limited. Wait {retry_after} sec.'
+                        )
+                        await asyncio.sleep(retry_after)
+                        return await self.make_api_request(
+                            method=method,
+                            endpoint=endpoint,
+                            params=params,
+                            json_data=json_data,
+                            expected_status_codes=expected_status_codes,
+                            attempts=attempts,
+                        )
+
+                    if response.status in (502, 503, 504) and attempts > 1:
+                        retry_after = int(
+                            response.headers.get(
+                                'Retry-After', 2 ** (3 - attempts)
+                            )
+                        )
+                        logger.warning(
+                            f'Server error {response.status}. '
+                            f'Retrying in'
+                            f' {retry_after}s (attempts left: {attempts - 1})'
+                        )
+                        await asyncio.sleep(retry_after)
+                        return await self.make_api_request(
+                            method=method,
+                            endpoint=endpoint,
+                            params=params,
+                            json_data=json_data,
+                            expected_status_codes=expected_status_codes,
+                            attempts=attempts - 1,
+                        )
+
+                    if response.status not in expected_status_codes:
+                        body_text = await response.text()
+                        if response.status == 404:
+                            logger.info(f'Resource not found: {url}')
+                            return None
+                        logger.error(
+                            f'API Fail {response.status}: {body_text}'
+                        )
+                        raise ClientResponseError(
+                            response.request_info,
+                            response.history,
+                            status=response.status,
+                            message=body_text,
+                        )
+
+                    if response.status == 204:
                         return None
-                    logger.error(f'API Fail {response.status}: {body_text}')
-                    raise ClientResponseError(
-                        response.request_info,
-                        response.history,
-                        status=response.status,
-                        message=body_text,
+                    return await response.json()
+
+            except (
+                TimeoutError,
+                ServerTimeoutError,
+                ClientOSError,
+                ClientPayloadError,
+            ) as e:
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2**attempt)
+                    logger.warning(
+                        f'Stepik API timeout/connection error'
+                        f' (attempt {attempt + 1}/{max_retries}): '
+                        f'{type(e).__name__}. Retrying in {delay}s...'
                     )
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(
+                        f'Stepik API failed after {max_retries}'
+                        f' attempts: {type(e).__name__}: {e}'
+                    )
+                    raise
 
-                if response.status == 204:
-                    return None
-                return await response.json()
-
-        except aiohttp.ClientError as e:
-            logger.error(f'Network error when requesting {url}: {e}')
-            raise
+        return None
 
     async def get_user(self, user_id: int) -> dict[str, Any] | None:
         res = await self.make_api_request('GET', f'users/{user_id}')

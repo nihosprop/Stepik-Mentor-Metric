@@ -28,7 +28,7 @@ class PostgresProvider(Provider):
             echo=False,
             pool_use_lifo=True,
         )
-        logger.info(f'🗄️DB Pool initialized: {engine.pool.status()}')
+        logger.info(f'DB Pool initialized: {engine.pool.status()}')
 
         return engine
 

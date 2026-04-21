@@ -100,9 +100,13 @@ class GeminiCommentEvaluator:
                 async with self._session.post(
                     self._url, json=payload, timeout=ClientTimeout(total=20)
                 ) as resp:
-                    if resp.status != 200:
+                    if resp.status == 503:
+                        error = await resp.json()
+                        raise ServerTimeoutError(f'Gemini API 503: {error}')
+                    elif resp.status != 200:
                         error = await resp.json()
                         logger.error(f'Gemini API {resp.status}: {error}')
+                        logger.warning('Finds the comment helpful.')
                         return True
 
                     result = await resp.json()
@@ -111,6 +115,7 @@ class GeminiCommentEvaluator:
                         logger.error(
                             f'Gemini API Error, no candidates: {result}'
                         )
+                        logger.warning('Finds the comment helpful.')
                         return True
 
                     content_text = result['candidates'][0]['content']['parts'][

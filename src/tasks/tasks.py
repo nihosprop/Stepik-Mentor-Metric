@@ -143,6 +143,18 @@ async def poll_stepik_courses(
                         comment['time'].replace('Z', '+00:00')
                     )
 
+                    if comment.get('thread') == 'solutions':
+                        ai_logger.info(
+                            f'Is solutions thread. Comment is not '
+                            f'processed.'
+                            f'link_to_comment: {
+                                await stepik_client.get_comment_url(
+                                    comment_id=comment["id"]
+                                )
+                            }'
+                        )
+                        continue
+
                     if comment_time > last_time:
                         # logger.debug(
                         #     f'NEW_COMMENT: {comment["id"]=},'

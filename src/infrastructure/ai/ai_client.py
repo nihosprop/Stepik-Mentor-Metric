@@ -92,7 +92,7 @@ class GeminiCommentEvaluator:
             },
         }
 
-        max_retries = 3
+        max_retries = 5
         base_delay = 1.0
 
         for attempt in range(max_retries):

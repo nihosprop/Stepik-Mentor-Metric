@@ -168,7 +168,6 @@ class GeminiCommentEvaluator:
                     f' text="{clean_text[:50]}...": {type(e).__name__}: {e}'
                 )
                 return True
-
         return True
 
     @staticmethod

@@ -62,7 +62,6 @@ class ReplyRepo:
         comment_created_at: datetime,
         is_useful_comment: bool = False,
     ) -> None:
-
         stmt = select(StepikUser.is_mentor).where(
             StepikUser.user_id == author_id
         )

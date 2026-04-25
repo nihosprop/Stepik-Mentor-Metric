@@ -24,7 +24,6 @@ class StatisticRepo:
         start_date = date(year, month, 1)
         end_date = date(year, month, last_day)
 
-        # Fallback КПД: если helpful_replies_count = 0, используем replies_count
         kpd_expr = case(
             (
                 func.sum(MentorStatistic.helpful_replies_count) > 0,
@@ -84,7 +83,7 @@ class StatisticRepo:
         Returns:
             Sequence: Aggregated statistics for each mentor across all courses.
         """
-        # Fallback КПД: если helpful_replies_count = 0, используем replies_count
+
         kpd_expr = case(
             (
                 func.sum(MentorStatistic.helpful_replies_count) > 0,

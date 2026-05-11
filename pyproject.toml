@@ -1,28 +1,28 @@
 [project]
 name = "stepik-mentor-metric"
-version = "v0.4.0"
+version = "v0.4.1"
 description = ""
 requires-python = ">=3.14"
 dependencies = [
-    "aiogram>=3.27.0",
+    "aiogram>=3.28.2",
     "aiohttp>=3.13.5",
     "aiogram-dialog>=2.6.0",
     "alembic>=1.18.4",
-    "dishka>=1.10.0",
+    "dishka>=1.10.1",
     "dynaconf>=3.2.13",
-    "psycopg[binary]>=3.3.3",
+    "psycopg[binary]>=3.3.4",
     "pydantic==2.12.5",
     "redis>=7.4.0",
     "sqlalchemy[asyncio]>=2.0.48",
-    "taskiq>=0.12.2",
-    "taskiq-postgres[psycopg]>=0.7.0",
+    "taskiq>=0.12.4",
+    "taskiq-postgres[psycopg]>=0.8.0",
     "taskiq-redis>=1.2.2",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.15.12",
-    "ty>=0.0.32"
+    "ty>=0.0.35"
 ]
 
 # === TY ===

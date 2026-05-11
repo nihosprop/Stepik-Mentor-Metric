@@ -316,6 +316,11 @@ class factory11["🏭 Bot"]{
 BotProvider.bot()
 Config
 }
+class factory12["🏭 GeminiCommentEvaluator"]{
+ServiceProvider.gemini_evaluator()
+Config
+ClientSession
+}
 }
 
 factory4 <.. factory5
@@ -326,49 +331,51 @@ factory4 <.. factory10
 factory8 <.. factory10
 factory9 <.. factory10
 factory4 <.. factory11
+factory4 <.. factory12
+factory9 <.. factory12
 namespace Scope_REQUEST {
-class factory14["📥 AsyncContainer"]{
+class factory15["📥 AsyncContainer"]{
  
 }
-class factory15["🏭 AsyncSession"]{
+class factory16["🏭 AsyncSession"]{
 PostgresProvider.session()
 async_sessionmaker[AsyncSession]
 }
-class factory16["🏭 TGUserRepository"]{
+class factory17["🏭 TGUserRepository"]{
 RepositoryProvider.tg_user_repo()
 AsyncSession
 }
-class factory17["🏭 StepikUserRepo"]{
+class factory18["🏭 StepikUserRepo"]{
 RepositoryProvider.stepik_user_repo()
 AsyncSession
 }
-class factory18["🏭 CourseRepo"]{
+class factory19["🏭 CourseRepo"]{
 RepositoryProvider.course_repo()
 AsyncSession
 }
-class factory19["🏭 ReplyRepo"]{
+class factory20["🏭 ReplyRepo"]{
 RepositoryProvider.mentor_reply_repo()
 AsyncSession
 }
-class factory20["🏭 StatisticRepo"]{
+class factory21["🏭 StatisticRepo"]{
 RepositoryProvider.statistic_repo()
 AsyncSession
 }
-class factory21["🏭 StatisticService"]{
+class factory22["🏭 StatisticService"]{
 ServiceProvider.stats_service()
 StatisticRepo
 Config
 }
 }
 
-factory6 <.. factory15
-factory15 <.. factory16
-factory15 <.. factory17
-factory15 <.. factory18
-factory15 <.. factory19
-factory15 <.. factory20
-factory20 <.. factory21
-factory4 <.. factory21
+factory6 <.. factory16
+factory16 <.. factory17
+factory16 <.. factory18
+factory16 <.. factory19
+factory16 <.. factory20
+factory16 <.. factory21
+factory21 <.. factory22
+factory4 <.. factory22
 ```
 
 

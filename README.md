@@ -245,10 +245,10 @@ uv run ty src/
 ### Stepik OAuth2
 - expires_in=36000 seconds (10 hours)
 1. The bot automatically:
-2. Requests OAuth2 token from Stepik
-3. Caches token in Redis (TTL: expires_in - 300 seconds)
-4. Refreshes token on 401 Unauthorized
-5. Handles rate limiting (429) with retry
+    - Requests OAuth2 token from Stepik
+    - Caches token in Redis (TTL: expires_in - 300 seconds)
+    - Refreshes token on 401 Unauthorized
+    - Handles rate limiting (429) with retry
 
 ## Cached Endpoints
 

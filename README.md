@@ -74,7 +74,6 @@ Where:
 
 ```text
 .
-.
 ├── src/
 │   ├── alembic/                  # Database migrations
 │   │   ├── versions/             # Migration version files

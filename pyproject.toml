@@ -1,6 +1,6 @@
 [project]
 name = "stepik-mentor-metric"
-version = "v0.4.1"
+version = "v0.4.2"
 description = ""
 requires-python = ">=3.14"
 dependencies = [
@@ -21,8 +21,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.12",
-    "ty>=0.0.35"
+    "ruff>=0.15.14",
+    "ty>=0.0.39"
 ]
 
 # === TY ===

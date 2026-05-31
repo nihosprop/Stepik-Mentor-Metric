@@ -22,8 +22,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.14",
-    "ty>=0.0.39"
+    "ruff>=0.15.15",
+    "ty>=0.0.40"
 ]
 
 # === TY ===
